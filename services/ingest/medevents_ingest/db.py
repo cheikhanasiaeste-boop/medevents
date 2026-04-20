@@ -10,9 +10,17 @@ from sqlalchemy.orm import Session, sessionmaker
 from .config import get_settings
 
 
+def _normalize_pg_url(url: str) -> str:
+    """Force SQLAlchemy to use the psycopg (v3) driver since we ship psycopg, not psycopg2."""
+    if url.startswith("postgresql://"):
+        return "postgresql+psycopg://" + url[len("postgresql://") :]
+    return url
+
+
 def make_engine(url: str | None = None) -> Engine:
     settings = get_settings()
-    return create_engine(url or settings.database_url, pool_pre_ping=True, future=True)
+    target_url = _normalize_pg_url(url or settings.database_url)
+    return create_engine(target_url, pool_pre_ping=True, future=True)
 
 
 _engine: Engine | None = None
