@@ -14,7 +14,7 @@
     "db:pull": "drizzle-kit pull && node scripts/patch-introspected-schema.mjs"
   },
   "dependencies": {
-    "argon2": "^0.44.0",
+    "@node-rs/argon2": "^2.0.2",
     "drizzle-orm": "^0.36.0",
     "iron-session": "^8.0.3",
     "next": "15.0.3",
