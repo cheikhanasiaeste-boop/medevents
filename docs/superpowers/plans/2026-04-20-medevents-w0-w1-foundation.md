@@ -12,6 +12,36 @@
 
 ---
 
+## Progress
+
+_Last synced at Phase 10 closeout. W0+W1 foundation wave is complete on `main`._
+
+| Milestone               | State | Notes                                                                                                                             |
+| ----------------------- | ----- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Phases 0-7              | ✅    | repo/tooling, Alembic, schema, Drizzle pull, seeds, ingest CLI skeleton shipped                                                   |
+| Phase 8                 | ✅    | web infra shipped, then hardened further in `ed0f7e4`                                                                             |
+| Phase 9                 | ✅    | operator app shipped in `398b20a`, `5a7cd08`, and `1d060d4`                                                                       |
+| Manual happy-path smoke | ✅    | completed locally; surfaced 3 runtime bugs fixed in `1a53a20`                                                                     |
+| Phase 10                | ✅    | README + local-dev runbook (`3952968`), W1 done-confirmation (`781dc44`), branch protection on `main` + final docs sync (this PR) |
+| W2                      | ⏳    | prepared locally, now unblocked                                                                                                   |
+
+### Important deviations already shipped
+
+- Local development on this machine uses Homebrew Postgres 16, not Docker, because `qemu`/Colima failed on macOS 12 Intel. Docker files still exist, but local verification was deferred. See [`docs/runbooks/local-postgres-macos12.md`](../../runbooks/local-postgres-macos12.md).
+- Next.js 15 plan corrections:
+  - login uses `app/(admin)/admin/login/actions.ts`, not `login/route.ts`
+  - event edit uses `app/(admin)/admin/events/[id]/save/route.ts`, not `events/[id]/route.ts`
+  - `searchParams` are awaited because they are async in Next.js 15
+- Phase 9 added CSRF verification and explicit `isAuthenticated()` checks to every admin mutation route even where the original plan omitted them.
+- `@node-rs/argon2` replaced `argon2`; `Algorithm.Argon2id` could not be referenced directly under `isolatedModules`, so the password helper uses numeric literal `2` with an `Argon2id` comment.
+- Manual operator smoke completed and produced one follow-up fix batch in `1a53a20`:
+  - event edit page no longer nests the `Unpublish` form inside the save form
+  - blank event-filter form values are coerced to `undefined` before Zod parsing
+  - the admin nav / logout button no longer render on `/admin/login` for unauthenticated users
+- `apps/web/tests/e2e/happy-path-smoke.spec.ts` now exists as an opt-in Playwright smoke (`RUN_FULL_SMOKE=1`), but it is still not part of CI.
+
+---
+
 ## File structure (created by this plan)
 
 ```
@@ -49,8 +79,8 @@ medevents/
 │       │           ├── layout.tsx
 │       │           ├── page.tsx              # dashboard
 │       │           ├── login/
-│       │           │   ├── page.tsx
-│       │           │   └── route.ts          # POST login
+│       │           │   ├── actions.ts        # Server Action login
+│       │           │   └── page.tsx
 │       │           ├── logout/route.ts
 │       │           ├── sources/
 │       │           │   ├── page.tsx
@@ -67,7 +97,7 @@ medevents/
 │       │               ├── page.tsx
 │       │               └── [id]/
 │       │                   ├── page.tsx
-│       │                   ├── route.ts          # POST edit
+│       │                   ├── save/route.ts     # POST edit
 │       │                   └── unpublish/route.ts
 │       ├── lib/
 │       │   ├── auth/{session,password,csrf}.ts
@@ -6365,10 +6395,14 @@ Commit and merge.
 
 ## Execution handoff
 
-**Plan complete and saved to `docs/superpowers/plans/2026-04-20-medevents-w0-w1-foundation.md`. Two execution options:**
+**This plan is complete.** W0+W1 foundation wave closed on 2026-04-21 at Phase 10:
 
-**1. Subagent-Driven (recommended)** — I dispatch a fresh subagent per task, review between tasks, fast iteration. Good fit here: 41 tasks is a lot, and fresh context per task keeps each implementation focused. You stay in the loop via two-stage review.
+- Phase 10 Task 39 — README + local-dev runbook (`3952968`)
+- Phase 10 Task 40 — W1 done-confirmation against spec §10 (`781dc44`)
+- Phase 10 Task 41 — branch protection on `main` (three required checks: `TypeScript (lint + typecheck + unit tests)`, `Python (ruff + mypy + pytest)`, `Drizzle schema drift check`) + final docs sync (this PR)
 
-**2. Inline Execution** — Execute tasks in this session using `superpowers:executing-plans`, batch execution with checkpoints for review. Faster end-to-end, but this session's context will fill up fast given the plan size.
+Next wave: W2 — first-source ingestion (ADA). See the W2 spec and plan under `docs/superpowers/{specs,plans}/2026-04-20-medevents-w2-*.md`, and current project TODO at [`docs/TODO.md`](../../TODO.md).
 
-**Which approach?**
+Historical local-only notes (kept for provenance):
+
+- `docs/phase8-sync-pending` existed at `66c6ff3` as a stale docs-sync attempt; superseded by this Phase 10 close.
