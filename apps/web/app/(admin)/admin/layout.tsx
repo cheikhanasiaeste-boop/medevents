@@ -1,7 +1,18 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { readSession, isAuthenticated } from "@/lib/auth/session";
+import { generateCsrfToken, getCsrfSessionId } from "@/lib/auth/csrf";
 
-export default function AdminLayout({ children }: { children: ReactNode }) {
+export default async function AdminLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const session = await readSession();
+  const logoutCsrf = isAuthenticated(session)
+    ? generateCsrfToken(getCsrfSessionId(session))
+    : "";
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <nav className="border-b border-slate-200 bg-white">
@@ -28,6 +39,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             Events
           </Link>
           <form method="POST" action="/admin/logout" className="ml-auto">
+            <input type="hidden" name="_csrf" value={logoutCsrf} />
             <button
               type="submit"
               className="text-sm text-slate-600 hover:text-slate-900"

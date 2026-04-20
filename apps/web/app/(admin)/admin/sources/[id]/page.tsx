@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import { getSource } from "@/lib/db/sources";
+import { readSession, isAuthenticated } from "@/lib/auth/session";
+import { generateCsrfToken, getCsrfSessionId } from "@/lib/auth/csrf";
 
 export default async function SourceDetailPage({
   params,
@@ -9,6 +11,11 @@ export default async function SourceDetailPage({
   const { id } = await params;
   const s = await getSource(id);
   if (!s) notFound();
+
+  const session = await readSession();
+  const csrf = isAuthenticated(session)
+    ? generateCsrfToken(getCsrfSessionId(session))
+    : "";
 
   return (
     <div>
@@ -61,6 +68,7 @@ export default async function SourceDetailPage({
 
       <div className="mt-6 flex gap-3">
         <form method="POST" action={`/admin/sources/${s.id}/run`}>
+          <input type="hidden" name="_csrf" value={csrf} />
           <button
             className="rounded bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
             type="submit"
@@ -69,6 +77,7 @@ export default async function SourceDetailPage({
           </button>
         </form>
         <form method="POST" action={`/admin/sources/${s.id}/toggle-active`}>
+          <input type="hidden" name="_csrf" value={csrf} />
           <button
             className="rounded border border-slate-300 px-4 py-2 hover:bg-slate-100"
             type="submit"
