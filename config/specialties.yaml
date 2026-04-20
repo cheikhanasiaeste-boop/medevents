@@ -1,0 +1,83 @@
+# Controlled vocabulary of dental specialty / practice-area codes for MVP.
+# Stored in events.specialty_codes (text[]).
+# Add codes here, then reference them by `code` from parsers.
+
+- code: dental.general_dentistry
+  label: General Dentistry
+  aliases: [General, GP, GDP]
+
+- code: dental.dental_public_health
+  label: Dental Public Health
+  aliases: [Public Health Dentistry]
+
+- code: dental.endodontics
+  label: Endodontics
+  aliases: [Endo, Endodontia, Root Canal]
+
+- code: dental.oral_maxillofacial_pathology
+  label: Oral & Maxillofacial Pathology
+  aliases: [Oral Pathology, OMP]
+
+- code: dental.oral_maxillofacial_radiology
+  label: Oral & Maxillofacial Radiology
+  aliases: [Oral Radiology, OMR]
+
+- code: dental.oral_maxillofacial_surgery
+  label: Oral & Maxillofacial Surgery
+  aliases: [OMS, OMFS, Oral Surgery]
+
+- code: dental.orthodontics
+  label: Orthodontics & Dentofacial Orthopedics
+  aliases: [Ortho, Orthodontia]
+
+- code: dental.pediatric_dentistry
+  label: Pediatric Dentistry
+  aliases: [Pedo, Pediatric, Children's Dentistry]
+
+- code: dental.periodontics
+  label: Periodontics
+  aliases: [Perio, Periodontology]
+
+- code: dental.prosthodontics
+  label: Prosthodontics
+  aliases: [Prostho, Prosthetic Dentistry]
+
+- code: dental.oral_medicine
+  label: Oral Medicine
+  aliases: []
+
+- code: dental.dental_anesthesiology
+  label: Dental Anesthesiology
+  aliases: [Anesthesia]
+
+- code: dental.implantology
+  label: Implantology
+  aliases: [Implant Dentistry, Dental Implants]
+
+- code: dental.cosmetic_dentistry
+  label: Cosmetic Dentistry
+  aliases: [Aesthetic Dentistry]
+
+- code: dental.digital_dentistry
+  label: Digital Dentistry
+  aliases: [CAD/CAM, CADCAM, Digital Workflow]
+
+- code: dental.dental_materials
+  label: Dental Materials
+  aliases: [Materials Science]
+
+- code: dental.prevention_hygiene
+  label: Prevention & Hygiene
+  aliases: [Hygiene, Prophylaxis]
+
+- code: dental.restorative_dentistry
+  label: Restorative Dentistry
+  aliases: [Restorative]
+
+- code: dental.dental_sleep_medicine
+  label: Dental Sleep Medicine
+  aliases: [Sleep Apnea Dentistry]
+
+- code: dental.practice_management
+  label: Practice Management
+  aliases: [Business of Dentistry]
