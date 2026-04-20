@@ -1,6 +1,6 @@
 # MedEvents — Current State
 
-*Last updated: 2026-04-20*
+_Last updated: 2026-04-20_
 
 ## Status
 
@@ -12,12 +12,15 @@ Direction has been narrowed deliberately:
 - **Defer:** full intelligence-platform architecture until the MVP proves demand or real operational pain
 
 Primary MVP spec:
+
 - [`docs/superpowers/specs/2026-04-20-medevents-automated-directory-mvp.md`](superpowers/specs/2026-04-20-medevents-automated-directory-mvp.md)
 
 Active wave sub-spec:
+
 - [`docs/superpowers/specs/2026-04-20-medevents-w1-foundation.md`](superpowers/specs/2026-04-20-medevents-w1-foundation.md) — W1 foundation (schema, parser interface, operator bones, search approach, audit log)
 
 Reference-only target-state spec:
+
 - [`docs/superpowers/specs/2026-04-20-medevents-platform-design.md`](superpowers/specs/2026-04-20-medevents-platform-design.md)
 
 ## Locked decisions
@@ -57,15 +60,15 @@ Reference-only target-state spec:
 
 ## Next focus
 
-| Step | State |
-|---|---|
-| Automated directory MVP spec | ✅ Active |
-| Target-state platform spec | ✅ Reference only |
-| W1 sub-spec (schema + parser interface + operator bones + search) | ✅ Locked |
-| W0+W1 implementation plan | ⏳ Next via writing-plans skill |
-| W0 setup execution (git init local → gh repo create → scaffold commits) | ⏳ Step 1 of plan |
-| W1 implementation execution | ⏳ Step 2 of plan |
-| Intelligence-platform planning | ❌ Deferred until justified |
+| Step                                                                    | State                           |
+| ----------------------------------------------------------------------- | ------------------------------- |
+| Automated directory MVP spec                                            | ✅ Active                       |
+| Target-state platform spec                                              | ✅ Reference only               |
+| W1 sub-spec (schema + parser interface + operator bones + search)       | ✅ Locked                       |
+| W0+W1 implementation plan                                               | ⏳ Next via writing-plans skill |
+| W0 setup execution (git init local → gh repo create → scaffold commits) | ⏳ Step 1 of plan               |
+| W1 implementation execution                                             | ⏳ Step 2 of plan               |
+| Intelligence-platform planning                                          | ❌ Deferred until justified     |
 
 ## How to use this document
 

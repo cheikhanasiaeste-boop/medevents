@@ -1,12 +1,12 @@
 # MedEvents — Platform Architecture Design Spec
 
-| | |
-|---|---|
-| **Status** | Reference only for now (target-state architecture, not current MVP build spec) |
-| **Date** | 2026-04-20 |
-| **Scope** | Top-level platform architecture for the MedEvents global medical/dental events aggregation platform. Sub-spec implementation detail follows in `docs/superpowers/specs/` per wave. |
-| **Reads with** | [`docs/mission.md`](../../mission.md), [`docs/guidelines.md`](../../guidelines.md), [`docs/state.md`](../../state.md) |
-| **Supersedes** | — (greenfield) |
+|                |                                                                                                                                                                                    |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Status**     | Reference only for now (target-state architecture, not current MVP build spec)                                                                                                     |
+| **Date**       | 2026-04-20                                                                                                                                                                         |
+| **Scope**      | Top-level platform architecture for the MedEvents global medical/dental events aggregation platform. Sub-spec implementation detail follows in `docs/superpowers/specs/` per wave. |
+| **Reads with** | [`docs/mission.md`](../../mission.md), [`docs/guidelines.md`](../../guidelines.md), [`docs/state.md`](../../state.md)                                                              |
+| **Supersedes** | — (greenfield)                                                                                                                                                                     |
 
 > **Implementation note:** the active implementation-driving MVP spec is [`2026-04-20-medevents-automated-directory-mvp.md`](./2026-04-20-medevents-automated-directory-mvp.md). This document remains the long-term target-state reference for a later evolution toward a fuller intelligence platform.
 
@@ -36,13 +36,13 @@ This spec covers: monorepo topology, canonical schema, source registry & taxonom
 
 ### MVP scope
 
-| Dimension | Commitment |
-|---|---|
-| Specialty | Dental only at launch |
-| Coverage | Seed-then-expand — ~150 curated events at launch, architecture scales to ~1000 |
-| Effort | Solo, 16 weeks best-case / 18–24 weeks realistic |
+| Dimension    | Commitment                                                                              |
+| ------------ | --------------------------------------------------------------------------------------- |
+| Specialty    | Dental only at launch                                                                   |
+| Coverage     | Seed-then-expand — ~150 curated events at launch, architecture scales to ~1000          |
+| Effort       | Solo, 16 weeks best-case / 18–24 weeks realistic                                        |
 | Infra stance | Mostly self-hosted with selective managed (Neon Postgres, Cloudflare R2, Anthropic API) |
-| Primary UX | Filtered browsing (premium directory) |
+| Primary UX   | Filtered browsing (premium directory)                                                   |
 
 ---
 
@@ -110,16 +110,16 @@ medevents/
 
 ### Deployment targets (MVP)
 
-| Component | Choice |
-|---|---|
-| Postgres | **Neon** (managed) — migrate to self-hosted Hetzner post-MVP if justified |
-| Search index | **Meilisearch**, self-hosted on Fly.io |
-| Object storage | **Cloudflare R2** |
-| App + worker hosting | **Fly.io** (Next.js + Hono API + Python workers) |
-| LLM | **Anthropic API** |
-| Observability | **Grafana Cloud** free tier (OTel exporters) |
-| Error tracking | **Sentry** free tier |
-| Analytics | **Self-hosted Plausible** on Fly.io |
+| Component            | Choice                                                                    |
+| -------------------- | ------------------------------------------------------------------------- |
+| Postgres             | **Neon** (managed) — migrate to self-hosted Hetzner post-MVP if justified |
+| Search index         | **Meilisearch**, self-hosted on Fly.io                                    |
+| Object storage       | **Cloudflare R2**                                                         |
+| App + worker hosting | **Fly.io** (Next.js + Hono API + Python workers)                          |
+| LLM                  | **Anthropic API**                                                         |
+| Observability        | **Grafana Cloud** free tier (OTel exporters)                              |
+| Error tracking       | **Sentry** free tier                                                      |
+| Analytics            | **Self-hosted Plausible** on Fly.io                                       |
 
 ### Tradeoffs accepted
 
@@ -148,7 +148,7 @@ The product reads **only** canonical records. Never observations. Never raw.
   - `last_verified_at` (most recent observation matching current canonical value)
   - `last_changed_at` (most recent material change to a contract field)
   - `sources[]` (`{source_name, source_url, observed_at, fields_contributed[]}`)
-  These render in the UI. They are why the product is trustworthy.
+    These render in the UI. They are why the product is trustworthy.
 - **D4 — Dates**: `starts_on DATE NOT NULL` + `starts_at TIMESTAMPTZ NULL`. Most sources publish "April 12–14, 2027" without specific times. Commit to the date. Time is optional. Timezone IANA mandatory once `starts_at` is set. **Never** coerce a date to "midnight UTC."
 - **D5 — Sidecar tables**, not JSON blobs: `event_deadlines`, `event_prices`, `event_accreditations`, `event_specialties`, `event_organizers`, `event_field_history`. Indexable, queryable, type-safe.
 - **D6 — Geo**: PostGIS `geography(Point, 4326)` venue, ISO 3166-1 alpha-2 country, free-text city, optional geonameId.
@@ -160,23 +160,23 @@ The product reads **only** canonical records. Never observations. Never raw.
   2. ≥2 **verified** corroborating sources → publish, OR
   3. **Manual reviewer approval** → publish.
   4. **Unverified** alone never auto-publishes.
-  Rules live in `config/publish_policy.yaml`, not hardwired into schema.
+     Rules live in `config/publish_policy.yaml`, not hardwired into schema.
 - **`event_kind`** is a canonical field separate from `format` and from specialty. Enum: `congress | fair | workshop | symposium | hands_on_course | conference | seminar | webinar | training | exhibition | masterclass`, with `event_kind_raw` fallback.
 - **`lifecycle_status`** — distinct from publication `status` (`draft | hold | published | archived | merged_into`). Captures the **real-world event lifecycle** that users care about most:
 
-| Value | Meaning |
-|---|---|
+| Value       | Meaning                                                                                             |
+| ----------- | --------------------------------------------------------------------------------------------------- |
 | `tentative` | Announced but not fully confirmed (no firm date, no firm venue, or explicitly marked TBC by source) |
-| `scheduled` | Confirmed and upcoming (default for published events with firm date + venue) |
-| `postponed` | Date/venue change in progress; previous date no longer valid |
-| `cancelled` | Explicitly cancelled |
-| `completed` | Past event (auto-derived nightly: `ends_on < CURRENT_DATE`) |
+| `scheduled` | Confirmed and upcoming (default for published events with firm date + venue)                        |
+| `postponed` | Date/venue change in progress; previous date no longer valid                                        |
+| `cancelled` | Explicitly cancelled                                                                                |
+| `completed` | Past event (auto-derived nightly: `ends_on < CURRENT_DATE`)                                         |
 
-  - Stored as `events_canonical.lifecycle_status` (`text NOT NULL DEFAULT 'scheduled'`), with provenance via `event_canonical_fields` (D2) and history via `event_field_history` (D8).
-  - Extractor surfaces this from explicit source signals ("Cancelled", "POSTPONED", "Date TBC"); LLM tier prompts include the enum.
-  - Publisher derives `completed` automatically from a nightly job; never extracted.
-  - Search index includes it as a filterable + sortable facet (D39). Default search excludes `cancelled` and `completed` unless explicitly filtered in.
-  - Trust panel surfaces a high-priority banner when `lifecycle_status ∈ {postponed, cancelled}` — this is exactly the change users notice and trust most.
+- Stored as `events_canonical.lifecycle_status` (`text NOT NULL DEFAULT 'scheduled'`), with provenance via `event_canonical_fields` (D2) and history via `event_field_history` (D8).
+- Extractor surfaces this from explicit source signals ("Cancelled", "POSTPONED", "Date TBC"); LLM tier prompts include the enum.
+- Publisher derives `completed` automatically from a nightly job; never extracted.
+- Search index includes it as a filterable + sortable facet (D39). Default search excludes `cancelled` and `completed` unless explicitly filtered in.
+- Trust panel surfaces a high-priority banner when `lifecycle_status ∈ {postponed, cancelled}` — this is exactly the change users notice and trust most.
 
 ### Enrichment layers (sessions / speakers / sponsors) — MVP scope, lightweight
 
@@ -194,11 +194,13 @@ event_sponsors(id, event_id, name, tier?, kind?, kind_raw?, logo_url?,
 ```
 
 **Controlled enums** (with `*_raw` fallback for messy sources):
+
 - Sessions `kind`: `lecture | workshop | panel | masterclass | live_demo | keynote | course`
 - Speakers `role`: `speaker | chair | moderator | faculty`
 - Sponsors `kind`: `sponsor | partner | exhibitor`
 
 **Publisher rule for enrichment**:
+
 - **Single-source adoption** — pick the highest-trust observation with non-empty enrichment. No cross-source merging.
 - **Replace-on-republish** for canonical enrichment rows (no history kept at canonical layer).
 - **Observation-level enrichment evidence remains append-only** (truth ledger preserved).
@@ -215,17 +217,17 @@ event_sponsors(id, event_id, name, tier?, kind?, kind_raw?, logo_url?,
 
 ### MVP vs post-MVP
 
-| Item | MVP | Post-MVP |
-|---|---|---|
-| Identity, dates, geo, format, event_kind | ✅ | — |
-| Sidecar tables (deadlines/prices/accreditations/specialties/organizers) | ✅ | — |
-| Per-field provenance for contract-critical fields | ✅ | All fields |
-| Confidence/freshness/sources contract fields | ✅ | — |
-| `field_history` for high-signal + full snapshots | ✅ | Full field audit |
-| Enrichment (sessions/speakers/sponsors, lightweight) | ✅ | Full schedule, speaker identity, sponsor analytics |
-| Multilingual content (human-translated) | ❌ | ✅ |
-| Prices stored in source's original currency | ✅ (only mode at MVP) | Add `price_usd_estimate` w/ dated provenance |
-| FX daily rates table + cross-currency filter | ❌ | ✅ (`currency_rates` table, dated, sourced) |
+| Item                                                                    | MVP                   | Post-MVP                                           |
+| ----------------------------------------------------------------------- | --------------------- | -------------------------------------------------- |
+| Identity, dates, geo, format, event_kind                                | ✅                    | —                                                  |
+| Sidecar tables (deadlines/prices/accreditations/specialties/organizers) | ✅                    | —                                                  |
+| Per-field provenance for contract-critical fields                       | ✅                    | All fields                                         |
+| Confidence/freshness/sources contract fields                            | ✅                    | —                                                  |
+| `field_history` for high-signal + full snapshots                        | ✅                    | Full field audit                                   |
+| Enrichment (sessions/speakers/sponsors, lightweight)                    | ✅                    | Full schedule, speaker identity, sponsor analytics |
+| Multilingual content (human-translated)                                 | ❌                    | ✅                                                 |
+| Prices stored in source's original currency                             | ✅ (only mode at MVP) | Add `price_usd_estimate` w/ dated provenance       |
+| FX daily rates table + cross-currency filter                            | ❌                    | ✅ (`currency_rates` table, dated, sourced)        |
 
 ---
 
@@ -240,12 +242,12 @@ The control plane behind the pipeline. Drives onboarding, crawl frequency, trust
 - **D11 — A source is a distinct entity, not implicit from URL.** Explicit `sources` table, stable UUID, `code` slug. Never identify by URL alone.
 - **D12 — Named trust tiers** (publish authority lives in `config/publish_policy.yaml`, not in schema):
 
-| Tier | Examples | Default publish authority |
-|---|---|---|
-| `authoritative` | ADA, FDI, EAO, EuroPerio, IADR, national societies, major publishers | Single-source publish above threshold |
-| `verified` | Known industry aggregators, well-maintained sponsor portals | 2+ corroborating verified, OR 1 verified + 1 authoritative |
-| `unverified` | Newly discovered, not yet vetted | Cannot publish alone; needs corroboration or admin override |
-| `archived` | Retired / unreliable / dead | Observations stored; never feeds publish gate |
+| Tier            | Examples                                                             | Default publish authority                                   |
+| --------------- | -------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `authoritative` | ADA, FDI, EAO, EuroPerio, IADR, national societies, major publishers | Single-source publish above threshold                       |
+| `verified`      | Known industry aggregators, well-maintained sponsor portals          | 2+ corroborating verified, OR 1 verified + 1 authoritative  |
+| `unverified`    | Newly discovered, not yet vetted                                     | Cannot publish alone; needs corroboration or admin override |
+| `archived`      | Retired / unreliable / dead                                          | Observations stored; never feeds publish gate               |
 
 - **D13 — Source type orthogonal to trust tier.** Types: `society | sponsor | aggregator | venue | government | media | academic | other`.
 - **D14 — `sources` table**:
@@ -330,23 +332,23 @@ taxonomy_specialties
   1. **Source priors** — per-source specialty weighting (`sources.specialty_priors`).
   2. **Deterministic keyword/alias matching** against `taxonomy_specialties.aliases`.
   3. **Constrained LLM** only when steps 1+2 disagree or yield low confidence.
-  LLM cannot invent codes — schema-enforced.
+     LLM cannot invent codes — schema-enforced.
 - **D23 — Taxonomy versioning (lightweight)**: `version_added` + `deprecated_at` only. Full rebind/migration tooling post-MVP.
 - **D24 — Expansion to medical** = add `medical` specialty_root + new YAML seed; existing dental events stay under `dental.*` (zero migration).
 
 ### MVP vs post-MVP
 
-| Item | MVP | Post-MVP |
-|---|---|---|
-| `sources` + YAML seed + `source_candidates` queue | ✅ | Admin UI for source CRUD |
-| Named trust tiers + policy-based publish gate | ✅ | Automated tier adjustment from track record |
-| Source capability flags first-class | ✅ | — |
-| `source_crawl_stats` weekly rollup | ✅ | Real-time dashboards, alerting |
-| YAML taxonomy seed (dental) | ✅ | Admin UI for taxonomy |
-| Hybrid specialty assignment | ✅ | Active learning from reviewer corrections |
-| Topics as click-to-search chips | ✅ | Topics as controlled hashtags (filter facet) |
-| Full taxonomy versioning + rebind | ❌ (deprecated_at only) | ✅ |
-| Multi-jurisdiction specialty mapping (US vs EU) | ❌ | ✅ |
+| Item                                              | MVP                     | Post-MVP                                     |
+| ------------------------------------------------- | ----------------------- | -------------------------------------------- |
+| `sources` + YAML seed + `source_candidates` queue | ✅                      | Admin UI for source CRUD                     |
+| Named trust tiers + policy-based publish gate     | ✅                      | Automated tier adjustment from track record  |
+| Source capability flags first-class               | ✅                      | —                                            |
+| `source_crawl_stats` weekly rollup                | ✅                      | Real-time dashboards, alerting               |
+| YAML taxonomy seed (dental)                       | ✅                      | Admin UI for taxonomy                        |
+| Hybrid specialty assignment                       | ✅                      | Active learning from reviewer corrections    |
+| Topics as click-to-search chips                   | ✅                      | Topics as controlled hashtags (filter facet) |
+| Full taxonomy versioning + rebind                 | ❌ (deprecated_at only) | ✅                                           |
+| Multi-jurisdiction specialty mapping (US vs EU)   | ❌                      | ✅                                           |
 
 ---
 
@@ -411,11 +413,13 @@ Heuristic-driven labels: `event_detail | event_listing | general_info | pdf_broc
 #### Stage 3 — Extract (three-tier)
 
 In order:
+
 1. **Source-specific adapter** — `services/crawler/adapters/{source_code}.py`. Cheapest, most precise.
 2. **Generic HTML adapter** — `trafilatura` + `readability-lxml` + heuristic field detection.
 3. **LLM structured-output fallback** — Anthropic with JSON Schema constraint matching observation `raw_payload`.
 
 All extractors emit the same observation shape (defined in `packages/schema/source/observation.schema.json`). **Confidence per field is graded, never 1.0** (per refinement):
+
 - Exact source-specific selector: 0.90–0.98
 - Brittle selector: 0.70–0.85
 - Generic heuristic: 0.55–0.75
@@ -428,18 +432,20 @@ All extractors emit the same observation shape (defined in `packages/schema/sour
 Operations in order: text (NFC, whitespace, entity decode), language detection (`lingua-py`), dates (`dateparser` multilingual + range parsing), currency, geo (country ISO, optional Nominatim geocode for venue), deadlines mapping, enrichment minimal cleanup.
 
 **Per-field parse status emitted alongside values** (per refinement):
+
 - `parsed`
 - `normalized_with_assumption`
 - `copied_raw_unparsed`
 - `failed`
 
-Publisher reads parse status alongside values: a date parsed from "Spring 2027" is *not* the same confidence as "April 12, 2027".
+Publisher reads parse status alongside values: a date parsed from "Spring 2027" is _not_ the same confidence as "April 12, 2027".
 
 #### Stage 5 — Dedupe (blocker + scorer + hard-negative veto)
 
 **Blocker** (cheap prefilter): same domain or URL canonicalization match; date window ±14 days; title trigram > 0.6.
 
 **Scorer** (config-driven via `config/dedupe_scoring.yaml` — weights are tuning constants, not architecture):
+
 - URL canonicalization match: +0.50
 - Title rapidfuzz ≥ 0.85: +0.25
 - Date overlap (any day in common): +0.15
@@ -447,6 +453,7 @@ Publisher reads parse status alongside values: a date parsed from "Spring 2027" 
 - Semantic embedding cosine ≥ 0.88 (pgvector): +0.25
 
 **Hard-negative vetoes** (any one fires → no merge regardless of score):
+
 - Non-overlapping dates >60 days for same-year event
 - Different countries with high confidence on both
 - Conflicting official registration URLs (both present, different)
@@ -454,6 +461,7 @@ Publisher reads parse status alongside values: a date parsed from "Spring 2027" 
 - Explicitly different series names (when detected)
 
 **Decision thresholds** (bias toward over-splitting):
+
 - ≥ 0.90: auto-link
 - 0.70–0.89: link + admin review (low-priority queue)
 - 0.50–0.69: create new event + admin review
@@ -462,6 +470,7 @@ Publisher reads parse status alongside values: a date parsed from "Spring 2027" 
 #### Stage 6 — Merge + Publish gate (split)
 
 **6A — Canonical resolution**:
+
 - For each contract-critical field, select value by `weight = trust_tier_weight × field_confidence × recency_decay`.
 - Write `event_canonical_fields` provenance + materialize flat columns.
 - **Hybrid specialty assignment** (D22): priors → rules → constrained LLM only on ambiguity.
@@ -469,6 +478,7 @@ Publisher reads parse status alongside values: a date parsed from "Spring 2027" 
 - **Snapshot**: serialize full canonical record to `events_canonical_snapshots` on every publish.
 
 **6B — Publish policy evaluation**:
+
 - Calls policy engine loaded from `config/publish_policy.yaml`.
 - Context: `(event_id, contributing_sources[], field_confidences, admin_overrides)`.
 - Decision logged to `publish_decisions` table.
@@ -493,10 +503,11 @@ Publisher reads parse status alongside values: a date parsed from "Spring 2027" 
 - **Migration triggers (documented now)** — promote to Prefect/Dagster when:
   - workflow retries spanning days needed
   - backfill orchestration UI required
-  - >3 worker types with dependency complexity
+  - > 3 worker types with dependency complexity
   - frequent manual replay / DAG introspection
   - team size > 2 on pipeline
 - **D26 — Adapter protocol** (widened):
+
 ```python
 class SourceAdapter(Protocol):
     source_code: str
@@ -507,6 +518,7 @@ class SourceAdapter(Protocol):
     def extract(self, artifact: RawArtifact) -> Observation: ...
     def normalize_hints(self) -> NormalizeHints: ...           # optional
 ```
+
 Default `GenericHtmlAdapter` works for most sources; subclasses override where needed.
 
 - **D27 — Re-extraction on extractor version bump** via CLI: `medevents reextract --source ada --since 2025-01-01`. Uses archived R2 HTML.
@@ -516,6 +528,7 @@ Default `GenericHtmlAdapter` works for most sources; subclasses override where n
 ### Manual review insertion points (explicit operating model)
 
 Automation with review choke points — not fully automatic:
+
 - Source candidate approval (Stage 1B → `source_candidates.status`)
 - Ambiguous dedupe queue (Stage 5, 0.50–0.89 score band)
 - Low-confidence specialty tags (Stage 6A, < 0.5 held from publish)
@@ -569,17 +582,17 @@ PIPELINE WRITE                                          PRODUCT READ
 - **D37 — Alembic forward-only migrations**, Python-owned, in `db/migrations/`. **Breaking read-model changes follow expand → backfill → switch → contract** (no single-shot destructive migrations — the product API is a contract). Data migrations as numbered scripts.
 - **D38 — Retention policy**:
 
-| Table | Retention |
-|---|---|
-| `event_observations` | Indefinite |
-| `events_canonical_snapshots` | Indefinite (compress after N years post-MVP) |
-| `event_field_history` | Indefinite |
-| `pipeline_errors` | 90 days, daily prune |
-| `source_crawl_stats` | Indefinite (weekly rollup, small) |
-| `publish_decisions` | **3 years minimum**, snapshot to R2 before delete |
-| `source_candidates` (rejected) | 90 days |
-| Raw R2 artifacts | Indefinite |
-| `admin_audit_log` | 5 years |
+| Table                          | Retention                                         |
+| ------------------------------ | ------------------------------------------------- |
+| `event_observations`           | Indefinite                                        |
+| `events_canonical_snapshots`   | Indefinite (compress after N years post-MVP)      |
+| `event_field_history`          | Indefinite                                        |
+| `pipeline_errors`              | 90 days, daily prune                              |
+| `source_crawl_stats`           | Indefinite (weekly rollup, small)                 |
+| `publish_decisions`            | **3 years minimum**, snapshot to R2 before delete |
+| `source_candidates` (rejected) | 90 days                                           |
+| Raw R2 artifacts               | Indefinite                                        |
+| `admin_audit_log`              | 5 years                                           |
 
 #### Meilisearch
 
@@ -589,17 +602,21 @@ PIPELINE WRITE                                          PRODUCT READ
 {
   "event_id": "...",
   "slug": "ids-2027-cologne",
-  "title": "...", "summary": "...",
-  "starts_on": 20270312, "ends_on": 20270316,
-  "country_iso": "DE", "city": "Cologne",
-  "format": "in_person", "event_kind": "fair",
+  "title": "...",
+  "summary": "...",
+  "starts_on": 20270312,
+  "ends_on": 20270316,
+  "country_iso": "DE",
+  "city": "Cologne",
+  "format": "in_person",
+  "event_kind": "fair",
   "lifecycle_status": "scheduled",
   "specialty_codes": ["dental.general_dentistry", "dental.digital_dentistry"],
   "specialty_roots": ["dental"],
   "topics": ["CAD/CAM", "digital workflows"],
   "has_cme": true,
   "accreditation_bodies": ["ADA_CERP"],
-  "price_min_minor": 50000,            // in price_currency, no FX
+  "price_min_minor": 50000, // in price_currency, no FX
   "price_max_minor": 150000,
   "price_currency": "EUR",
   "has_free_tier": false,
@@ -635,37 +652,37 @@ PIPELINE WRITE                                          PRODUCT READ
 
 - App-level cache keys (in `redis-cache`):
 
-| Key | TTL | Invalidation |
-|---|---|---|
-| `taxonomy:dental:tree` | 5 min | Push on taxonomy update |
-| `sources:public:list` | 15 min | Push on source tier change |
-| `event:{id}:detail` | 10 min | Push on canonical update |
-| `search:facet_counts:{filter_hash}` | 2 min | Natural expiry |
-| `rate_limit:{ip}` | 1 min rolling | Natural expiry |
+| Key                                 | TTL           | Invalidation               |
+| ----------------------------------- | ------------- | -------------------------- |
+| `taxonomy:dental:tree`              | 5 min         | Push on taxonomy update    |
+| `sources:public:list`               | 15 min        | Push on source tier change |
+| `event:{id}:detail`                 | 10 min        | Push on canonical update   |
+| `search:facet_counts:{filter_hash}` | 2 min         | Natural expiry             |
+| `rate_limit:{ip}`                   | 1 min rolling | Natural expiry             |
 
 - **D46 — Edge + CDN caching**: Cloudflare in front of Fly. `Cache-Control: public, s-maxage=60, stale-while-revalidate=300` for public GETs. Cloudflare purge API on publish (post-MVP integrates push purge; MVP relies on s-maxage).
 - **D47 — Rendering strategy per route** (see also §6):
 
-| Route | Strategy |
-|---|---|
-| `/` | RSC + ISR (60s) |
-| `/events` | RSC initial render via API; client-side filter changes update URL (nuqs) → React Query refetches `/v1/events` + `/v1/facets` from the API. **Browser never talks to Meili directly.** |
-| `/events/{slug}` | **ISR + on-demand revalidation in MVP** (publisher webhook → `revalidatePath`) |
-| `/specialties/{code}` | ISR (300s) |
-| `/map` | Client-side via geosearch |
-| `/admin/**` | SSR, no cache |
+| Route                 | Strategy                                                                                                                                                                              |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`                   | RSC + ISR (60s)                                                                                                                                                                       |
+| `/events`             | RSC initial render via API; client-side filter changes update URL (nuqs) → React Query refetches `/v1/events` + `/v1/facets` from the API. **Browser never talks to Meili directly.** |
+| `/events/{slug}`      | **ISR + on-demand revalidation in MVP** (publisher webhook → `revalidatePath`)                                                                                                        |
+| `/specialties/{code}` | ISR (300s)                                                                                                                                                                            |
+| `/map`                | Client-side via geosearch                                                                                                                                                             |
+| `/admin/**`           | SSR, no cache                                                                                                                                                                         |
 
 - **D48 — Client-side**: React Query, 30s default stale time, 5min for taxonomy.
 
 ### Backup & DR
 
-| Target | Mechanism | RPO | RTO |
-|---|---|---|---|
-| Postgres | Neon PITR (7-day) | ~30s | <10min |
-| R2 | Versioning on; cross-region post-MVP | N/A | instant |
-| Meilisearch | Fully rebuildable from canonical | N/A | minutes at MVP scale |
-| Redis-cache | No durable state | N/A | warm up next requests |
-| Redis-queue | Job idempotency covers replay | in-flight jobs | worker restart |
+| Target      | Mechanism                            | RPO            | RTO                   |
+| ----------- | ------------------------------------ | -------------- | --------------------- |
+| Postgres    | Neon PITR (7-day)                    | ~30s           | <10min                |
+| R2          | Versioning on; cross-region post-MVP | N/A            | instant               |
+| Meilisearch | Fully rebuildable from canonical     | N/A            | minutes at MVP scale  |
+| Redis-cache | No durable state                     | N/A            | warm up next requests |
+| Redis-queue | Job idempotency covers replay        | in-flight jobs | worker restart        |
 
 ### Tradeoffs accepted
 
@@ -692,27 +709,27 @@ The **only** surface the product talks to. The **only** surface the data platfor
 - **D49 — REST, not GraphQL.** Hono + typed routes + OpenAPI generation.
 - **D50 — Endpoint inventory**:
 
-| Method | Path | Purpose |
-|---|---|---|
-| **Public** | | |
-| GET | `/v1/events` | Paginated list with filters + lightweight preview enrichment |
-| GET | `/v1/events/{slug}` | Full detail (canonical + sidecars + enrichment + trust + history) |
-| GET | `/v1/events/{slug}/similar` | Simple similarity (specialty + geo + date proximity + event_kind) |
-| GET | `/v1/events/map` | Viewport-bounded events with server-side clusters |
-| GET | `/v1/facets` | Filter facet counts |
-| GET | `/v1/taxonomy/specialties` | Full specialty tree under root |
-| GET | `/v1/sources` | Public source directory (with `trust_badge`) |
-| GET | `/v1/sources/{code}` | Source detail with `trust_badge` |
-| **Admin** (auth required) | | |
-| GET | `/v1/admin/events` | Includes draft/hold/low-confidence |
-| POST | `/v1/admin/events/{id}/{publish,hold}` | Override (requires `reason`) |
-| POST | `/v1/admin/events/{id}/merge` | Force merge into target |
-| GET/POST | `/v1/admin/dedupe_queue/...` | Resolve ambiguous |
-| GET/POST | `/v1/admin/source_candidates/...` | Approve/reject |
-| PATCH | `/v1/admin/sources/{id}/tier` | With reason → `source_tier_history` |
-| POST | `/v1/admin/sources` | Add source |
-| POST | `/v1/admin/taxonomy/specialties` | Add/deprecate |
-| POST | `/v1/admin/revalidate` | Manual cache/CDN purge |
+| Method                    | Path                                   | Purpose                                                           |
+| ------------------------- | -------------------------------------- | ----------------------------------------------------------------- |
+| **Public**                |                                        |                                                                   |
+| GET                       | `/v1/events`                           | Paginated list with filters + lightweight preview enrichment      |
+| GET                       | `/v1/events/{slug}`                    | Full detail (canonical + sidecars + enrichment + trust + history) |
+| GET                       | `/v1/events/{slug}/similar`            | Simple similarity (specialty + geo + date proximity + event_kind) |
+| GET                       | `/v1/events/map`                       | Viewport-bounded events with server-side clusters                 |
+| GET                       | `/v1/facets`                           | Filter facet counts                                               |
+| GET                       | `/v1/taxonomy/specialties`             | Full specialty tree under root                                    |
+| GET                       | `/v1/sources`                          | Public source directory (with `trust_badge`)                      |
+| GET                       | `/v1/sources/{code}`                   | Source detail with `trust_badge`                                  |
+| **Admin** (auth required) |                                        |                                                                   |
+| GET                       | `/v1/admin/events`                     | Includes draft/hold/low-confidence                                |
+| POST                      | `/v1/admin/events/{id}/{publish,hold}` | Override (requires `reason`)                                      |
+| POST                      | `/v1/admin/events/{id}/merge`          | Force merge into target                                           |
+| GET/POST                  | `/v1/admin/dedupe_queue/...`           | Resolve ambiguous                                                 |
+| GET/POST                  | `/v1/admin/source_candidates/...`      | Approve/reject                                                    |
+| PATCH                     | `/v1/admin/sources/{id}/tier`          | With reason → `source_tier_history`                               |
+| POST                      | `/v1/admin/sources`                    | Add source                                                        |
+| POST                      | `/v1/admin/taxonomy/specialties`       | Add/deprecate                                                     |
+| POST                      | `/v1/admin/revalidate`                 | Manual cache/CDN purge                                            |
 
 - **D51 — Response envelope** (consistent):
 
@@ -770,11 +787,11 @@ This section covers bones — routes, state model, component organization, desig
 - **D64 — App router structure** per Section 6 D63 (full tree in conversation; key routes: `/`, `/events`, `/events/[slug]`, `/events/map`, `/specialties`, `/specialties/[code]`, `/sources`, `/sources/[code]`, `/search`, `/api/revalidate`, `/api/og`).
 - **D65 — State management three-axis split**:
 
-| Axis | Tool |
-|---|---|
-| URL state (truth) | `nuqs` |
-| Server state | React Query |
-| Ephemeral UI state | Zustand |
+| Axis               | Tool        |
+| ------------------ | ----------- |
+| URL state (truth)  | `nuqs`      |
+| Server state       | React Query |
+| Ephemeral UI state | Zustand     |
 
 URL is the source of truth for any state a user might share or bookmark. No global Redux. No event bus.
 
@@ -815,15 +832,15 @@ URL is the source of truth for any state a user might share or bookmark. No glob
 
 - **D75b — AI surfaces in MVP** (honors `feedback_ai_everywhere` from `docs/guidelines.md` — no manual-only inputs ship without an AI assist):
 
-| Surface | Where | What |
-|---|---|---|
-| **AI event summary** | Detail page, when source `description_text` < 200 chars or missing | Claude generates a 3-sentence factual intro from `(title, dates, venue, format, specialties, organizers)`. Cached on `events_canonical`; regenerated on republish. UI labels it "AI summary". |
-| **Empty-state intelligence** | Events list when results = 0 | Claude proposes 2–3 filter relaxations from the active filter set ("Try removing the country filter, or extending dates to Q1 2028"). Each suggestion is a one-click apply button. |
-| **AI source candidate triage** | Admin source-candidate review (W7) | Claude pre-fills inferred `source_type`, `primary_language`, `specialty_roots`, suggested `trust_tier` with rationale. Admin reviews + accepts/edits. |
-| **AI dedupe explanation** | Admin dedupe queue (W4 thin surface, expanded W7) | When admin opens a 0.50–0.89 candidate pair, Claude generates a one-paragraph "same / different / why" explanation grounded in the two observations. Admin still decides. |
-| **AI publish-hold briefing** | Admin publish-hold queue (W7) | For each held event, Claude summarizes "reasons to publish" + "reasons to hold" from contributing observations + policy decision log. |
+| Surface                        | Where                                                              | What                                                                                                                                                                                          |
+| ------------------------------ | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **AI event summary**           | Detail page, when source `description_text` < 200 chars or missing | Claude generates a 3-sentence factual intro from `(title, dates, venue, format, specialties, organizers)`. Cached on `events_canonical`; regenerated on republish. UI labels it "AI summary". |
+| **Empty-state intelligence**   | Events list when results = 0                                       | Claude proposes 2–3 filter relaxations from the active filter set ("Try removing the country filter, or extending dates to Q1 2028"). Each suggestion is a one-click apply button.            |
+| **AI source candidate triage** | Admin source-candidate review (W7)                                 | Claude pre-fills inferred `source_type`, `primary_language`, `specialty_roots`, suggested `trust_tier` with rationale. Admin reviews + accepts/edits.                                         |
+| **AI dedupe explanation**      | Admin dedupe queue (W4 thin surface, expanded W7)                  | When admin opens a 0.50–0.89 candidate pair, Claude generates a one-paragraph "same / different / why" explanation grounded in the two observations. Admin still decides.                     |
+| **AI publish-hold briefing**   | Admin publish-hold queue (W7)                                      | For each held event, Claude summarizes "reasons to publish" + "reasons to hold" from contributing observations + policy decision log.                                                         |
 
-  All AI surfaces have a non-AI fallback (raw text, blank state, manual-only input) so they degrade gracefully if Claude is down or rate-limited. AI output is always labeled. Token spend tracked per surface in §7 dashboards.
+All AI surfaces have a non-AI fallback (raw text, blank state, manual-only input) so they degrade gracefully if Claude is down or rate-limited. AI output is always labeled. Token spend tracked per surface in §7 dashboards.
 
 ### Empty states (first-class architecture)
 
@@ -854,16 +871,16 @@ Three pillars that keep the platform world-class over time.
   - **Product usefulness**: search success rate, no-result rate, filter abandonment, detail-view-to-registration-click rate, source transparency click rate.
 - **D80 — Alerts (small ruthless set)**:
 
-| Alert | Trigger |
-|---|---|
-| API down | Health check fails 3× in 60s |
-| Pipeline stalled | Zero published events in 24h despite enqueued work |
-| Indexer lag | `canonical_updated → Meili` lag > 10min for 30min |
-| Source down | 7+ consecutive failed crawls on `authoritative` source |
-| LLM spend spike | Daily spend > 2× rolling 7d average |
+| Alert                    | Trigger                                                                   |
+| ------------------------ | ------------------------------------------------------------------------- |
+| API down                 | Health check fails 3× in 60s                                              |
+| Pipeline stalled         | Zero published events in 24h despite enqueued work                        |
+| Indexer lag              | `canonical_updated → Meili` lag > 10min for 30min                         |
+| Source down              | 7+ consecutive failed crawls on `authoritative` source                    |
+| LLM spend spike          | Daily spend > 2× rolling 7d average                                       |
 | LLM fallback share spike | 7-day rolling LLM-tier fallback for any source jumps > 20pp from baseline |
-| Postgres saturation | Active connections > 80% of limit for 5 min |
-| Review queue backlog | Median age of unresolved review items > 14 days |
+| Postgres saturation      | Active connections > 80% of limit for 5 min                               |
+| Review queue backlog     | Median age of unresolved review items > 14 days                           |
 
 **Production synthetic failures page; staging synthetic failures log only.**
 
@@ -876,14 +893,14 @@ Three pillars that keep the platform world-class over time.
 - **D82 — Eval harness** in `evals/` (Python). CLI: `medevents eval --suite extraction --extractor v3`. Reports per-field metrics with regression flagging.
 - **D83 — Eval suites and gating**:
 
-| Suite | What | Gate (MVP) |
-|---|---|---|
-| Extraction | per-field precision/recall vs golden labels | Warn-only; CI gate post-MVP at stable thresholds |
-| Dedupe | correct link / split / flag vs golden pairs | Warn-only |
-| Specialty | tag precision vs hand-labeled events | Warn-only |
-| Publish gate policy | correct publish/hold vs synthetic source mixes | Run before policy YAML edits |
-| End-to-end smoke | crawl known source → verify event published | Nightly on staging |
-| **Source canary pages** | 1–2 fixed pages per major source, expected-output snapshots | **Run on every extractor/adapter PR** |
+| Suite                   | What                                                        | Gate (MVP)                                       |
+| ----------------------- | ----------------------------------------------------------- | ------------------------------------------------ |
+| Extraction              | per-field precision/recall vs golden labels                 | Warn-only; CI gate post-MVP at stable thresholds |
+| Dedupe                  | correct link / split / flag vs golden pairs                 | Warn-only                                        |
+| Specialty               | tag precision vs hand-labeled events                        | Warn-only                                        |
+| Publish gate policy     | correct publish/hold vs synthetic source mixes              | Run before policy YAML edits                     |
+| End-to-end smoke        | crawl known source → verify event published                 | Nightly on staging                               |
+| **Source canary pages** | 1–2 fixed pages per major source, expected-output snapshots | **Run on every extractor/adapter PR**            |
 
 - **D84 — Golden dataset growth**: ~50 hand-labeled at MVP; grows to 150 by W8. Every admin-resolved dedupe ambiguity, every corrected specialty tag, every publish-hold override → automatically appended.
 - **D85 — Per-field metrics** (not aggregate). Regressions surface with file-level traces.
@@ -957,23 +974,24 @@ Three pillars that keep the platform world-class over time.
 
 ### Waves
 
-| # | Weeks | Goal | Stream |
-|---|---|---|---|
-| **W0** | 0 | Foundation: git+CI+monorepo+local dev+Grafana Cloud bootstrap | Both |
-| **W1** | 1–2 | Schema + storage; Alembic migrations; YAML seeds | A |
-| **W2** | 3–5 | End-to-end pipeline for ADA only (discover → fetch → classify → extract → normalize → observation). + **second-source smoke test** in last days. + **minimal observability** (Sentry + structured logs + basic OTel). | A |
-| **W2 gate** | end of W2 | **Kill/redesign checkpoint**: extraction quality good enough? LLM fallback cost acceptable? Manual cleanup tolerable? Source model viable? If any "no" → pause and redesign. | — |
-| **W2.5** | end of W2 | **Abstraction review**: what's source-specific, what's generic, what's premature, what broke when second source was tried. | — |
-| **W3** | 6–7 | Dedup + canonical merge + publish (5+ published ADA events with full provenance). **Hardened review CLI** ships here: `medevents review {dedupe,source-candidates,publish-holds,specialty-tags}` with structured input/audit-log writes. | A |
-| **W4** | 8–9 | Read API + Meilisearch indexer; OpenAPI emitted; contract regression tests. **+ Thin admin web surface** (`apps/admin/` minimal pages): dedupe queue resolver, source-candidate review, publish hold/override. Same auth + audit-log path that W7 will extend. Honors the admin-priority guideline without delaying the public product. | B |
-| **W5a** | 8–9 (parallel start) | UI Design sub-spec — visual companion | B |
-| **W5b** | 9–11 | Next.js scaffold; Tailwind tokens from sub-spec; primitives; routes; filters; map; trust panel; Lighthouse green | B |
-| **W5c** | 11 | On-demand revalidation wired (publisher → `/api/revalidate`) | B |
-| **W6** | 12 | Comprehensive observability: dashboards (two families), alerts wired, eval suites, source canaries, LLM fallback dashboard, review-queue health | A |
-| **W7** | 13–14 | Admin app **expanded** beyond W4 thin surface: source tier change, raw-observation inspector, AI-assisted source candidate auto-classification, dedupe LLM-explanation, publish-hold AI briefing (see §6 D75b). | B |
-| **W8** | 15–16 | Pre-launch: 9 more sources, 150 events, hand-review first 50, performance + security passes, DR rehearsal, all 8 runbooks. **Last 5–7 days = launch freeze** (bug fixes / data quality / runbooks / security / DR / polish only). | Both |
+| #           | Weeks                | Goal                                                                                                                                                                                                                                                                                                                                    | Stream |
+| ----------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| **W0**      | 0                    | Foundation: git+CI+monorepo+local dev+Grafana Cloud bootstrap                                                                                                                                                                                                                                                                           | Both   |
+| **W1**      | 1–2                  | Schema + storage; Alembic migrations; YAML seeds                                                                                                                                                                                                                                                                                        | A      |
+| **W2**      | 3–5                  | End-to-end pipeline for ADA only (discover → fetch → classify → extract → normalize → observation). + **second-source smoke test** in last days. + **minimal observability** (Sentry + structured logs + basic OTel).                                                                                                                   | A      |
+| **W2 gate** | end of W2            | **Kill/redesign checkpoint**: extraction quality good enough? LLM fallback cost acceptable? Manual cleanup tolerable? Source model viable? If any "no" → pause and redesign.                                                                                                                                                            | —      |
+| **W2.5**    | end of W2            | **Abstraction review**: what's source-specific, what's generic, what's premature, what broke when second source was tried.                                                                                                                                                                                                              | —      |
+| **W3**      | 6–7                  | Dedup + canonical merge + publish (5+ published ADA events with full provenance). **Hardened review CLI** ships here: `medevents review {dedupe,source-candidates,publish-holds,specialty-tags}` with structured input/audit-log writes.                                                                                                | A      |
+| **W4**      | 8–9                  | Read API + Meilisearch indexer; OpenAPI emitted; contract regression tests. **+ Thin admin web surface** (`apps/admin/` minimal pages): dedupe queue resolver, source-candidate review, publish hold/override. Same auth + audit-log path that W7 will extend. Honors the admin-priority guideline without delaying the public product. | B      |
+| **W5a**     | 8–9 (parallel start) | UI Design sub-spec — visual companion                                                                                                                                                                                                                                                                                                   | B      |
+| **W5b**     | 9–11                 | Next.js scaffold; Tailwind tokens from sub-spec; primitives; routes; filters; map; trust panel; Lighthouse green                                                                                                                                                                                                                        | B      |
+| **W5c**     | 11                   | On-demand revalidation wired (publisher → `/api/revalidate`)                                                                                                                                                                                                                                                                            | B      |
+| **W6**      | 12                   | Comprehensive observability: dashboards (two families), alerts wired, eval suites, source canaries, LLM fallback dashboard, review-queue health                                                                                                                                                                                         | A      |
+| **W7**      | 13–14                | Admin app **expanded** beyond W4 thin surface: source tier change, raw-observation inspector, AI-assisted source candidate auto-classification, dedupe LLM-explanation, publish-hold AI briefing (see §6 D75b).                                                                                                                         | B      |
+| **W8**      | 15–16                | Pre-launch: 9 more sources, 150 events, hand-review first 50, performance + security passes, DR rehearsal, all 8 runbooks. **Last 5–7 days = launch freeze** (bug fixes / data quality / runbooks / security / DR / polish only).                                                                                                       | Both   |
 
 **Review tooling progression** (honors `feedback_admin_priority` from `docs/guidelines.md`):
+
 - **W2** — ad-hoc SQL views + Jupyter notebooks for inspection only.
 - **W3** — hardened review CLI (`medevents review …`) with structured commands, dry-run mode, and audit-log writes. Operationally complete enough that admin can resolve dedupe / source-candidate / publish-hold work without the web UI.
 - **W4** — thin admin web surface (same `apps/admin/` codebase) covering the W3 CLI commands clickable + visible. Same auth, same audit log.
@@ -983,27 +1001,27 @@ The admin priority is satisfied by the W3 CLI being production-quality, not by d
 
 ### "MVP done" criteria (D101 — explicit)
 
-| # | Criterion |
-|---|---|
-| 1 | ≥150 published dental events |
-| 2 | From ≥10 distinct sources |
-| 3 | Sources span **≥3 source types** (society + aggregator + sponsor at minimum) |
-| 4 | Publishable ratio ≥70% on `verified`+ tier sources (not just count, also trust) |
-| 5 | First 50 events hand-reviewed; ≥95% canonical fields correct |
-| 6 | Filtered browsing works on desktop + mobile (Playwright passes both viewports) |
-| 7 | Map renders with clusters; viewport-driven filtering works |
-| 8 | Source transparency renders on every event |
-| 9 | Trust badges + confidence visible |
-| 10 | Lighthouse ≥90 on home/list/detail/map |
-| 11 | Eval extraction precision ≥90% on golden set |
-| 12 | Admin can resolve dedupe ambiguities + approve sources |
-| 13 | All 8 baseline runbooks exist |
-| 14 | DR rehearsal completed once |
-| 15 | OTel traces visible in Grafana for every pipeline run |
-| 16 | Synthetic monitoring runs hourly + alerts on failure |
-| 17 | Public site deployed at production domain over HTTPS with HSTS |
-| 18 | `lifecycle_status` extraction validated on golden set; postponed/cancelled events render with visible status banner + prior-value history |
-| 19 | All prices displayed in source's original currency; no implicit FX shown anywhere |
+| #   | Criterion                                                                                                                                 |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | ≥150 published dental events                                                                                                              |
+| 2   | From ≥10 distinct sources                                                                                                                 |
+| 3   | Sources span **≥3 source types** (society + aggregator + sponsor at minimum)                                                              |
+| 4   | Publishable ratio ≥70% on `verified`+ tier sources (not just count, also trust)                                                           |
+| 5   | First 50 events hand-reviewed; ≥95% canonical fields correct                                                                              |
+| 6   | Filtered browsing works on desktop + mobile (Playwright passes both viewports)                                                            |
+| 7   | Map renders with clusters; viewport-driven filtering works                                                                                |
+| 8   | Source transparency renders on every event                                                                                                |
+| 9   | Trust badges + confidence visible                                                                                                         |
+| 10  | Lighthouse ≥90 on home/list/detail/map                                                                                                    |
+| 11  | Eval extraction precision ≥90% on golden set                                                                                              |
+| 12  | Admin can resolve dedupe ambiguities + approve sources                                                                                    |
+| 13  | All 8 baseline runbooks exist                                                                                                             |
+| 14  | DR rehearsal completed once                                                                                                               |
+| 15  | OTel traces visible in Grafana for every pipeline run                                                                                     |
+| 16  | Synthetic monitoring runs hourly + alerts on failure                                                                                      |
+| 17  | Public site deployed at production domain over HTTPS with HSTS                                                                            |
+| 18  | `lifecycle_status` extraction validated on golden set; postponed/cancelled events render with visible status banner + prior-value history |
+| 19  | All prices displayed in source's original currency; no implicit FX shown anywhere                                                         |
 
 Anything less = not MVP. No "soft launch" with broken pieces.
 
@@ -1016,14 +1034,14 @@ Source weirdness, extraction surprises, frontend polish drag, deployment frictio
 
 ### Post-MVP roadmap (first 6 months after launch)
 
-| Month | Focus |
-|---|---|
-| 1 | Monitor + bug fix; observe user behavior; tune dedupe weights, fallback thresholds, source tier policies on real data. No new features. |
-| 2 | Expand to 500 events / 25 sources; 4+ new source adapters; promote evals from warn-only to CI-blocking. |
-| 3 | User accounts (Clerk/Supabase); saved filters server-side; deadline / new-event alerts via email. |
-| 4 | Multi-locale (FR, DE, ES) — UI + machine-translated summaries. |
-| 5 | Begin medical specialty expansion (cardiology pilot — proves namespace strategy). |
-| 6 | Partner API (scoped tokens + rate-limit tier); RSS/ICS exports; sponsor/intelligence post-MVP exploration. |
+| Month | Focus                                                                                                                                   |
+| ----- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | Monitor + bug fix; observe user behavior; tune dedupe weights, fallback thresholds, source tier policies on real data. No new features. |
+| 2     | Expand to 500 events / 25 sources; 4+ new source adapters; promote evals from warn-only to CI-blocking.                                 |
+| 3     | User accounts (Clerk/Supabase); saved filters server-side; deadline / new-event alerts via email.                                       |
+| 4     | Multi-locale (FR, DE, ES) — UI + machine-translated summaries.                                                                          |
+| 5     | Begin medical specialty expansion (cardiology pilot — proves namespace strategy).                                                       |
+| 6     | Partner API (scoped tokens + rate-limit tier); RSS/ICS exports; sponsor/intelligence post-MVP exploration.                              |
 
 ### Tradeoffs accepted
 
@@ -1098,39 +1116,39 @@ Add per-table `created_at` indexes where admin sorts by recency. Add more as pro
 
 ### Appendix C — CI pipeline (per PR)
 
-| Job | Tools | Blocks merge? |
-|---|---|---|
-| Python lint + type | ruff format-check, ruff check, mypy --strict | ✅ |
-| TS lint + type | eslint, prettier check, tsc --noEmit | ✅ |
-| Python unit tests | pytest | ✅ |
-| TS unit tests | vitest | ✅ |
-| Schema codegen drift | regenerate, diff vs committed | ✅ |
-| OpenAPI drift | regenerate, diff vs committed | ✅ |
-| Migration smoke | alembic upgrade head against ephemeral PG | ✅ |
-| API contract regression | snapshot assertions on key endpoints | ✅ |
-| E2E (PR preview) | Playwright critical flows | ✅ |
-| Lighthouse CI | thresholds ≥90 | ✅ |
-| Bundle size budget | next-bundle-analyzer thresholds | ✅ |
-| Eval suite | extraction + dedupe + specialty + canaries | ❌ MVP (warn-only); ✅ post-MVP |
-| `axe` accessibility | on built pages | ✅ no new violations |
-| Dependency audit | pnpm audit, pip-audit | ⚠ warn-only; manual review for criticals |
-| License audit | license-checker, pip-licenses | ✅ no GPL leakage |
+| Job                     | Tools                                        | Blocks merge?                            |
+| ----------------------- | -------------------------------------------- | ---------------------------------------- |
+| Python lint + type      | ruff format-check, ruff check, mypy --strict | ✅                                       |
+| TS lint + type          | eslint, prettier check, tsc --noEmit         | ✅                                       |
+| Python unit tests       | pytest                                       | ✅                                       |
+| TS unit tests           | vitest                                       | ✅                                       |
+| Schema codegen drift    | regenerate, diff vs committed                | ✅                                       |
+| OpenAPI drift           | regenerate, diff vs committed                | ✅                                       |
+| Migration smoke         | alembic upgrade head against ephemeral PG    | ✅                                       |
+| API contract regression | snapshot assertions on key endpoints         | ✅                                       |
+| E2E (PR preview)        | Playwright critical flows                    | ✅                                       |
+| Lighthouse CI           | thresholds ≥90                               | ✅                                       |
+| Bundle size budget      | next-bundle-analyzer thresholds              | ✅                                       |
+| Eval suite              | extraction + dedupe + specialty + canaries   | ❌ MVP (warn-only); ✅ post-MVP          |
+| `axe` accessibility     | on built pages                               | ✅ no new violations                     |
+| Dependency audit        | pnpm audit, pip-audit                        | ⚠ warn-only; manual review for criticals |
+| License audit           | license-checker, pip-licenses                | ✅ no GPL leakage                        |
 
 Path-scoped: PRs touching only `services/*` skip TS jobs; vice versa.
 
 ### Appendix D — Sub-spec writing schedule
 
-| Sub-spec | Written before | Brainstorm depth |
-|---|---|---|
-| Schema sub-spec | W1 | Medium |
-| Pipeline sub-spec | W2 | Deep |
-| Dedup + Publisher sub-spec | W3 | Deep |
-| API + Indexer sub-spec | W4 | Medium |
-| **UI Design sub-spec** | W5a (parallel from end-W3) | **Deep — visual companion** |
-| Frontend implementation sub-spec | mid-W5 | Medium |
-| Observability sub-spec | W6 | Light |
-| Admin app sub-spec | W7 | Medium |
-| Pre-launch sub-spec | W8 | Light (checklist) |
+| Sub-spec                         | Written before             | Brainstorm depth            |
+| -------------------------------- | -------------------------- | --------------------------- |
+| Schema sub-spec                  | W1                         | Medium                      |
+| Pipeline sub-spec                | W2                         | Deep                        |
+| Dedup + Publisher sub-spec       | W3                         | Deep                        |
+| API + Indexer sub-spec           | W4                         | Medium                      |
+| **UI Design sub-spec**           | W5a (parallel from end-W3) | **Deep — visual companion** |
+| Frontend implementation sub-spec | mid-W5                     | Medium                      |
+| Observability sub-spec           | W6                         | Light                       |
+| Admin app sub-spec               | W7                         | Medium                      |
+| Pre-launch sub-spec              | W8                         | Light (checklist)           |
 
 ### Appendix E — Configuration file inventory
 
@@ -1151,13 +1169,13 @@ Configs live in `config/` (YAML, version-controlled, PR-reviewable):
 
 ## Status & next steps
 
-| Step | State |
-|---|---|
-| Automated directory MVP spec | ✅ Active build spec |
-| Target-state platform spec | ✅ Reference only |
-| User direction update | ✅ Captured |
-| Wave 0 — Setup decision | ⏳ Next |
+| Step                           | State                                              |
+| ------------------------------ | -------------------------------------------------- |
+| Automated directory MVP spec   | ✅ Active build spec                               |
+| Target-state platform spec     | ✅ Reference only                                  |
+| User direction update          | ✅ Captured                                        |
+| Wave 0 — Setup decision        | ⏳ Next                                            |
 | Wave 1 implementation planning | ⏳ Next, based on the automated directory MVP spec |
-| Intelligence-platform planning | ❌ Deferred until justified |
+| Intelligence-platform planning | ❌ Deferred until justified                        |
 
 This spec is the **target-state architecture overview**. The active build direction is the lean automated directory MVP, with future platform complexity added only when real MVP pain justifies it.

@@ -1,12 +1,12 @@
 # MedEvents — Automated Directory MVP Spec
 
-| | |
-|---|---|
-| **Status** | Active |
-| **Date** | 2026-04-20 |
-| **Scope** | Implementation-driving MVP architecture for the first build of MedEvents |
+|                |                                                                                                                       |
+| -------------- | --------------------------------------------------------------------------------------------------------------------- |
+| **Status**     | Active                                                                                                                |
+| **Date**       | 2026-04-20                                                                                                            |
+| **Scope**      | Implementation-driving MVP architecture for the first build of MedEvents                                              |
 | **Reads with** | [`docs/mission.md`](../../mission.md), [`docs/guidelines.md`](../../guidelines.md), [`docs/state.md`](../../state.md) |
-| **Relation** | Narrows the target-state platform spec to a lean automated directory MVP |
+| **Relation**   | Narrows the target-state platform spec to a lean automated directory MVP                                              |
 
 ---
 
@@ -43,19 +43,19 @@ If a capability does not help us automatically gather, update, or present events
 
 ### MVP capabilities
 
-| Capability | MVP stance |
-|---|---|
-| Multi-source ingestion | ✅ Automatic from curated known sources |
-| Scheduled updates | ✅ Required |
-| Filtered browsing | ✅ Required |
-| Event detail pages | ✅ Required |
-| Source transparency | ✅ Required |
-| Basic dedupe | ✅ Required |
-| Manual event entry as routine ops | ❌ Avoid |
-| Open-ended source discovery | ❌ Later |
-| Deep provenance/confidence engine | ❌ Later |
-| Partner/public API | ❌ Later |
-| Full intelligence workflows | ❌ Later |
+| Capability                        | MVP stance                              |
+| --------------------------------- | --------------------------------------- |
+| Multi-source ingestion            | ✅ Automatic from curated known sources |
+| Scheduled updates                 | ✅ Required                             |
+| Filtered browsing                 | ✅ Required                             |
+| Event detail pages                | ✅ Required                             |
+| Source transparency               | ✅ Required                             |
+| Basic dedupe                      | ✅ Required                             |
+| Manual event entry as routine ops | ❌ Avoid                                |
+| Open-ended source discovery       | ❌ Later                                |
+| Deep provenance/confidence engine | ❌ Later                                |
+| Partner/public API                | ❌ Later                                |
+| Full intelligence workflows       | ❌ Later                                |
 
 ### Non-goals
 
@@ -358,12 +358,12 @@ Deferred until pain proves need:
 
 ## 8 — Build sequence
 
-| Wave | Goal |
-|---|---|
-| **W0** | Repo setup, Next.js scaffold, Python ingest scaffold, Postgres, CI, local dev |
-| **W1** | Core schema, migrations, `sources.yaml`, minimal operator pages |
-| **W2** | One-source end-to-end automation: discover, fetch, parse, normalize, insert/update |
-| **W3** | Add 4-9 more curated sources, basic dedupe, review queue, stale-event handling |
+| Wave   | Goal                                                                                  |
+| ------ | ------------------------------------------------------------------------------------- |
+| **W0** | Repo setup, Next.js scaffold, Python ingest scaffold, Postgres, CI, local dev         |
+| **W1** | Core schema, migrations, `sources.yaml`, minimal operator pages                       |
+| **W2** | One-source end-to-end automation: discover, fetch, parse, normalize, insert/update    |
+| **W3** | Add 4-9 more curated sources, basic dedupe, review queue, stale-event handling        |
 | **W4** | Public directory polish: filters, event pages, source pages, mobile UX, search tuning |
 | **W5** | Hardening: source-health visibility, parser maintenance flow, deployment, launch prep |
 
@@ -384,15 +384,15 @@ Only after that gate should we decide whether heavier platform layers are justif
 
 Introduce heavier architecture only when a concrete trigger appears.
 
-| Trigger | Then add |
-|---|---|
-| Postgres search/facets become limiting | Dedicated search engine |
-| Source debugging becomes painful | Raw artifact archival and richer fetch history |
-| Duplicate ambiguity becomes frequent | Stronger provenance and dedupe review workflow |
-| One app becomes too coupled | Separate API and/or admin app |
-| Scheduled jobs become hard to coordinate | Queue/workflow system |
-| Users need stronger trust signals | Per-field provenance, confidence, publish policy |
-| External consumers appear | Stable public API |
+| Trigger                                  | Then add                                         |
+| ---------------------------------------- | ------------------------------------------------ |
+| Postgres search/facets become limiting   | Dedicated search engine                          |
+| Source debugging becomes painful         | Raw artifact archival and richer fetch history   |
+| Duplicate ambiguity becomes frequent     | Stronger provenance and dedupe review workflow   |
+| One app becomes too coupled              | Separate API and/or admin app                    |
+| Scheduled jobs become hard to coordinate | Queue/workflow system                            |
+| Users need stronger trust signals        | Per-field provenance, confidence, publish policy |
+| External consumers appear                | Stable public API                                |
 
 The target-state platform spec remains useful, but only as a menu of future upgrades.
 
@@ -400,16 +400,16 @@ The target-state platform spec remains useful, but only as a menu of future upgr
 
 ## 10 — MVP success criteria
 
-| Criterion | Target |
-|---|---|
-| Published events | 100-300 quality listings |
-| Sources | 5-15 curated known sources |
-| Update model | Automatic scheduled refreshes |
-| Manual work | Exception-driven, not routine data entry |
-| Dedupe | Obvious duplicates merged or flagged |
-| UX | Fast filtered browsing on desktop and mobile |
-| Transparency | Source shown on every event |
-| Freshness | `last_checked_at` visible and meaningful |
-| Lifecycle | Cancelled/postponed/completed events clearly labeled |
+| Criterion        | Target                                               |
+| ---------------- | ---------------------------------------------------- |
+| Published events | 100-300 quality listings                             |
+| Sources          | 5-15 curated known sources                           |
+| Update model     | Automatic scheduled refreshes                        |
+| Manual work      | Exception-driven, not routine data entry             |
+| Dedupe           | Obvious duplicates merged or flagged                 |
+| UX               | Fast filtered browsing on desktop and mobile         |
+| Transparency     | Source shown on every event                          |
+| Freshness        | `last_checked_at` visible and meaningful             |
+| Lifecycle        | Cancelled/postponed/completed events clearly labeled |
 
 If the MVP delivers these well, it has earned the right to grow into a deeper intelligence platform later.

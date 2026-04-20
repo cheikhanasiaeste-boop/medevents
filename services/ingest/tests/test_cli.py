@@ -1,9 +1,8 @@
 """CLI smoke tests."""
 
-from typer.testing import CliRunner
-
 from medevents_ingest import __version__
 from medevents_ingest.cli import app
+from typer.testing import CliRunner
 
 
 def test_version_prints_package_version() -> None:

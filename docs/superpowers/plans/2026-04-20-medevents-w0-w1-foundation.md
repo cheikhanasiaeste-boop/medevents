@@ -151,20 +151,24 @@ If anything is missing: install via `brew install node@22 pnpm uv` and `brew ins
 ### Task 1: Initialize git repo and commit existing docs
 
 **Files:**
+
 - Create: `.gitignore`
 - Modify: `docs/` (already present — staged and committed as initial state)
 
 - [ ] **Step 1: `git init` and set default branch to `main`**
 
 Run:
+
 ```bash
 git init -b main
 ```
+
 Expected: `Initialized empty Git repository in /Users/anas/Desktop/MedEvents/.git/`
 
 - [ ] **Step 2: Write `.gitignore`**
 
 Create `.gitignore`:
+
 ```gitignore
 # Node
 node_modules/
@@ -215,16 +219,20 @@ docker-data/
 - [ ] **Step 3: Stage and commit current state**
 
 Run:
+
 ```bash
 git add .gitignore docs/
 git status
 ```
+
 Expected: shows `.gitignore` and `docs/` files all staged, no other changes.
 
 Run:
+
 ```bash
 git commit -m "chore: initial docs and gitignore"
 ```
+
 Expected: one commit on `main` containing existing `docs/` tree + `.gitignore`.
 
 ---
@@ -236,17 +244,21 @@ Expected: one commit on `main` containing existing `docs/` tree + `.gitignore`.
 - [ ] **Step 1: Create the remote (private)**
 
 Run:
+
 ```bash
 gh repo create medevents --private --source=. --remote=origin --description="Automated directory for medical and dental events"
 ```
+
 Expected: `https://github.com/<your-user>/medevents` created; `origin` remote added.
 
 - [ ] **Step 2: Push initial branch**
 
 Run:
+
 ```bash
 git push -u origin main
 ```
+
 Expected: `main` is tracking `origin/main`.
 
 - [ ] **Step 3: Verify on GitHub**
@@ -261,6 +273,7 @@ Expected: repo visible with `docs/` tree and the initial commit message.
 ### Task 3: Workspace root files (pnpm + Turborepo + uv)
 
 **Files:**
+
 - Create: `package.json`
 - Create: `pnpm-workspace.yaml`
 - Create: `turbo.json`
@@ -272,6 +285,7 @@ Expected: repo visible with `docs/` tree and the initial commit message.
 - [ ] **Step 1: Write `.nvmrc`**
 
 Create `.nvmrc`:
+
 ```
 22
 ```
@@ -279,6 +293,7 @@ Create `.nvmrc`:
 - [ ] **Step 2: Write `.python-version`**
 
 Create `.python-version`:
+
 ```
 3.12
 ```
@@ -286,6 +301,7 @@ Create `.python-version`:
 - [ ] **Step 3: Write `.editorconfig`**
 
 Create `.editorconfig`:
+
 ```ini
 root = true
 
@@ -307,6 +323,7 @@ indent_style = tab
 - [ ] **Step 4: Write `package.json` (pnpm workspace root)**
 
 Create `package.json`:
+
 ```json
 {
   "name": "medevents",
@@ -336,6 +353,7 @@ Create `package.json`:
 - [ ] **Step 5: Write `pnpm-workspace.yaml`**
 
 Create `pnpm-workspace.yaml`:
+
 ```yaml
 packages:
   - "apps/*"
@@ -345,6 +363,7 @@ packages:
 - [ ] **Step 6: Write `turbo.json`**
 
 Create `turbo.json`:
+
 ```json
 {
   "$schema": "https://turbo.build/schema.json",
@@ -371,6 +390,7 @@ Create `turbo.json`:
 - [ ] **Step 7: Write `pyproject.toml` (uv workspace + tooling config)**
 
 Create `pyproject.toml`:
+
 ```toml
 [tool.uv.workspace]
 members = ["services/*"]
@@ -397,14 +417,17 @@ no_implicit_optional = true
 - [ ] **Step 8: Install root devDeps and verify**
 
 Run:
+
 ```bash
 pnpm install
 ```
+
 Expected: pnpm creates `node_modules/`, installs turbo + prettier + typescript at root. No workspace packages yet — that warning is fine.
 
 - [ ] **Step 9: Commit**
 
 Run:
+
 ```bash
 git add .nvmrc .python-version .editorconfig package.json pnpm-workspace.yaml turbo.json pyproject.toml pnpm-lock.yaml
 git commit -m "chore: workspace baseline (pnpm + Turborepo + uv)"
@@ -415,6 +438,7 @@ git commit -m "chore: workspace baseline (pnpm + Turborepo + uv)"
 ### Task 4: Docker compose (Postgres 16 with extensions)
 
 **Files:**
+
 - Create: `docker-compose.yml`
 - Create: `infra/postgres/init.sql`
 - Modify: `.gitignore` (add `docker-data/`)
@@ -422,6 +446,7 @@ git commit -m "chore: workspace baseline (pnpm + Turborepo + uv)"
 - [ ] **Step 1: Write `infra/postgres/init.sql`**
 
 Create `infra/postgres/init.sql`:
+
 ```sql
 -- Postgres extensions enabled at first boot.
 -- (Alembic also enables them defensively in 0001, but having them
@@ -435,6 +460,7 @@ CREATE EXTENSION IF NOT EXISTS citext;
 - [ ] **Step 2: Write `docker-compose.yml`**
 
 Create `docker-compose.yml`:
+
 ```yaml
 services:
   postgres:
@@ -460,21 +486,26 @@ services:
 - [ ] **Step 3: Boot Postgres and verify extensions**
 
 Run:
+
 ```bash
 docker compose up -d postgres
 docker compose ps
 ```
+
 Expected: `medevents-postgres` is `healthy` within ~10s.
 
 Run:
+
 ```bash
 docker exec -it medevents-postgres psql -U medevents -d medevents -c "SELECT extname FROM pg_extension ORDER BY extname;"
 ```
+
 Expected: includes `citext`, `pg_trgm`, `pgcrypto`, `plpgsql`, `unaccent`.
 
 - [ ] **Step 4: Commit**
 
 Run:
+
 ```bash
 git add docker-compose.yml infra/
 git commit -m "chore: postgres 16 docker-compose with required extensions"
@@ -485,12 +516,14 @@ git commit -m "chore: postgres 16 docker-compose with required extensions"
 ### Task 5: Makefile (one-line dev recipes)
 
 **Files:**
+
 - Create: `Makefile`
 - Create: `.env.example`
 
 - [ ] **Step 1: Write `.env.example`**
 
 Create `.env.example`:
+
 ```bash
 # Postgres connection (used by Alembic, Python ingest, and Next.js)
 DATABASE_URL=postgresql://medevents:medevents@localhost:5432/medevents
@@ -508,6 +541,7 @@ CSRF_SECRET=
 - [ ] **Step 2: Write `Makefile`**
 
 Create `Makefile`:
+
 ```makefile
 .PHONY: help install up down logs psql migrate fresh ingest dev test lint typecheck
 
@@ -570,6 +604,7 @@ typecheck:
 - [ ] **Step 3: Commit**
 
 Run:
+
 ```bash
 git add Makefile .env.example
 git commit -m "chore: Makefile and .env.example"
@@ -586,6 +621,7 @@ I'll write the next batch of tasks (Python service scaffold, Next.js scaffold, C
 ### Task 6: `services/ingest` skeleton (uv project + Typer CLI)
 
 **Files:**
+
 - Create: `services/ingest/pyproject.toml`
 - Create: `services/ingest/medevents_ingest/__init__.py`
 - Create: `services/ingest/medevents_ingest/cli.py`
@@ -597,6 +633,7 @@ I'll write the next batch of tasks (Python service scaffold, Next.js scaffold, C
 - [ ] **Step 1: Write `services/ingest/pyproject.toml`**
 
 Create `services/ingest/pyproject.toml`:
+
 ```toml
 [project]
 name = "medevents-ingest"
@@ -641,6 +678,7 @@ testpaths = ["tests"]
 - [ ] **Step 2: Write `services/ingest/medevents_ingest/__init__.py`**
 
 Create `services/ingest/medevents_ingest/__init__.py`:
+
 ```python
 """MedEvents ingestion service."""
 
@@ -650,6 +688,7 @@ __version__ = "0.0.0"
 - [ ] **Step 3: Write `services/ingest/medevents_ingest/config.py`**
 
 Create `services/ingest/medevents_ingest/config.py`:
+
 ```python
 """Settings loaded from environment."""
 
@@ -675,6 +714,7 @@ def get_settings() -> Settings:
 - [ ] **Step 4: Write `services/ingest/medevents_ingest/db.py`**
 
 Create `services/ingest/medevents_ingest/db.py`:
+
 ```python
 """Database engine + session factory."""
 
@@ -728,6 +768,7 @@ def session_scope() -> Iterator[Session]:
 - [ ] **Step 5: Write `services/ingest/medevents_ingest/cli.py` (skeleton — commands wired in later tasks)**
 
 Create `services/ingest/medevents_ingest/cli.py`:
+
 ```python
 """Typer entrypoint for the ingest CLI."""
 
@@ -751,12 +792,15 @@ if __name__ == "__main__":
 - [ ] **Step 6: Write `services/ingest/tests/__init__.py`** (empty file)
 
 Create `services/ingest/tests/__init__.py`:
+
 ```python
+
 ```
 
 - [ ] **Step 7: Write `services/ingest/tests/conftest.py`**
 
 Create `services/ingest/tests/conftest.py`:
+
 ```python
 """Shared pytest fixtures."""
 
@@ -776,6 +820,7 @@ def _no_env_pollution(monkeypatch: pytest.MonkeyPatch) -> None:
 - [ ] **Step 8: Write the failing test for `version`**
 
 Create `services/ingest/tests/test_cli.py`:
+
 ```python
 """CLI smoke tests."""
 
@@ -795,15 +840,18 @@ def test_version_prints_package_version() -> None:
 - [ ] **Step 9: Sync deps and run the test**
 
 Run:
+
 ```bash
 cd services/ingest && uv sync
 uv run pytest tests/test_cli.py -v
 ```
+
 Expected: 1 test passes (`test_version_prints_package_version PASSED`).
 
 - [ ] **Step 10: Commit**
 
 Run:
+
 ```bash
 cd /Users/anas/Desktop/MedEvents
 git add services/ingest/ pyproject.toml
@@ -815,6 +863,7 @@ git commit -m "feat(ingest): python service skeleton with typer CLI and pytest"
 ### Task 7: Alembic configuration (no migrations yet)
 
 **Files:**
+
 - Create: `db/migrations/alembic.ini`
 - Create: `db/migrations/env.py`
 - Create: `db/migrations/script.py.mako`
@@ -823,6 +872,7 @@ git commit -m "feat(ingest): python service skeleton with typer CLI and pytest"
 - [ ] **Step 1: Write `db/migrations/alembic.ini`**
 
 Create `db/migrations/alembic.ini`:
+
 ```ini
 [alembic]
 script_location = .
@@ -870,6 +920,7 @@ datefmt = %H:%M:%S
 - [ ] **Step 2: Write `db/migrations/env.py`**
 
 Create `db/migrations/env.py`:
+
 ```python
 """Alembic environment — uses DATABASE_URL from the environment."""
 
@@ -918,6 +969,7 @@ else:
 - [ ] **Step 3: Write `db/migrations/script.py.mako`**
 
 Create `db/migrations/script.py.mako`:
+
 ```mako
 """${message}
 
@@ -948,6 +1000,7 @@ def downgrade() -> None:
 - [ ] **Step 4: Create empty versions directory**
 
 Run:
+
 ```bash
 mkdir -p db/migrations/versions
 touch db/migrations/versions/.gitkeep
@@ -956,15 +1009,18 @@ touch db/migrations/versions/.gitkeep
 - [ ] **Step 5: Verify Alembic recognizes the config**
 
 Run:
+
 ```bash
 make up
 cd services/ingest && uv run alembic -c ../../db/migrations/alembic.ini current
 ```
+
 Expected: prints nothing (no migrations applied yet) but does not error.
 
 - [ ] **Step 6: Commit**
 
 Run:
+
 ```bash
 cd /Users/anas/Desktop/MedEvents
 git add db/
@@ -978,6 +1034,7 @@ git commit -m "chore(db): alembic configuration scaffold"
 ### Task 8: `apps/web` Next.js 15 + Tailwind 4 + Vitest + Playwright
 
 **Files:**
+
 - Create: `apps/web/package.json`
 - Create: `apps/web/tsconfig.json`
 - Create: `apps/web/next.config.ts`
@@ -993,6 +1050,7 @@ git commit -m "chore(db): alembic configuration scaffold"
 - [ ] **Step 1: Write `apps/web/package.json`**
 
 Create `apps/web/package.json`:
+
 ```json
 {
   "name": "@medevents/web",
@@ -1041,6 +1099,7 @@ Create `apps/web/package.json`:
 - [ ] **Step 2: Write `apps/web/tsconfig.json`**
 
 Create `apps/web/tsconfig.json`:
+
 ```json
 {
   "compilerOptions": {
@@ -1072,6 +1131,7 @@ Create `apps/web/tsconfig.json`:
 - [ ] **Step 3: Write `apps/web/next.config.ts`**
 
 Create `apps/web/next.config.ts`:
+
 ```ts
 import type { NextConfig } from "next";
 
@@ -1088,6 +1148,7 @@ export default config;
 - [ ] **Step 4: Write Tailwind + PostCSS configs**
 
 Create `apps/web/postcss.config.js`:
+
 ```js
 module.exports = {
   plugins: { tailwindcss: {}, autoprefixer: {} },
@@ -1095,6 +1156,7 @@ module.exports = {
 ```
 
 Create `apps/web/tailwind.config.ts`:
+
 ```ts
 import type { Config } from "tailwindcss";
 
@@ -1110,6 +1172,7 @@ export default config;
 - [ ] **Step 5: Write `apps/web/app/layout.tsx`**
 
 Create `apps/web/app/layout.tsx`:
+
 ```tsx
 import type { Metadata, ReactNode } from "next";
 import "./globals.css";
@@ -1122,7 +1185,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-white text-slate-900 antialiased">{children}</body>
+      <body className="min-h-screen bg-white text-slate-900 antialiased">
+        {children}
+      </body>
     </html>
   );
 }
@@ -1131,12 +1196,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 - [ ] **Step 6: Write `apps/web/app/page.tsx`**
 
 Create `apps/web/app/page.tsx`:
+
 ```tsx
 export default function HomePage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">
       <h1 className="text-3xl font-semibold">MedEvents</h1>
-      <p className="mt-3 text-slate-600">Coming soon. The directory is being built.</p>
+      <p className="mt-3 text-slate-600">
+        Coming soon. The directory is being built.
+      </p>
     </main>
   );
 }
@@ -1145,6 +1213,7 @@ export default function HomePage() {
 - [ ] **Step 7: Write `apps/web/app/globals.css`**
 
 Create `apps/web/app/globals.css`:
+
 ```css
 @tailwind base;
 @tailwind components;
@@ -1154,6 +1223,7 @@ Create `apps/web/app/globals.css`:
 - [ ] **Step 8: Write `apps/web/vitest.config.ts`**
 
 Create `apps/web/vitest.config.ts`:
+
 ```ts
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
@@ -1178,6 +1248,7 @@ export default defineConfig({
 - [ ] **Step 9: Write `apps/web/playwright.config.ts`**
 
 Create `apps/web/playwright.config.ts`:
+
 ```ts
 import { defineConfig, devices } from "@playwright/test";
 
@@ -1205,6 +1276,7 @@ export default defineConfig({
 - [ ] **Step 10: Write `apps/web/.eslintrc.json`**
 
 Create `apps/web/.eslintrc.json`:
+
 ```json
 {
   "extends": "next/core-web-vitals"
@@ -1214,15 +1286,18 @@ Create `apps/web/.eslintrc.json`:
 - [ ] **Step 11: Install and verify build**
 
 Run from repo root:
+
 ```bash
 pnpm install
 pnpm --filter @medevents/web build
 ```
+
 Expected: `next build` completes; warnings OK; no errors.
 
 - [ ] **Step 12: Commit**
 
 Run:
+
 ```bash
 git add apps/web/ pnpm-lock.yaml
 git commit -m "feat(web): next.js 15 + tailwind 4 + vitest + playwright scaffold"
@@ -1233,6 +1308,7 @@ git commit -m "feat(web): next.js 15 + tailwind 4 + vitest + playwright scaffold
 ### Task 9: `packages/shared` workspace package
 
 **Files:**
+
 - Create: `packages/shared/package.json`
 - Create: `packages/shared/tsconfig.json`
 - Create: `packages/shared/db/.gitkeep`
@@ -1241,6 +1317,7 @@ git commit -m "feat(web): next.js 15 + tailwind 4 + vitest + playwright scaffold
 - [ ] **Step 1: Write `packages/shared/package.json`**
 
 Create `packages/shared/package.json`:
+
 ```json
 {
   "name": "@medevents/shared",
@@ -1261,6 +1338,7 @@ Create `packages/shared/package.json`:
 - [ ] **Step 2: Write `packages/shared/tsconfig.json`**
 
 Create `packages/shared/tsconfig.json`:
+
 ```json
 {
   "compilerOptions": {
@@ -1282,6 +1360,7 @@ Create `packages/shared/tsconfig.json`:
 - [ ] **Step 3: Write `packages/shared/index.ts` (placeholder export so the package is non-empty)**
 
 Create `packages/shared/index.ts`:
+
 ```ts
 export const SHARED_PACKAGE_VERSION = "0.0.0";
 ```
@@ -1289,6 +1368,7 @@ export const SHARED_PACKAGE_VERSION = "0.0.0";
 - [ ] **Step 4: Create empty db/ directory for drizzle-kit pull output**
 
 Run:
+
 ```bash
 mkdir -p packages/shared/db
 touch packages/shared/db/.gitkeep
@@ -1297,15 +1377,18 @@ touch packages/shared/db/.gitkeep
 - [ ] **Step 5: Install + verify**
 
 Run:
+
 ```bash
 pnpm install
 pnpm --filter @medevents/shared typecheck
 ```
+
 Expected: clean exit.
 
 - [ ] **Step 6: Commit**
 
 Run:
+
 ```bash
 git add packages/shared/
 git commit -m "feat(shared): workspace package skeleton"
@@ -1318,12 +1401,14 @@ git commit -m "feat(shared): workspace package skeleton"
 ### Task 10: Pre-commit hooks (ruff + prettier + detect-secrets + conventional commits)
 
 **Files:**
+
 - Create: `.pre-commit-config.yaml`
 - Create: `.gitmessage`
 
 - [ ] **Step 1: Write `.pre-commit-config.yaml`**
 
 Create `.pre-commit-config.yaml`:
+
 ```yaml
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -1369,32 +1454,39 @@ repos:
 - [ ] **Step 2: Initialize secrets baseline**
 
 Run:
+
 ```bash
 pip install --user detect-secrets
 detect-secrets scan --exclude-files 'pnpm-lock.yaml|uv.lock' > .secrets.baseline
 ```
+
 Expected: `.secrets.baseline` created (JSON file).
 
 - [ ] **Step 3: Install pre-commit and hooks**
 
 Run:
+
 ```bash
 pip install --user pre-commit
 pre-commit install
 ```
+
 Expected: `pre-commit installed at .git/hooks/pre-commit`.
 
 - [ ] **Step 4: Test the hooks against current files**
 
 Run:
+
 ```bash
 pre-commit run --all-files
 ```
+
 Expected: hooks may auto-fix some files (trailing whitespace, EOF). Re-run to confirm clean.
 
 - [ ] **Step 5: Commit (note: branch off main first since the hook now blocks direct main commits)**
 
 Run:
+
 ```bash
 git checkout -b chore/precommit
 git add .pre-commit-config.yaml .secrets.baseline
@@ -1412,11 +1504,13 @@ Note: From here on, work happens on feature branches and merges to `main` (still
 ### Task 11: GitHub Actions CI
 
 **Files:**
+
 - Create: `.github/workflows/ci.yml`
 
 - [ ] **Step 1: Branch off main**
 
 Run:
+
 ```bash
 git checkout -b ci/baseline
 ```
@@ -1424,6 +1518,7 @@ git checkout -b ci/baseline
 - [ ] **Step 2: Write `.github/workflows/ci.yml`**
 
 Create `.github/workflows/ci.yml`:
+
 ```yaml
 name: CI
 
@@ -1554,6 +1649,7 @@ jobs:
 - [ ] **Step 3: Commit and push branch**
 
 Run:
+
 ```bash
 git add .github/
 git commit -m "ci: TS + Python + schema-drift workflows"
@@ -1563,14 +1659,17 @@ git push -u origin ci/baseline
 - [ ] **Step 4: Open PR and verify CI runs**
 
 Run:
+
 ```bash
 gh pr create --title "ci: baseline workflows" --body "Adds TS lint+types+tests, Python ruff+mypy+pytest+migrations, and drizzle schema-drift check."
 ```
+
 Expected: PR created. The TS and Python jobs should pass; `schema-drift` will fail (no migrations or schema.ts yet) — that's expected at this point and will pass after Task 19.
 
 - [ ] **Step 5: Merge after TS + Python jobs are green**
 
 Run:
+
 ```bash
 gh pr merge --squash --delete-branch --admin
 git checkout main && git pull
@@ -1587,11 +1686,13 @@ For each migration: create on a fresh branch, run `make migrate` locally to veri
 ### Task 12: Migration 0001 — extensions
 
 **Files:**
+
 - Create: `db/migrations/versions/0001_extensions.py`
 
 - [ ] **Step 1: Branch**
 
 Run:
+
 ```bash
 git checkout -b db/0001-extensions
 ```
@@ -1599,6 +1700,7 @@ git checkout -b db/0001-extensions
 - [ ] **Step 2: Write `db/migrations/versions/0001_extensions.py`**
 
 Create `db/migrations/versions/0001_extensions.py`:
+
 ```python
 """enable required extensions
 
@@ -1631,15 +1733,18 @@ def downgrade() -> None:
 - [ ] **Step 3: Apply and verify**
 
 Run:
+
 ```bash
 make fresh
 docker exec -it medevents-postgres psql -U medevents -d medevents -c "SELECT extname FROM pg_extension ORDER BY extname;"
 ```
+
 Expected: includes `citext`, `pg_trgm`, `pgcrypto`, `plpgsql`, `unaccent`.
 
 - [ ] **Step 4: Commit + PR + merge**
 
 Run:
+
 ```bash
 git add db/migrations/versions/0001_extensions.py
 git commit -m "feat(db): 0001 enable extensions"
@@ -1654,6 +1759,7 @@ git checkout main && git pull
 ### Task 13: Migration 0002 — sources table
 
 **Files:**
+
 - Create: `db/migrations/versions/0002_sources.py`
 
 - [ ] **Step 1: Branch**
@@ -1663,6 +1769,7 @@ Run: `git checkout -b db/0002-sources`
 - [ ] **Step 2: Write the migration**
 
 Create `db/migrations/versions/0002_sources.py`:
+
 ```python
 """create sources table
 
@@ -1714,10 +1821,12 @@ def downgrade() -> None:
 - [ ] **Step 3: Apply and verify schema**
 
 Run:
+
 ```bash
 make migrate
 make psql
 ```
+
 Then in psql: `\d sources` — expected: shows all 16 columns with correct types and constraints.
 
 Quit psql with `\q`.
@@ -1725,6 +1834,7 @@ Quit psql with `\q`.
 - [ ] **Step 4: Commit + PR + merge**
 
 Run:
+
 ```bash
 git add db/migrations/versions/0002_sources.py
 git commit -m "feat(db): 0002 sources table"
@@ -1739,6 +1849,7 @@ git checkout main && git pull
 ### Task 14: Migration 0003 — source_pages table
 
 **Files:**
+
 - Create: `db/migrations/versions/0003_source_pages.py`
 
 - [ ] **Step 1: Branch:** `git checkout -b db/0003-source-pages`
@@ -1746,6 +1857,7 @@ git checkout main && git pull
 - [ ] **Step 2: Write the migration**
 
 Create `db/migrations/versions/0003_source_pages.py`:
+
 ```python
 """create source_pages table
 
@@ -1796,6 +1908,7 @@ def downgrade() -> None:
 ### Task 15: Migration 0004 — events table
 
 **Files:**
+
 - Create: `db/migrations/versions/0004_events.py`
 
 - [ ] **Step 1: Branch:** `git checkout -b db/0004-events`
@@ -1803,6 +1916,7 @@ def downgrade() -> None:
 - [ ] **Step 2: Write the migration**
 
 Create `db/migrations/versions/0004_events.py`:
+
 ```python
 """create events table
 
@@ -1867,6 +1981,7 @@ def downgrade() -> None:
 ### Task 16: Migration 0005 — event_sources table with partial unique indexes
 
 **Files:**
+
 - Create: `db/migrations/versions/0005_event_sources.py`
 
 - [ ] **Step 1: Branch:** `git checkout -b db/0005-event-sources`
@@ -1874,6 +1989,7 @@ def downgrade() -> None:
 - [ ] **Step 2: Write the migration**
 
 Create `db/migrations/versions/0005_event_sources.py`:
+
 ```python
 """create event_sources table with partial unique indexes
 
@@ -1931,10 +2047,12 @@ def downgrade() -> None:
 - [ ] **Step 3: Apply + verify the partial indexes are present**
 
 Run `make migrate`, then in psql:
+
 ```sql
 \d event_sources
 SELECT indexname, indexdef FROM pg_indexes WHERE tablename = 'event_sources';
 ```
+
 Expected: both partial unique indexes shown with `WHERE` clauses.
 
 - [ ] **Step 4: Commit + PR + merge**
@@ -1944,6 +2062,7 @@ Expected: both partial unique indexes shown with `WHERE` clauses.
 ### Task 17: Migration 0006 — review_items table
 
 **Files:**
+
 - Create: `db/migrations/versions/0006_review_items.py`
 
 - [ ] **Step 1: Branch:** `git checkout -b db/0006-review-items`
@@ -1951,6 +2070,7 @@ Expected: both partial unique indexes shown with `WHERE` clauses.
 - [ ] **Step 2: Write the migration**
 
 Create `db/migrations/versions/0006_review_items.py`:
+
 ```python
 """create review_items table
 
@@ -2001,6 +2121,7 @@ def downgrade() -> None:
 ### Task 18: Migration 0007 — audit_log table
 
 **Files:**
+
 - Create: `db/migrations/versions/0007_audit_log.py`
 
 - [ ] **Step 1: Branch:** `git checkout -b db/0007-audit-log`
@@ -2008,6 +2129,7 @@ def downgrade() -> None:
 - [ ] **Step 2: Write the migration**
 
 Create `db/migrations/versions/0007_audit_log.py`:
+
 ```python
 """create audit_log table
 
@@ -2053,6 +2175,7 @@ def downgrade() -> None:
 ### Task 19: Migration 0008 — all MVP indexes
 
 **Files:**
+
 - Create: `db/migrations/versions/0008_indexes.py`
 
 - [ ] **Step 1: Branch:** `git checkout -b db/0008-indexes`
@@ -2060,6 +2183,7 @@ def downgrade() -> None:
 - [ ] **Step 2: Write the migration**
 
 Create `db/migrations/versions/0008_indexes.py`:
+
 ```python
 """create MVP indexes
 
@@ -2111,9 +2235,11 @@ def downgrade() -> None:
 - [ ] **Step 3: Apply + verify**
 
 Run `make migrate`, then in psql:
+
 ```sql
 SELECT indexname FROM pg_indexes WHERE schemaname = 'public' ORDER BY tablename, indexname;
 ```
+
 Expected: all 14 indexes listed (plus the auto-created PRIMARY KEY and UNIQUE indexes from earlier migrations).
 
 - [ ] **Step 4: Commit + PR + merge**
@@ -2125,6 +2251,7 @@ Expected: all 14 indexes listed (plus the auto-created PRIMARY KEY and UNIQUE in
 ### Task 20: drizzle-kit pull → `packages/shared/db/schema.ts`
 
 **Files:**
+
 - Create: `apps/web/drizzle.config.ts`
 - Create: `packages/shared/db/schema.ts` (generated)
 
@@ -2133,6 +2260,7 @@ Expected: all 14 indexes listed (plus the auto-created PRIMARY KEY and UNIQUE in
 - [ ] **Step 2: Write `apps/web/drizzle.config.ts`**
 
 Create `apps/web/drizzle.config.ts`:
+
 ```ts
 import "dotenv/config";
 import { defineConfig } from "drizzle-kit";
@@ -2142,7 +2270,9 @@ export default defineConfig({
   out: "../../packages/shared/db",
   schema: "../../packages/shared/db/schema.ts",
   dbCredentials: {
-    url: process.env.DATABASE_URL ?? "postgresql://medevents:medevents@localhost:5432/medevents",
+    url:
+      process.env.DATABASE_URL ??
+      "postgresql://medevents:medevents@localhost:5432/medevents",
   },
   introspect: { casing: "preserve" },
   verbose: true,
@@ -2152,32 +2282,39 @@ export default defineConfig({
 - [ ] **Step 3: Make sure DB has all migrations applied**
 
 Run:
+
 ```bash
 make migrate
 ```
+
 Expected: `INFO  [alembic.runtime.migration] Running upgrade  -> ... 0008_indexes` (or "is up to date").
 
 - [ ] **Step 4: Run drizzle-kit pull**
 
 Run:
+
 ```bash
 cd apps/web
 pnpm db:pull
 ```
+
 Expected: `packages/shared/db/schema.ts` is created (or rewritten) with `pgTable(...)` definitions for all 6 tables. Drizzle may also emit a `relations.ts` and journal files alongside — those are normal.
 
 - [ ] **Step 5: Verify TS types compile**
 
 Run from repo root:
+
 ```bash
 pnpm --filter @medevents/shared typecheck
 pnpm --filter @medevents/web typecheck
 ```
+
 Expected: both clean.
 
 - [ ] **Step 6: Commit the generated schema**
 
 Run:
+
 ```bash
 cd /Users/anas/Desktop/MedEvents
 git add apps/web/drizzle.config.ts packages/shared/db/
@@ -2195,6 +2332,7 @@ The `schema-drift` CI job should now go green on subsequent PRs.
 ### Task 21: Seed file `config/sources.yaml`
 
 **Files:**
+
 - Create: `config/sources.yaml`
 
 - [ ] **Step 1: Branch:** `git checkout -b seed/sources`
@@ -2202,6 +2340,7 @@ The `schema-drift` CI job should now go green on subsequent PRs.
 - [ ] **Step 2: Write `config/sources.yaml`**
 
 Create `config/sources.yaml`:
+
 ```yaml
 # Curated seed sources for MVP.
 # This file is the source of truth for `sources.onboarded_by = 'seed'` rows.
@@ -2227,6 +2366,7 @@ Create `config/sources.yaml`:
 - [ ] **Step 3: Commit + PR + merge**
 
 Run:
+
 ```bash
 git add config/sources.yaml
 git commit -m "feat(seed): config/sources.yaml with ADA"
@@ -2241,6 +2381,7 @@ git checkout main && git pull
 ### Task 22: Seed file `config/specialties.yaml`
 
 **Files:**
+
 - Create: `config/specialties.yaml`
 
 - [ ] **Step 1: Branch:** `git checkout -b seed/specialties`
@@ -2248,6 +2389,7 @@ git checkout main && git pull
 - [ ] **Step 2: Write `config/specialties.yaml`**
 
 Create `config/specialties.yaml`:
+
 ```yaml
 # Controlled vocabulary of dental specialty / practice-area codes for MVP.
 # Stored in events.specialty_codes (text[]).
@@ -2337,6 +2479,7 @@ Create `config/specialties.yaml`:
 - [ ] **Step 3: Commit + PR + merge**
 
 Run:
+
 ```bash
 git add config/specialties.yaml
 git commit -m "feat(seed): config/specialties.yaml dental taxonomy"
@@ -2353,6 +2496,7 @@ git checkout main && git pull
 ### Task 23: SQLAlchemy table reflection + Source/AuditLog repositories
 
 **Files:**
+
 - Create: `services/ingest/medevents_ingest/models.py`
 - Create: `services/ingest/medevents_ingest/repositories/__init__.py`
 - Create: `services/ingest/medevents_ingest/repositories/sources.py`
@@ -2364,6 +2508,7 @@ git checkout main && git pull
 - [ ] **Step 2: Write `services/ingest/medevents_ingest/models.py` (Pydantic DTOs)**
 
 Create `services/ingest/medevents_ingest/models.py`:
+
 ```python
 """Pydantic DTOs that travel between layers in the ingest service.
 
@@ -2440,6 +2585,7 @@ class AuditLogEntry(BaseModel):
 - [ ] **Step 3: Write `services/ingest/medevents_ingest/repositories/__init__.py`**
 
 Create `services/ingest/medevents_ingest/repositories/__init__.py`:
+
 ```python
 """Repository modules: thin wrappers over SQL for ingest-side data access."""
 ```
@@ -2447,6 +2593,7 @@ Create `services/ingest/medevents_ingest/repositories/__init__.py`:
 - [ ] **Step 4: Write `services/ingest/medevents_ingest/repositories/sources.py`**
 
 Create `services/ingest/medevents_ingest/repositories/sources.py`:
+
 ```python
 """sources table access."""
 
@@ -2517,6 +2664,7 @@ def get_source_by_code(session: Session, code: str) -> Source | None:
 - [ ] **Step 5: Write `services/ingest/medevents_ingest/repositories/audit.py`**
 
 Create `services/ingest/medevents_ingest/repositories/audit.py`:
+
 ```python
 """audit_log table access."""
 
@@ -2555,6 +2703,7 @@ def write_audit_entry(session: Session, entry: AuditLogEntry) -> UUID:
 - [ ] **Step 6: Write `services/ingest/tests/test_repositories.py`** (failing test first)
 
 Create `services/ingest/tests/test_repositories.py`:
+
 ```python
 """Repository integration tests against a real Postgres."""
 
@@ -2629,15 +2778,18 @@ def test_write_audit_entry_inserts_row() -> None:
 - [ ] **Step 7: Run the tests (should pass against the migrated DB)**
 
 Run:
+
 ```bash
 make up && make migrate
 cd services/ingest && DATABASE_URL=postgresql://medevents:medevents@localhost:5432/medevents uv run pytest tests/test_repositories.py -v
 ```
+
 Expected: 3 tests pass.
 
 - [ ] **Step 8: Commit + PR + merge**
 
 Run:
+
 ```bash
 cd /Users/anas/Desktop/MedEvents
 git add services/ingest/
@@ -2653,6 +2805,7 @@ git checkout main && git pull
 ### Task 24: `seed-sources` CLI command (loads YAML → DB)
 
 **Files:**
+
 - Create: `services/ingest/medevents_ingest/seed.py`
 - Modify: `services/ingest/medevents_ingest/cli.py`
 - Create: `services/ingest/tests/test_seed.py`
@@ -2662,6 +2815,7 @@ git checkout main && git pull
 - [ ] **Step 2: Write `services/ingest/medevents_ingest/seed.py`**
 
 Create `services/ingest/medevents_ingest/seed.py`:
+
 ```python
 """YAML → DB seed importer for sources."""
 
@@ -2699,6 +2853,7 @@ def upsert_all(session: Session, seeds: list[SourceSeed]) -> int:
 - [ ] **Step 3: Modify `services/ingest/medevents_ingest/cli.py` to add the `seed-sources` command**
 
 Replace the contents of `services/ingest/medevents_ingest/cli.py`:
+
 ```python
 """Typer entrypoint for the ingest CLI."""
 
@@ -2748,6 +2903,7 @@ if __name__ == "__main__":
 - [ ] **Step 4: Write the failing test for the importer**
 
 Create `services/ingest/tests/test_seed.py`:
+
 ```python
 """seed importer tests."""
 
@@ -2822,30 +2978,38 @@ def test_seed_sources_command_upserts(tmp_path: Path) -> None:
 - [ ] **Step 5: Run tests**
 
 Run:
+
 ```bash
 cd services/ingest && DATABASE_URL=postgresql://medevents:medevents@localhost:5432/medevents uv run pytest tests/test_seed.py -v
 ```
+
 Expected: 2 tests pass.
 
 - [ ] **Step 6: Run the actual command against the real seed file**
 
 Run:
+
 ```bash
 cd /Users/anas/Desktop/MedEvents
 make ingest CMD="seed-sources --path ../../config/sources.yaml"
 ```
+
 Wait — Makefile invokes from `services/ingest`. The seed file is at repo root. Use:
+
 ```bash
 cd /Users/anas/Desktop/MedEvents
 DATABASE_URL=postgresql://medevents:medevents@localhost:5432/medevents \
   uv --directory services/ingest run medevents-ingest seed-sources --path config/sources.yaml
 ```
+
 Expected: `upserted 1 source(s) from config/sources.yaml`.
 
 Verify in psql:
+
 ```bash
 make psql
 ```
+
 Then: `SELECT code, name, parser_name FROM sources;`
 Expected: `ada | American Dental Association | ada_listing`.
 
@@ -2865,6 +3029,7 @@ git checkout main && git pull
 ### Task 25: Parser interface (Protocol + registry + resolver)
 
 **Files:**
+
 - Create: `services/ingest/medevents_ingest/parsers/__init__.py`
 - Create: `services/ingest/medevents_ingest/parsers/base.py`
 - Create: `services/ingest/tests/test_parser_registry.py`
@@ -2874,6 +3039,7 @@ git checkout main && git pull
 - [ ] **Step 2: Write `services/ingest/medevents_ingest/parsers/base.py`**
 
 Create `services/ingest/medevents_ingest/parsers/base.py`:
+
 ```python
 """Parser protocol + shared types.
 
@@ -2968,6 +3134,7 @@ class Parser(Protocol):
 - [ ] **Step 3: Write `services/ingest/medevents_ingest/parsers/__init__.py` (registry)**
 
 Create `services/ingest/medevents_ingest/parsers/__init__.py`:
+
 ```python
 """Parser registry.
 
@@ -3051,6 +3218,7 @@ __all__ = [
 - [ ] **Step 4: Write the failing tests**
 
 Create `services/ingest/tests/test_parser_registry.py`:
+
 ```python
 """Parser registry behavior tests."""
 
@@ -3142,9 +3310,11 @@ def test_class_name_must_match_decorator_name() -> None:
 - [ ] **Step 5: Run the tests**
 
 Run:
+
 ```bash
 cd services/ingest && uv run pytest tests/test_parser_registry.py -v
 ```
+
 Expected: 5 tests pass.
 
 - [ ] **Step 6: Commit + PR + merge**
@@ -3164,6 +3334,7 @@ git checkout main && git pull
 ### Task 26: `run` CLI command (resolves parser, exits cleanly — full ingest body in W2)
 
 **Files:**
+
 - Modify: `services/ingest/medevents_ingest/cli.py`
 - Modify: `services/ingest/tests/test_cli.py`
 
@@ -3172,6 +3343,7 @@ git checkout main && git pull
 - [ ] **Step 2: Add the `run` command to `cli.py`**
 
 Replace the contents of `services/ingest/medevents_ingest/cli.py`:
+
 ```python
 """Typer entrypoint for the ingest CLI."""
 
@@ -3252,6 +3424,7 @@ if __name__ == "__main__":
 - [ ] **Step 3: Add tests for the `run` command**
 
 Append to `services/ingest/tests/test_cli.py`:
+
 ```python
 
 
@@ -3339,23 +3512,29 @@ def test_run_unregistered_parser_exits_3(_seeded_ada: None) -> None:
 - [ ] **Step 4: Run all tests**
 
 Run:
+
 ```bash
 cd services/ingest && DATABASE_URL=postgresql://medevents:medevents@localhost:5432/medevents uv run pytest -v
 ```
+
 Expected: all tests pass (version + repositories + seed + parser registry + run-cli).
 
 - [ ] **Step 5: Smoke against the real DB**
 
 Run:
+
 ```bash
 cd /Users/anas/Desktop/MedEvents
 DATABASE_URL=postgresql://medevents:medevents@localhost:5432/medevents \
   uv --directory services/ingest run medevents-ingest run --source ada
 ```
+
 Expected output:
+
 ```
 ERROR: No parser registered as 'ada_listing'
 ```
+
 (exit code 3 — that's correct; the actual parser body lands in W2.)
 
 - [ ] **Step 6: Commit + PR + merge**
@@ -3376,6 +3555,7 @@ git checkout main && git pull
 ### Task 27: Postgres client + Drizzle wiring + helper for raw SQL
 
 **Files:**
+
 - Create: `apps/web/lib/db/client.ts`
 - Modify: `apps/web/package.json` — add `dotenv` if not already present (drizzle-kit picked it up; ensure it's in deps)
 
@@ -3384,14 +3564,17 @@ git checkout main && git pull
 - [ ] **Step 2: Verify deps include `postgres` and `drizzle-orm`**
 
 Run:
+
 ```bash
 cd apps/web && cat package.json | grep -E '"(postgres|drizzle-orm)"'
 ```
+
 Expected: both present (added in Task 8).
 
 - [ ] **Step 3: Write `apps/web/lib/db/client.ts`**
 
 Create `apps/web/lib/db/client.ts`:
+
 ```ts
 import "server-only";
 import { drizzle } from "drizzle-orm/postgres-js";
@@ -3418,6 +3601,7 @@ export { schema };
 - [ ] **Step 4: Add a unit test that imports the schema (no DB call)**
 
 Create `apps/web/tests/unit/db-import.test.ts`:
+
 ```ts
 import { describe, expect, it } from "vitest";
 import * as schema from "@medevents/shared/db/schema";
@@ -3440,9 +3624,11 @@ describe("db schema", () => {
 - [ ] **Step 5: Run the test**
 
 Run from repo root:
+
 ```bash
 pnpm --filter @medevents/web test
 ```
+
 Expected: 3 tests pass.
 
 - [ ] **Step 6: Commit + PR + merge**
@@ -3462,6 +3648,7 @@ git checkout main && git pull
 ### Task 28: Password hashing helper + CLI script to generate hash
 
 **Files:**
+
 - Create: `apps/web/lib/auth/password.ts`
 - Create: `apps/web/scripts/hash-password.mjs`
 - Create: `apps/web/tests/unit/password.test.ts`
@@ -3472,14 +3659,17 @@ git checkout main && git pull
 - [ ] **Step 2: Add argon2 dep**
 
 Run:
+
 ```bash
 cd apps/web && pnpm add argon2
 ```
+
 Expected: `argon2` ~0.41 added to dependencies.
 
 - [ ] **Step 3: Write the failing test**
 
 Create `apps/web/tests/unit/password.test.ts`:
+
 ```ts
 import { describe, expect, it } from "vitest";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
@@ -3487,7 +3677,9 @@ import { hashPassword, verifyPassword } from "@/lib/auth/password";
 describe("password hashing", () => {
   it("verifies a correct password", async () => {
     const hash = await hashPassword("hunter2-correct-horse");
-    await expect(verifyPassword(hash, "hunter2-correct-horse")).resolves.toBe(true);
+    await expect(verifyPassword(hash, "hunter2-correct-horse")).resolves.toBe(
+      true,
+    );
   });
 
   it("rejects an incorrect password", async () => {
@@ -3505,6 +3697,7 @@ describe("password hashing", () => {
 - [ ] **Step 4: Write `apps/web/lib/auth/password.ts`**
 
 Create `apps/web/lib/auth/password.ts`:
+
 ```ts
 import "server-only";
 import argon2 from "argon2";
@@ -3523,7 +3716,10 @@ export async function hashPassword(plain: string): Promise<string> {
   return argon2.hash(plain, ARGON2_OPTIONS);
 }
 
-export async function verifyPassword(hash: string, plain: string): Promise<boolean> {
+export async function verifyPassword(
+  hash: string,
+  plain: string,
+): Promise<boolean> {
   try {
     return await argon2.verify(hash, plain);
   } catch {
@@ -3535,6 +3731,7 @@ export async function verifyPassword(hash: string, plain: string): Promise<boole
 - [ ] **Step 5: Write the CLI helper (so the operator can generate the hash for `.env`)**
 
 Create `apps/web/scripts/hash-password.mjs`:
+
 ```js
 #!/usr/bin/env node
 import argon2 from "argon2";
@@ -3543,7 +3740,9 @@ import { stdin as input, stdout as output } from "node:process";
 
 const rl = readline.createInterface({ input, output, terminal: true });
 
-const password = await rl.question("Admin password (will be hashed; min 12 chars): ");
+const password = await rl.question(
+  "Admin password (will be hashed; min 12 chars): ",
+);
 rl.close();
 
 if (password.length < 12) {
@@ -3565,9 +3764,11 @@ console.log("\nCopy the line above into your .env file.");
 - [ ] **Step 6: Run tests**
 
 Run from repo root:
+
 ```bash
 pnpm --filter @medevents/web test
 ```
+
 Expected: existing tests + 3 new password tests pass.
 
 - [ ] **Step 7: Commit + PR + merge**
@@ -3587,6 +3788,7 @@ git checkout main && git pull
 ### Task 29: iron-session wiring + middleware for `/admin/*`
 
 **Files:**
+
 - Create: `apps/web/lib/auth/session.ts`
 - Create: `apps/web/middleware.ts`
 
@@ -3595,6 +3797,7 @@ git checkout main && git pull
 - [ ] **Step 2: Write `apps/web/lib/auth/session.ts`**
 
 Create `apps/web/lib/auth/session.ts`:
+
 ```ts
 import "server-only";
 import { getIronSession, type SessionOptions } from "iron-session";
@@ -3625,7 +3828,10 @@ export const sessionOptions: SessionOptions = {
 
 export async function readSession(): Promise<SessionData> {
   const cookieStore = await cookies();
-  const session = await getIronSession<SessionData>(cookieStore, sessionOptions);
+  const session = await getIronSession<SessionData>(
+    cookieStore,
+    sessionOptions,
+  );
   return session;
 }
 
@@ -3638,10 +3844,15 @@ export function isAuthenticated(s: SessionData): boolean {
 - [ ] **Step 3: Write `apps/web/middleware.ts`**
 
 Create `apps/web/middleware.ts`:
+
 ```ts
 import { NextResponse, type NextRequest } from "next/server";
 import { getIronSession } from "iron-session";
-import { sessionOptions, type SessionData, isAuthenticated } from "@/lib/auth/session";
+import {
+  sessionOptions,
+  type SessionData,
+  isAuthenticated,
+} from "@/lib/auth/session";
 
 export const config = {
   // Match all /admin paths except the login page itself and the login POST handler.
@@ -3659,7 +3870,11 @@ export async function middleware(req: NextRequest) {
 
   const res = NextResponse.next();
   // iron-session in middleware works against request/response cookie pair
-  const session = await getIronSession<SessionData>(req.cookies, res.cookies, sessionOptions);
+  const session = await getIronSession<SessionData>(
+    req.cookies,
+    res.cookies,
+    sessionOptions,
+  );
 
   if (!isAuthenticated(session)) {
     const loginUrl = new URL("/admin/login", req.url);
@@ -3674,9 +3889,11 @@ export async function middleware(req: NextRequest) {
 - [ ] **Step 4: Verify build still works (no test yet — middleware behavior is exercised by the e2e in Task 33)**
 
 Run:
+
 ```bash
 pnpm --filter @medevents/web typecheck
 ```
+
 Expected: clean.
 
 - [ ] **Step 5: Commit + PR + merge**
@@ -3696,6 +3913,7 @@ git checkout main && git pull
 ### Task 30: CSRF token primitives
 
 **Files:**
+
 - Create: `apps/web/lib/auth/csrf.ts`
 - Create: `apps/web/tests/unit/csrf.test.ts`
 
@@ -3704,6 +3922,7 @@ git checkout main && git pull
 - [ ] **Step 2: Write the failing test**
 
 Create `apps/web/tests/unit/csrf.test.ts`:
+
 ```ts
 import { describe, expect, it } from "vitest";
 import { generateCsrfToken, verifyCsrfToken } from "@/lib/auth/csrf";
@@ -3732,6 +3951,7 @@ describe("csrf tokens", () => {
 - [ ] **Step 3: Write `apps/web/lib/auth/csrf.ts`**
 
 Create `apps/web/lib/auth/csrf.ts`:
+
 ```ts
 import "server-only";
 import crypto from "node:crypto";
@@ -3752,30 +3972,48 @@ function getSecret(): string {
   return s;
 }
 
-export function generateCsrfToken(sessionId: string, secretOverride?: string): string {
+export function generateCsrfToken(
+  sessionId: string,
+  secretOverride?: string,
+): string {
   const secret = secretOverride ?? getSecret();
   const random = crypto.randomBytes(16).toString("hex");
-  const mac = crypto.createHmac("sha256", secret).update(sessionId + "." + random).digest("hex");
+  const mac = crypto
+    .createHmac("sha256", secret)
+    .update(sessionId + "." + random)
+    .digest("hex");
   return random + "." + mac;
 }
 
-export function verifyCsrfToken(token: string, sessionId: string, secretOverride?: string): boolean {
+export function verifyCsrfToken(
+  token: string,
+  sessionId: string,
+  secretOverride?: string,
+): boolean {
   const secret = secretOverride ?? getSecret();
   const parts = token.split(".");
   if (parts.length !== 2) return false;
   const [random, mac] = parts;
-  const expected = crypto.createHmac("sha256", secret).update(sessionId + "." + random).digest("hex");
+  const expected = crypto
+    .createHmac("sha256", secret)
+    .update(sessionId + "." + random)
+    .digest("hex");
   if (mac.length !== expected.length) return false;
-  return crypto.timingSafeEqual(Buffer.from(mac, "hex"), Buffer.from(expected, "hex"));
+  return crypto.timingSafeEqual(
+    Buffer.from(mac, "hex"),
+    Buffer.from(expected, "hex"),
+  );
 }
 ```
 
 - [ ] **Step 4: Run tests**
 
 Run:
+
 ```bash
 pnpm --filter @medevents/web test
 ```
+
 Expected: existing + 3 new CSRF tests pass.
 
 - [ ] **Step 5: Commit + PR + merge**
@@ -3795,6 +4033,7 @@ git checkout main && git pull
 ### Task 31: Audit log helper
 
 **Files:**
+
 - Create: `apps/web/lib/db/audit.ts`
 - Create: `apps/web/tests/unit/audit.test.ts`
 
@@ -3803,6 +4042,7 @@ git checkout main && git pull
 - [ ] **Step 2: Write `apps/web/lib/db/audit.ts`**
 
 Create `apps/web/lib/db/audit.ts`:
+
 ```ts
 import "server-only";
 import { sql as client } from "@/lib/db/client";
@@ -3834,6 +4074,7 @@ export async function writeAudit(entry: AuditWriteInput): Promise<string> {
 - [ ] **Step 3: Write the integration test (only runs when DATABASE_URL is set)**
 
 Create `apps/web/tests/unit/audit.test.ts`:
+
 ```ts
 import { describe, expect, it, beforeEach } from "vitest";
 import { sql } from "@/lib/db/client";
@@ -3854,7 +4095,9 @@ describe.skipIf(!HAS_DB)("audit_log writer (integration)", () => {
     });
     expect(id).toMatch(/^[0-9a-f-]{36}$/i);
 
-    const rows = await sql<{ actor: string; action: string; details_json: { foo: string } }[]>`
+    const rows = await sql<
+      { actor: string; action: string; details_json: { foo: string } }[]
+    >`
       SELECT actor, action, details_json FROM audit_log WHERE id = ${id}::uuid
     `;
     expect(rows[0].actor).toBe("owner");
@@ -3867,6 +4110,7 @@ describe.skipIf(!HAS_DB)("audit_log writer (integration)", () => {
 - [ ] **Step 4: Run tests with DB set**
 
 Run:
+
 ```bash
 make up && make migrate
 DATABASE_URL=postgresql://medevents:medevents@localhost:5432/medevents \
@@ -3874,6 +4118,7 @@ DATABASE_URL=postgresql://medevents:medevents@localhost:5432/medevents \
   CSRF_SECRET=$(openssl rand -hex 32) \
   pnpm --filter @medevents/web test
 ```
+
 Expected: all tests pass; the audit test inserts and reads back.
 
 - [ ] **Step 5: Commit + PR + merge**
@@ -3895,6 +4140,7 @@ git checkout main && git pull
 ### Task 32: `/admin/login` page + POST handler
 
 **Files:**
+
 - Create: `apps/web/app/(admin)/admin/login/page.tsx`
 - Create: `apps/web/app/(admin)/admin/login/route.ts`
 - Create: `apps/web/app/(admin)/admin/logout/route.ts`
@@ -3904,6 +4150,7 @@ git checkout main && git pull
 - [ ] **Step 2: Write `apps/web/app/(admin)/admin/login/page.tsx`**
 
 Create `apps/web/app/(admin)/admin/login/page.tsx`:
+
 ```tsx
 export default function LoginPage({
   searchParams,
@@ -3924,7 +4171,11 @@ export default function LoginPage({
       )}
 
       <form method="POST" action="/admin/login" className="mt-6 space-y-3">
-        <input type="hidden" name="next" value={searchParams.next ?? "/admin"} />
+        <input
+          type="hidden"
+          name="next"
+          value={searchParams.next ?? "/admin"}
+        />
         <label className="block text-sm font-medium text-slate-700">
           Password
           <input
@@ -3950,6 +4201,7 @@ export default function LoginPage({
 - [ ] **Step 3: Write the POST handler `apps/web/app/(admin)/admin/login/route.ts`**
 
 Create `apps/web/app/(admin)/admin/login/route.ts`:
+
 ```ts
 import { NextResponse, type NextRequest } from "next/server";
 import { getIronSession } from "iron-session";
@@ -3963,16 +4215,26 @@ export async function POST(req: NextRequest) {
 
   const hash = process.env.ADMIN_PASSWORD_HASH;
   if (!hash) {
-    return NextResponse.redirect(new URL("/admin/login?error=server", req.url), 303);
+    return NextResponse.redirect(
+      new URL("/admin/login?error=server", req.url),
+      303,
+    );
   }
 
   const ok = await verifyPassword(hash, password);
   if (!ok) {
-    return NextResponse.redirect(new URL("/admin/login?error=invalid", req.url), 303);
+    return NextResponse.redirect(
+      new URL("/admin/login?error=invalid", req.url),
+      303,
+    );
   }
 
   const res = NextResponse.redirect(new URL(next, req.url), 303);
-  const session = await getIronSession<SessionData>(req.cookies, res.cookies, sessionOptions);
+  const session = await getIronSession<SessionData>(
+    req.cookies,
+    res.cookies,
+    sessionOptions,
+  );
   const now = Date.now();
   session.actor = "owner";
   session.issuedAt = now;
@@ -3985,6 +4247,7 @@ export async function POST(req: NextRequest) {
 - [ ] **Step 4: Write the logout handler `apps/web/app/(admin)/admin/logout/route.ts`**
 
 Create `apps/web/app/(admin)/admin/logout/route.ts`:
+
 ```ts
 import { NextResponse, type NextRequest } from "next/server";
 import { getIronSession } from "iron-session";
@@ -3992,7 +4255,11 @@ import { sessionOptions, type SessionData } from "@/lib/auth/session";
 
 export async function POST(req: NextRequest) {
   const res = NextResponse.redirect(new URL("/admin/login", req.url), 303);
-  const session = await getIronSession<SessionData>(req.cookies, res.cookies, sessionOptions);
+  const session = await getIronSession<SessionData>(
+    req.cookies,
+    res.cookies,
+    sessionOptions,
+  );
   session.destroy();
   return res;
 }
@@ -4001,6 +4268,7 @@ export async function POST(req: NextRequest) {
 - [ ] **Step 5: Verify the build**
 
 Run:
+
 ```bash
 ADMIN_PASSWORD_HASH='$argon2id$v=19$m=19456,t=2,p=1$placeholder' \
   IRON_SESSION_PASSWORD=$(openssl rand -hex 32) \
@@ -4008,6 +4276,7 @@ ADMIN_PASSWORD_HASH='$argon2id$v=19$m=19456,t=2,p=1$placeholder' \
   DATABASE_URL=postgresql://medevents:medevents@localhost:5432/medevents \
   pnpm --filter @medevents/web build
 ```
+
 Expected: build succeeds; the `/admin/login` route appears in the Next.js output.
 
 - [ ] **Step 6: Commit + PR + merge**
@@ -4027,6 +4296,7 @@ git checkout main && git pull
 ### Task 33: Playwright e2e for the login flow
 
 **Files:**
+
 - Create: `apps/web/tests/e2e/admin-login.spec.ts`
 
 - [ ] **Step 1: Branch:** `git checkout -b web/e2e-login`
@@ -4034,6 +4304,7 @@ git checkout main && git pull
 - [ ] **Step 2: Install Playwright browsers**
 
 Run:
+
 ```bash
 cd apps/web && pnpm exec playwright install chromium
 ```
@@ -4041,6 +4312,7 @@ cd apps/web && pnpm exec playwright install chromium
 - [ ] **Step 3: Write the e2e test**
 
 Create `apps/web/tests/e2e/admin-login.spec.ts`:
+
 ```ts
 import { test, expect } from "@playwright/test";
 
@@ -4064,10 +4336,15 @@ test.describe("admin login", () => {
     await page.click('button[type="submit"]');
 
     await expect(page).toHaveURL("/admin");
-    await expect(page.getByRole("heading", { name: /dashboard/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /dashboard/i }),
+    ).toBeVisible();
   });
 
-  test("middleware redirects unauthenticated /admin/sources to login", async ({ page, context }) => {
+  test("middleware redirects unauthenticated /admin/sources to login", async ({
+    page,
+    context,
+  }) => {
     await context.clearCookies();
     await page.goto("/admin/sources");
     await expect(page).toHaveURL(/\/admin\/login/);
@@ -4080,6 +4357,7 @@ test.describe("admin login", () => {
 Append to `apps/web/playwright.config.ts` `webServer.env`:
 
 Replace the `webServer` block in `apps/web/playwright.config.ts`:
+
 ```ts
   webServer: {
     command: "pnpm dev",
@@ -4100,6 +4378,7 @@ Replace the `webServer` block in `apps/web/playwright.config.ts`:
 - [ ] **Step 5: Generate the test password hash and update playwright config**
 
 Run:
+
 ```bash
 cd apps/web && node scripts/hash-password.mjs
 # Type 'test-admin-password-w1' when prompted, then copy the hash output.
@@ -4128,6 +4407,7 @@ git checkout main && git pull
 ### Task 34: Admin layout + dashboard page
 
 **Files:**
+
 - Create: `apps/web/app/(admin)/admin/layout.tsx`
 - Create: `apps/web/app/(admin)/admin/page.tsx`
 
@@ -4136,6 +4416,7 @@ git checkout main && git pull
 - [ ] **Step 2: Write `apps/web/app/(admin)/admin/layout.tsx`**
 
 Create `apps/web/app/(admin)/admin/layout.tsx`:
+
 ```tsx
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -4148,17 +4429,29 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           <Link href="/admin" className="font-semibold">
             MedEvents Admin
           </Link>
-          <Link href="/admin/sources" className="text-sm text-slate-600 hover:text-slate-900">
+          <Link
+            href="/admin/sources"
+            className="text-sm text-slate-600 hover:text-slate-900"
+          >
             Sources
           </Link>
-          <Link href="/admin/review" className="text-sm text-slate-600 hover:text-slate-900">
+          <Link
+            href="/admin/review"
+            className="text-sm text-slate-600 hover:text-slate-900"
+          >
             Review
           </Link>
-          <Link href="/admin/events" className="text-sm text-slate-600 hover:text-slate-900">
+          <Link
+            href="/admin/events"
+            className="text-sm text-slate-600 hover:text-slate-900"
+          >
             Events
           </Link>
           <form method="POST" action="/admin/logout" className="ml-auto">
-            <button type="submit" className="text-sm text-slate-600 hover:text-slate-900">
+            <button
+              type="submit"
+              className="text-sm text-slate-600 hover:text-slate-900"
+            >
               Sign out
             </button>
           </form>
@@ -4173,14 +4466,19 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 - [ ] **Step 3: Write `apps/web/app/(admin)/admin/page.tsx`**
 
 Create `apps/web/app/(admin)/admin/page.tsx`:
+
 ```tsx
 import { sql } from "@/lib/db/client";
 
 async function getDashboardCounts() {
   const [sources, events, openReviews, recentAudits] = await Promise.all([
     sql<{ count: string }[]>`SELECT count(*) FROM sources`,
-    sql<{ count: string }[]>`SELECT count(*) FROM events WHERE is_published = true`,
-    sql<{ count: string }[]>`SELECT count(*) FROM review_items WHERE status = 'open'`,
+    sql<
+      { count: string }[]
+    >`SELECT count(*) FROM events WHERE is_published = true`,
+    sql<
+      { count: string }[]
+    >`SELECT count(*) FROM review_items WHERE status = 'open'`,
     sql<{ actor: string; action: string; occurred_at: Date }[]>`
       SELECT actor, action, occurred_at FROM audit_log ORDER BY occurred_at DESC LIMIT 10
     `,
@@ -4210,12 +4508,17 @@ export default async function DashboardPage() {
           <li className="px-4 py-3 text-sm text-slate-500">No activity yet.</li>
         )}
         {data.recentAudits.map((row, i) => (
-          <li key={i} className="flex items-center justify-between px-4 py-3 text-sm">
+          <li
+            key={i}
+            className="flex items-center justify-between px-4 py-3 text-sm"
+          >
             <span>
               <span className="font-mono text-slate-600">{row.actor}</span>{" "}
               <span className="text-slate-900">{row.action}</span>
             </span>
-            <span className="text-slate-500">{new Date(row.occurred_at).toLocaleString()}</span>
+            <span className="text-slate-500">
+              {new Date(row.occurred_at).toLocaleString()}
+            </span>
           </li>
         ))}
       </ul>
@@ -4236,6 +4539,7 @@ function Stat({ label, value }: { label: string; value: number }) {
 - [ ] **Step 4: Manually run dev server and verify login → dashboard works**
 
 Run:
+
 ```bash
 cd /Users/anas/Desktop/MedEvents
 make up && make migrate
@@ -4264,6 +4568,7 @@ git checkout main && git pull
 ### Task 35: `/admin/sources` list + detail pages + Run Now / Toggle Active actions
 
 **Files:**
+
 - Create: `apps/web/lib/db/sources.ts`
 - Create: `apps/web/lib/ingest/invoke.ts`
 - Create: `apps/web/app/(admin)/admin/sources/page.tsx`
@@ -4276,6 +4581,7 @@ git checkout main && git pull
 - [ ] **Step 2: Write `apps/web/lib/db/sources.ts`**
 
 Create `apps/web/lib/db/sources.ts`:
+
 ```ts
 import "server-only";
 import { sql } from "@/lib/db/client";
@@ -4325,6 +4631,7 @@ export async function toggleActive(id: string): Promise<void> {
 - [ ] **Step 3: Write `apps/web/lib/ingest/invoke.ts`** (sync invocation of the Python CLI)
 
 Create `apps/web/lib/ingest/invoke.ts`:
+
 ```ts
 import "server-only";
 import { spawn } from "node:child_process";
@@ -4345,13 +4652,23 @@ export type InvokeResult = {
  * If this becomes flaky in production, REMOVE the calling button rather than
  * adding job infrastructure (see W1 spec §8 sync-run guardrail).
  */
-export async function runIngestForSource(sourceCode: string): Promise<InvokeResult> {
+export async function runIngestForSource(
+  sourceCode: string,
+): Promise<InvokeResult> {
   const start = Date.now();
 
   return new Promise<InvokeResult>((resolve, reject) => {
     const child = spawn(
       "uv",
-      ["--directory", "services/ingest", "run", "medevents-ingest", "run", "--source", sourceCode],
+      [
+        "--directory",
+        "services/ingest",
+        "run",
+        "medevents-ingest",
+        "run",
+        "--source",
+        sourceCode,
+      ],
       {
         cwd: REPO_ROOT,
         env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL },
@@ -4383,6 +4700,7 @@ export async function runIngestForSource(sourceCode: string): Promise<InvokeResu
 - [ ] **Step 4: Write `apps/web/app/(admin)/admin/sources/page.tsx`**
 
 Create `apps/web/app/(admin)/admin/sources/page.tsx`:
+
 ```tsx
 import Link from "next/link";
 import { listSources } from "@/lib/db/sources";
@@ -4412,11 +4730,16 @@ export default async function SourcesListPage() {
               <td className="px-3 py-2">{s.source_type}</td>
               <td className="px-3 py-2">{s.crawl_frequency}</td>
               <td className="px-3 py-2 text-slate-600">
-                {s.last_crawled_at ? new Date(s.last_crawled_at).toLocaleString() : "—"}
+                {s.last_crawled_at
+                  ? new Date(s.last_crawled_at).toLocaleString()
+                  : "—"}
               </td>
               <td className="px-3 py-2">{s.is_active ? "✅" : "⏸"}</td>
               <td className="px-3 py-2 text-right">
-                <Link className="text-blue-600 hover:underline" href={`/admin/sources/${s.id}`}>
+                <Link
+                  className="text-blue-600 hover:underline"
+                  href={`/admin/sources/${s.id}`}
+                >
                   Open
                 </Link>
               </td>
@@ -4425,7 +4748,12 @@ export default async function SourcesListPage() {
           {sources.length === 0 && (
             <tr>
               <td colSpan={7} className="px-3 py-6 text-center text-slate-500">
-                No sources yet. Run <code>make ingest CMD="seed-sources --path ../../config/sources.yaml"</code>.
+                No sources yet. Run{" "}
+                <code>
+                  make ingest CMD="seed-sources --path
+                  ../../config/sources.yaml"
+                </code>
+                .
               </td>
             </tr>
           )}
@@ -4439,11 +4767,16 @@ export default async function SourcesListPage() {
 - [ ] **Step 5: Write `apps/web/app/(admin)/admin/sources/[id]/page.tsx`**
 
 Create `apps/web/app/(admin)/admin/sources/[id]/page.tsx`:
+
 ```tsx
 import { notFound } from "next/navigation";
 import { getSource } from "@/lib/db/sources";
 
-export default async function SourceDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function SourceDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
   const s = await getSource(id);
   if (!s) notFound();
@@ -4454,15 +4787,41 @@ export default async function SourceDetailPage({ params }: { params: Promise<{ i
       <p className="font-mono text-sm text-slate-600">{s.code}</p>
 
       <dl className="mt-6 grid grid-cols-2 gap-3 rounded border border-slate-200 bg-white px-4 py-3 text-sm">
-        <Field label="Homepage" value={<a href={s.homepage_url} className="text-blue-600 underline">{s.homepage_url}</a>} />
+        <Field
+          label="Homepage"
+          value={
+            <a href={s.homepage_url} className="text-blue-600 underline">
+              {s.homepage_url}
+            </a>
+          }
+        />
         <Field label="Type" value={s.source_type} />
         <Field label="Country" value={s.country_iso ?? "—"} />
         <Field label="Frequency" value={s.crawl_frequency} />
         <Field label="Parser" value={s.parser_name ?? "—"} />
         <Field label="Active" value={s.is_active ? "Yes" : "No"} />
-        <Field label="Last crawled" value={s.last_crawled_at ? new Date(s.last_crawled_at).toLocaleString() : "—"} />
-        <Field label="Last success" value={s.last_success_at ? new Date(s.last_success_at).toLocaleString() : "—"} />
-        <Field label="Last error" value={s.last_error_at ? new Date(s.last_error_at).toLocaleString() : "—"} />
+        <Field
+          label="Last crawled"
+          value={
+            s.last_crawled_at
+              ? new Date(s.last_crawled_at).toLocaleString()
+              : "—"
+          }
+        />
+        <Field
+          label="Last success"
+          value={
+            s.last_success_at
+              ? new Date(s.last_success_at).toLocaleString()
+              : "—"
+          }
+        />
+        <Field
+          label="Last error"
+          value={
+            s.last_error_at ? new Date(s.last_error_at).toLocaleString() : "—"
+          }
+        />
       </dl>
 
       {s.last_error_message && (
@@ -4473,12 +4832,18 @@ export default async function SourceDetailPage({ params }: { params: Promise<{ i
 
       <div className="mt-6 flex gap-3">
         <form method="POST" action={`/admin/sources/${s.id}/run`}>
-          <button className="rounded bg-slate-900 px-4 py-2 text-white hover:bg-slate-700" type="submit">
+          <button
+            className="rounded bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+            type="submit"
+          >
             Run now (sync, ≤60s)
           </button>
         </form>
         <form method="POST" action={`/admin/sources/${s.id}/toggle-active`}>
-          <button className="rounded border border-slate-300 px-4 py-2 hover:bg-slate-100" type="submit">
+          <button
+            className="rounded border border-slate-300 px-4 py-2 hover:bg-slate-100"
+            type="submit"
+          >
             {s.is_active ? "Pause" : "Resume"}
           </button>
         </form>
@@ -4490,7 +4855,9 @@ export default async function SourceDetailPage({ params }: { params: Promise<{ i
 function Field({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div>
-      <dt className="text-xs uppercase tracking-wide text-slate-500">{label}</dt>
+      <dt className="text-xs uppercase tracking-wide text-slate-500">
+        {label}
+      </dt>
       <dd className="mt-0.5">{value}</dd>
     </div>
   );
@@ -4500,13 +4867,17 @@ function Field({ label, value }: { label: string; value: React.ReactNode }) {
 - [ ] **Step 6: Write `apps/web/app/(admin)/admin/sources/[id]/run/route.ts`**
 
 Create `apps/web/app/(admin)/admin/sources/[id]/run/route.ts`:
+
 ```ts
 import { NextResponse, type NextRequest } from "next/server";
 import { getSource } from "@/lib/db/sources";
 import { runIngestForSource } from "@/lib/ingest/invoke";
 import { writeAudit } from "@/lib/db/audit";
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   const { id } = await params;
   const s = await getSource(id);
   if (!s) {
@@ -4535,12 +4906,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 - [ ] **Step 7: Write `apps/web/app/(admin)/admin/sources/[id]/toggle-active/route.ts`**
 
 Create `apps/web/app/(admin)/admin/sources/[id]/toggle-active/route.ts`:
+
 ```ts
 import { NextResponse, type NextRequest } from "next/server";
 import { getSource, toggleActive } from "@/lib/db/sources";
 import { writeAudit } from "@/lib/db/audit";
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   const { id } = await params;
   const before = await getSource(id);
   if (!before) {
@@ -4563,6 +4938,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 Run build: `pnpm --filter @medevents/web build` — expected clean.
 
 Manual smoke (server already running per Task 34):
+
 1. Run `make ingest CMD="seed-sources --path ../../config/sources.yaml"` to populate ADA.
 2. Visit `/admin/sources` — see the row.
 3. Click `Open` → see detail page.
@@ -4585,6 +4961,7 @@ git checkout main && git pull
 ### Task 36: `/admin/review` list + detail + resolve action
 
 **Files:**
+
 - Create: `apps/web/lib/db/reviews.ts`
 - Create: `apps/web/app/(admin)/admin/review/page.tsx`
 - Create: `apps/web/app/(admin)/admin/review/[id]/page.tsx`
@@ -4595,6 +4972,7 @@ git checkout main && git pull
 - [ ] **Step 2: Write `apps/web/lib/db/reviews.ts`**
 
 Create `apps/web/lib/db/reviews.ts`:
+
 ```ts
 import "server-only";
 import { sql } from "@/lib/db/client";
@@ -4626,7 +5004,9 @@ export async function listOpenReviews(kind?: string): Promise<ReviewRow[]> {
 }
 
 export async function getReview(id: string): Promise<ReviewRow | null> {
-  const rows = await sql<ReviewRow[]>`SELECT * FROM review_items WHERE id = ${id}::uuid`;
+  const rows = await sql<
+    ReviewRow[]
+  >`SELECT * FROM review_items WHERE id = ${id}::uuid`;
   return rows[0] ?? null;
 }
 
@@ -4650,11 +5030,17 @@ export async function resolveReview(
 - [ ] **Step 3: Write `apps/web/app/(admin)/admin/review/page.tsx`**
 
 Create `apps/web/app/(admin)/admin/review/page.tsx`:
+
 ```tsx
 import Link from "next/link";
 import { listOpenReviews } from "@/lib/db/reviews";
 
-const KINDS = ["duplicate_candidate", "parser_failure", "suspicious_data", "source_blocked"];
+const KINDS = [
+  "duplicate_candidate",
+  "parser_failure",
+  "suspicious_data",
+  "source_blocked",
+];
 
 export default async function ReviewListPage({
   searchParams,
@@ -4692,13 +5078,31 @@ export default async function ReviewListPage({
           </li>
         )}
         {items.map((r) => (
-          <li key={r.id} className="flex items-center justify-between px-4 py-3 text-sm">
+          <li
+            key={r.id}
+            className="flex items-center justify-between px-4 py-3 text-sm"
+          >
             <span>
               <span className="font-mono text-slate-600">{r.kind}</span>
-              {r.event_id && <> · event <span className="font-mono">{r.event_id.slice(0, 8)}</span></>}
-              {r.source_id && <> · source <span className="font-mono">{r.source_id.slice(0, 8)}</span></>}
+              {r.event_id && (
+                <>
+                  {" "}
+                  · event{" "}
+                  <span className="font-mono">{r.event_id.slice(0, 8)}</span>
+                </>
+              )}
+              {r.source_id && (
+                <>
+                  {" "}
+                  · source{" "}
+                  <span className="font-mono">{r.source_id.slice(0, 8)}</span>
+                </>
+              )}
             </span>
-            <Link className="text-blue-600 hover:underline" href={`/admin/review/${r.id}`}>
+            <Link
+              className="text-blue-600 hover:underline"
+              href={`/admin/review/${r.id}`}
+            >
               Open
             </Link>
           </li>
@@ -4712,11 +5116,16 @@ export default async function ReviewListPage({
 - [ ] **Step 4: Write `apps/web/app/(admin)/admin/review/[id]/page.tsx`**
 
 Create `apps/web/app/(admin)/admin/review/[id]/page.tsx`:
+
 ```tsx
 import { notFound } from "next/navigation";
 import { getReview } from "@/lib/db/reviews";
 
-export default async function ReviewDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function ReviewDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
   const r = await getReview(id);
   if (!r) notFound();
@@ -4729,11 +5138,15 @@ export default async function ReviewDetailPage({ params }: { params: Promise<{ i
       </p>
 
       <pre className="mt-4 overflow-auto rounded bg-slate-100 p-3 text-xs">
-{JSON.stringify(r.details_json, null, 2)}
+        {JSON.stringify(r.details_json, null, 2)}
       </pre>
 
       {r.status === "open" ? (
-        <form method="POST" action={`/admin/review/${r.id}/resolve`} className="mt-6 space-y-3">
+        <form
+          method="POST"
+          action={`/admin/review/${r.id}/resolve`}
+          className="mt-6 space-y-3"
+        >
           <label className="block text-sm">
             Resolution note
             <textarea
@@ -4744,10 +5157,20 @@ export default async function ReviewDetailPage({ params }: { params: Promise<{ i
             />
           </label>
           <div className="flex gap-2">
-            <button name="status" value="resolved" type="submit" className="rounded bg-slate-900 px-4 py-2 text-white">
+            <button
+              name="status"
+              value="resolved"
+              type="submit"
+              className="rounded bg-slate-900 px-4 py-2 text-white"
+            >
               Mark resolved
             </button>
-            <button name="status" value="ignored" type="submit" className="rounded border border-slate-300 px-4 py-2">
+            <button
+              name="status"
+              value="ignored"
+              type="submit"
+              className="rounded border border-slate-300 px-4 py-2"
+            >
               Ignore
             </button>
           </div>
@@ -4765,12 +5188,16 @@ export default async function ReviewDetailPage({ params }: { params: Promise<{ i
 - [ ] **Step 5: Write `apps/web/app/(admin)/admin/review/[id]/resolve/route.ts`**
 
 Create `apps/web/app/(admin)/admin/review/[id]/resolve/route.ts`:
+
 ```ts
 import { NextResponse, type NextRequest } from "next/server";
 import { resolveReview } from "@/lib/db/reviews";
 import { writeAudit } from "@/lib/db/audit";
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   const { id } = await params;
   const form = await req.formData();
   const note = String(form.get("note") ?? "");
@@ -4814,6 +5241,7 @@ git checkout main && git pull
 ### Task 37: `/admin/events` list with pg_trgm fuzzy + filter SQL
 
 **Files:**
+
 - Create: `apps/web/lib/search/events.ts`
 - Create: `apps/web/lib/db/events.ts`
 - Create: `apps/web/app/(admin)/admin/events/page.tsx`
@@ -4824,13 +5252,16 @@ git checkout main && git pull
 - [ ] **Step 2: Write `apps/web/lib/search/events.ts`** (filter parsing + SQL builder)
 
 Create `apps/web/lib/search/events.ts`:
+
 ```ts
 import { z } from "zod";
 
 export const EventsFilterSchema = z.object({
   q: z.string().trim().min(1).max(200).optional(),
   source_id: z.string().uuid().optional(),
-  lifecycle: z.enum(["active", "postponed", "cancelled", "completed", "tentative"]).optional(),
+  lifecycle: z
+    .enum(["active", "postponed", "cancelled", "completed", "tentative"])
+    .optional(),
   is_published: z.enum(["true", "false"]).optional(),
   page: z.coerce.number().int().min(1).default(1),
   per_page: z.coerce.number().int().min(1).max(100).default(20),
@@ -4839,7 +5270,9 @@ export const EventsFilterSchema = z.object({
 export type EventsFilter = z.infer<typeof EventsFilterSchema>;
 
 /** Parse query-string-shaped input into a validated filter; returns defaults on empty input. */
-export function parseEventsFilter(input: Record<string, string | undefined>): EventsFilter {
+export function parseEventsFilter(
+  input: Record<string, string | undefined>,
+): EventsFilter {
   return EventsFilterSchema.parse({
     q: input.q,
     source_id: input.source_id,
@@ -4854,6 +5287,7 @@ export function parseEventsFilter(input: Record<string, string | undefined>): Ev
 - [ ] **Step 3: Write the failing test**
 
 Create `apps/web/tests/unit/events-search.test.ts`:
+
 ```ts
 import { describe, expect, it } from "vitest";
 import { parseEventsFilter } from "@/lib/search/events";
@@ -4899,6 +5333,7 @@ Expected: 6 new tests pass.
 - [ ] **Step 5: Write `apps/web/lib/db/events.ts`**
 
 Create `apps/web/lib/db/events.ts`:
+
 ```ts
 import "server-only";
 import { sql } from "@/lib/db/client";
@@ -4921,7 +5356,9 @@ export type EventRow = {
   last_changed_at: Date;
 };
 
-export async function searchEventsForAdmin(f: EventsFilter): Promise<{ rows: EventRow[]; total: number }> {
+export async function searchEventsForAdmin(
+  f: EventsFilter,
+): Promise<{ rows: EventRow[]; total: number }> {
   const offset = (f.page - 1) * f.per_page;
 
   const rows = await sql<EventRow[]>`
@@ -4960,6 +5397,7 @@ export async function searchEventsForAdmin(f: EventsFilter): Promise<{ rows: Eve
 - [ ] **Step 6: Write `apps/web/app/(admin)/admin/events/page.tsx`**
 
 Create `apps/web/app/(admin)/admin/events/page.tsx`:
+
 ```tsx
 import Link from "next/link";
 import { parseEventsFilter } from "@/lib/search/events";
@@ -4991,7 +5429,11 @@ export default async function EventsListPage({
         </label>
         <label className="text-sm">
           Lifecycle
-          <select name="lifecycle" defaultValue={filter.lifecycle ?? ""} className="mt-1 block rounded border border-slate-300 px-3 py-2">
+          <select
+            name="lifecycle"
+            defaultValue={filter.lifecycle ?? ""}
+            className="mt-1 block rounded border border-slate-300 px-3 py-2"
+          >
             <option value="">any</option>
             <option value="active">active</option>
             <option value="postponed">postponed</option>
@@ -5002,13 +5444,20 @@ export default async function EventsListPage({
         </label>
         <label className="text-sm">
           Published
-          <select name="is_published" defaultValue={filter.is_published ?? ""} className="mt-1 block rounded border border-slate-300 px-3 py-2">
+          <select
+            name="is_published"
+            defaultValue={filter.is_published ?? ""}
+            className="mt-1 block rounded border border-slate-300 px-3 py-2"
+          >
             <option value="">any</option>
             <option value="true">true</option>
             <option value="false">false</option>
           </select>
         </label>
-        <button type="submit" className="rounded bg-slate-900 px-4 py-2 text-white">
+        <button
+          type="submit"
+          className="rounded bg-slate-900 px-4 py-2 text-white"
+        >
           Filter
         </button>
       </form>
@@ -5040,7 +5489,10 @@ export default async function EventsListPage({
               <td className="px-3 py-2">{r.lifecycle_status}</td>
               <td className="px-3 py-2">{r.is_published ? "✅" : "—"}</td>
               <td className="px-3 py-2 text-right">
-                <Link className="text-blue-600 hover:underline" href={`/admin/events/${r.id}`}>
+                <Link
+                  className="text-blue-600 hover:underline"
+                  href={`/admin/events/${r.id}`}
+                >
                   Edit
                 </Link>
               </td>
@@ -5099,6 +5551,7 @@ git checkout main && git pull
 ### Task 38: `/admin/events/[id]` detail + edit + unpublish
 
 **Files:**
+
 - Create: `apps/web/app/(admin)/admin/events/[id]/page.tsx`
 - Create: `apps/web/app/(admin)/admin/events/[id]/route.ts`
 - Create: `apps/web/app/(admin)/admin/events/[id]/unpublish/route.ts`
@@ -5109,8 +5562,8 @@ git checkout main && git pull
 - [ ] **Step 2: Extend `apps/web/lib/db/events.ts`** with `getEvent`, `updateEvent`, `unpublishEvent`
 
 Append to `apps/web/lib/db/events.ts`:
-```ts
 
+```ts
 export type EventDetail = EventRow & {
   summary: string | null;
   timezone: string | null;
@@ -5152,7 +5605,10 @@ export type EventEditInput = {
   is_published?: boolean;
 };
 
-export async function updateEvent(id: string, input: EventEditInput): Promise<string[]> {
+export async function updateEvent(
+  id: string,
+  input: EventEditInput,
+): Promise<string[]> {
   // Read previous to compute changed-fields list for audit_log details.
   const before = await getEvent(id);
   if (!before) return [];
@@ -5211,15 +5667,35 @@ export async function unpublishEvent(id: string): Promise<void> {
 - [ ] **Step 3: Write `apps/web/app/(admin)/admin/events/[id]/page.tsx`**
 
 Create `apps/web/app/(admin)/admin/events/[id]/page.tsx`:
+
 ```tsx
 import { notFound } from "next/navigation";
 import { getEvent } from "@/lib/db/events";
 
 const FORMATS = ["in_person", "virtual", "hybrid", "unknown"];
-const KINDS = ["fair", "seminar", "congress", "workshop", "webinar", "conference", "training", "other"];
-const LIFECYCLES = ["active", "postponed", "cancelled", "completed", "tentative"];
+const KINDS = [
+  "fair",
+  "seminar",
+  "congress",
+  "workshop",
+  "webinar",
+  "conference",
+  "training",
+  "other",
+];
+const LIFECYCLES = [
+  "active",
+  "postponed",
+  "cancelled",
+  "completed",
+  "tentative",
+];
 
-export default async function EventEditPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EventEditPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
   const e = await getEvent(id);
   if (!e) notFound();
@@ -5229,34 +5705,110 @@ export default async function EventEditPage({ params }: { params: Promise<{ id: 
       <h1 className="text-2xl font-semibold">Edit event</h1>
       <p className="mt-1 font-mono text-xs text-slate-500">{e.id}</p>
 
-      <form method="POST" action={`/admin/events/${e.id}`} className="mt-6 grid grid-cols-2 gap-4">
+      <form
+        method="POST"
+        action={`/admin/events/${e.id}`}
+        className="mt-6 grid grid-cols-2 gap-4"
+      >
         <Field name="title" label="Title" defaultValue={e.title} />
         <Field name="slug" label="Slug" defaultValue={e.slug} />
-        <Field name="starts_on" label="Starts on (YYYY-MM-DD)" type="date" defaultValue={e.starts_on.toString().slice(0, 10)} />
-        <Field name="ends_on" label="Ends on" type="date" defaultValue={e.ends_on ? e.ends_on.toString().slice(0, 10) : ""} />
-        <Field name="timezone" label="Timezone" defaultValue={e.timezone ?? ""} />
+        <Field
+          name="starts_on"
+          label="Starts on (YYYY-MM-DD)"
+          type="date"
+          defaultValue={e.starts_on.toString().slice(0, 10)}
+        />
+        <Field
+          name="ends_on"
+          label="Ends on"
+          type="date"
+          defaultValue={e.ends_on ? e.ends_on.toString().slice(0, 10) : ""}
+        />
+        <Field
+          name="timezone"
+          label="Timezone"
+          defaultValue={e.timezone ?? ""}
+        />
         <Field name="city" label="City" defaultValue={e.city ?? ""} />
-        <Field name="country_iso" label="Country (ISO-2)" defaultValue={e.country_iso ?? ""} />
-        <Field name="venue_name" label="Venue" defaultValue={e.venue_name ?? ""} />
-        <Select name="format" label="Format" defaultValue={e.format} options={FORMATS} />
-        <Select name="event_kind" label="Kind" defaultValue={e.event_kind} options={KINDS} />
-        <Select name="lifecycle_status" label="Lifecycle" defaultValue={e.lifecycle_status} options={LIFECYCLES} />
-        <Field name="organizer_name" label="Organizer" defaultValue={e.organizer_name ?? ""} />
-        <Field name="source_url" label="Source URL" defaultValue={e.source_url} />
-        <Field name="registration_url" label="Registration URL" defaultValue={e.registration_url ?? ""} />
-        <Field name="specialty_codes_csv" label="Specialty codes (comma-separated)" defaultValue={e.specialty_codes.join(",")} />
+        <Field
+          name="country_iso"
+          label="Country (ISO-2)"
+          defaultValue={e.country_iso ?? ""}
+        />
+        <Field
+          name="venue_name"
+          label="Venue"
+          defaultValue={e.venue_name ?? ""}
+        />
+        <Select
+          name="format"
+          label="Format"
+          defaultValue={e.format}
+          options={FORMATS}
+        />
+        <Select
+          name="event_kind"
+          label="Kind"
+          defaultValue={e.event_kind}
+          options={KINDS}
+        />
+        <Select
+          name="lifecycle_status"
+          label="Lifecycle"
+          defaultValue={e.lifecycle_status}
+          options={LIFECYCLES}
+        />
+        <Field
+          name="organizer_name"
+          label="Organizer"
+          defaultValue={e.organizer_name ?? ""}
+        />
+        <Field
+          name="source_url"
+          label="Source URL"
+          defaultValue={e.source_url}
+        />
+        <Field
+          name="registration_url"
+          label="Registration URL"
+          defaultValue={e.registration_url ?? ""}
+        />
+        <Field
+          name="specialty_codes_csv"
+          label="Specialty codes (comma-separated)"
+          defaultValue={e.specialty_codes.join(",")}
+        />
         <label className="col-span-2 block text-sm">
           Summary
-          <textarea name="summary" rows={4} defaultValue={e.summary ?? ""} className="mt-1 block w-full rounded border border-slate-300 px-3 py-2" />
+          <textarea
+            name="summary"
+            rows={4}
+            defaultValue={e.summary ?? ""}
+            className="mt-1 block w-full rounded border border-slate-300 px-3 py-2"
+          />
         </label>
         <label className="col-span-2 inline-flex items-center gap-2 text-sm">
-          <input name="is_published" type="checkbox" defaultChecked={e.is_published} />
+          <input
+            name="is_published"
+            type="checkbox"
+            defaultChecked={e.is_published}
+          />
           Published
         </label>
         <div className="col-span-2 flex gap-3">
-          <button type="submit" className="rounded bg-slate-900 px-4 py-2 text-white">Save</button>
+          <button
+            type="submit"
+            className="rounded bg-slate-900 px-4 py-2 text-white"
+          >
+            Save
+          </button>
           <form method="POST" action={`/admin/events/${e.id}/unpublish`}>
-            <button type="submit" className="rounded border border-slate-300 px-4 py-2">Unpublish</button>
+            <button
+              type="submit"
+              className="rounded border border-slate-300 px-4 py-2"
+            >
+              Unpublish
+            </button>
           </form>
         </div>
       </form>
@@ -5264,21 +5816,54 @@ export default async function EventEditPage({ params }: { params: Promise<{ id: 
   );
 }
 
-function Field({ name, label, defaultValue, type = "text" }: { name: string; label: string; defaultValue?: string; type?: string }) {
+function Field({
+  name,
+  label,
+  defaultValue,
+  type = "text",
+}: {
+  name: string;
+  label: string;
+  defaultValue?: string;
+  type?: string;
+}) {
   return (
     <label className="block text-sm">
       {label}
-      <input name={name} type={type} defaultValue={defaultValue} className="mt-1 block w-full rounded border border-slate-300 px-3 py-2" />
+      <input
+        name={name}
+        type={type}
+        defaultValue={defaultValue}
+        className="mt-1 block w-full rounded border border-slate-300 px-3 py-2"
+      />
     </label>
   );
 }
 
-function Select({ name, label, defaultValue, options }: { name: string; label: string; defaultValue: string; options: string[] }) {
+function Select({
+  name,
+  label,
+  defaultValue,
+  options,
+}: {
+  name: string;
+  label: string;
+  defaultValue: string;
+  options: string[];
+}) {
   return (
     <label className="block text-sm">
       {label}
-      <select name={name} defaultValue={defaultValue} className="mt-1 block w-full rounded border border-slate-300 px-3 py-2">
-        {options.map((o) => (<option key={o} value={o}>{o}</option>))}
+      <select
+        name={name}
+        defaultValue={defaultValue}
+        className="mt-1 block w-full rounded border border-slate-300 px-3 py-2"
+      >
+        {options.map((o) => (
+          <option key={o} value={o}>
+            {o}
+          </option>
+        ))}
       </select>
     </label>
   );
@@ -5288,6 +5873,7 @@ function Select({ name, label, defaultValue, options }: { name: string; label: s
 - [ ] **Step 4: Write `apps/web/app/(admin)/admin/events/[id]/route.ts`**
 
 Create `apps/web/app/(admin)/admin/events/[id]/route.ts`:
+
 ```ts
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
@@ -5298,14 +5884,33 @@ const FormSchema = z.object({
   title: z.string().min(1).max(500),
   slug: z.string().min(1).max(200),
   starts_on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  ends_on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).or(z.literal("")).optional(),
+  ends_on: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .or(z.literal(""))
+    .optional(),
   timezone: z.string().optional(),
   city: z.string().optional(),
   country_iso: z.string().length(2).or(z.literal("")).optional(),
   venue_name: z.string().optional(),
   format: z.enum(["in_person", "virtual", "hybrid", "unknown"]),
-  event_kind: z.enum(["fair", "seminar", "congress", "workshop", "webinar", "conference", "training", "other"]),
-  lifecycle_status: z.enum(["active", "postponed", "cancelled", "completed", "tentative"]),
+  event_kind: z.enum([
+    "fair",
+    "seminar",
+    "congress",
+    "workshop",
+    "webinar",
+    "conference",
+    "training",
+    "other",
+  ]),
+  lifecycle_status: z.enum([
+    "active",
+    "postponed",
+    "cancelled",
+    "completed",
+    "tentative",
+  ]),
   organizer_name: z.string().optional(),
   source_url: z.string().url(),
   registration_url: z.string().url().or(z.literal("")).optional(),
@@ -5314,16 +5919,23 @@ const FormSchema = z.object({
   is_published: z.literal("on").optional(),
 });
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   const { id } = await params;
   const before = await getEvent(id);
-  if (!before) return NextResponse.json({ error: "event not found" }, { status: 404 });
+  if (!before)
+    return NextResponse.json({ error: "event not found" }, { status: 404 });
 
   const form = await req.formData();
   const raw = Object.fromEntries(form.entries());
   const parsed = FormSchema.safeParse(raw);
   if (!parsed.success) {
-    return NextResponse.json({ error: "validation failed", issues: parsed.error.format() }, { status: 400 });
+    return NextResponse.json(
+      { error: "validation failed", issues: parsed.error.format() },
+      { status: 400 },
+    );
   }
   const v = parsed.data;
   const specialty_codes = (v.specialty_codes_csv ?? "")
@@ -5335,19 +5947,20 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     title: v.title,
     slug: v.slug,
     starts_on: v.starts_on,
-    ends_on: v.ends_on === "" ? null : v.ends_on ?? null,
-    timezone: v.timezone === "" ? null : v.timezone ?? null,
-    city: v.city === "" ? null : v.city ?? null,
-    country_iso: v.country_iso === "" ? null : v.country_iso ?? null,
-    venue_name: v.venue_name === "" ? null : v.venue_name ?? null,
+    ends_on: v.ends_on === "" ? null : (v.ends_on ?? null),
+    timezone: v.timezone === "" ? null : (v.timezone ?? null),
+    city: v.city === "" ? null : (v.city ?? null),
+    country_iso: v.country_iso === "" ? null : (v.country_iso ?? null),
+    venue_name: v.venue_name === "" ? null : (v.venue_name ?? null),
     format: v.format,
     event_kind: v.event_kind,
     lifecycle_status: v.lifecycle_status,
-    organizer_name: v.organizer_name === "" ? null : v.organizer_name ?? null,
+    organizer_name: v.organizer_name === "" ? null : (v.organizer_name ?? null),
     source_url: v.source_url,
-    registration_url: v.registration_url === "" ? null : v.registration_url ?? null,
+    registration_url:
+      v.registration_url === "" ? null : (v.registration_url ?? null),
     specialty_codes,
-    summary: v.summary === "" ? null : v.summary ?? null,
+    summary: v.summary === "" ? null : (v.summary ?? null),
     is_published: v.is_published === "on",
   };
 
@@ -5367,15 +5980,20 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 - [ ] **Step 5: Write `apps/web/app/(admin)/admin/events/[id]/unpublish/route.ts`**
 
 Create `apps/web/app/(admin)/admin/events/[id]/unpublish/route.ts`:
+
 ```ts
 import { NextResponse, type NextRequest } from "next/server";
 import { unpublishEvent, getEvent } from "@/lib/db/events";
 import { writeAudit } from "@/lib/db/audit";
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   const { id } = await params;
   const before = await getEvent(id);
-  if (!before) return NextResponse.json({ error: "event not found" }, { status: 404 });
+  if (!before)
+    return NextResponse.json({ error: "event not found" }, { status: 404 });
   await unpublishEvent(id);
   await writeAudit({
     actor: "owner",
@@ -5410,6 +6028,7 @@ git checkout main && git pull
 ### Task 39: README + runbook stub
 
 **Files:**
+
 - Create: `README.md`
 - Create: `docs/runbooks/local-dev.md`
 
@@ -5418,7 +6037,8 @@ git checkout main && git pull
 - [ ] **Step 2: Write `README.md`**
 
 Create `README.md`:
-```markdown
+
+````markdown
 # MedEvents
 
 Automated directory for medical and dental fairs, seminars, congresses, workshops, and trainings.
@@ -5439,6 +6059,7 @@ cp .env.example .env
 # Fill IRON_SESSION_PASSWORD and CSRF_SECRET (openssl rand -hex 32)
 make dev            # Next.js at http://localhost:3000
 ```
+````
 
 ## Layout
 
@@ -5459,7 +6080,8 @@ make typecheck  # tsc + mypy
 ## License
 
 Private (not yet licensed).
-```
+
+````
 
 - [ ] **Step 3: Write `docs/runbooks/local-dev.md`**
 
@@ -5484,7 +6106,7 @@ Create `docs/runbooks/local-dev.md`:
 
 ```bash
 make fresh
-```
+````
 
 This drops the `public` schema and re-runs all migrations. Seeds must be re-applied.
 
@@ -5511,7 +6133,8 @@ git commit -m "chore(db): regenerate drizzle schema types"
 cd apps/web && node scripts/hash-password.mjs
 # Paste the emitted line into .env
 ```
-```
+
+````
 
 - [ ] **Step 4: Commit + PR + merge**
 
@@ -5522,7 +6145,7 @@ git push -u origin docs/readme-runbook
 gh pr create --title "docs: README + local-dev runbook" --body "Bootstraps the on-ramp for contributors." --fill
 gh pr merge --squash --delete-branch --admin
 git checkout main && git pull
-```
+````
 
 ---
 
@@ -5533,12 +6156,14 @@ git checkout main && git pull
 - [ ] **Step 1: Clean out and re-bootstrap**
 
 Run:
+
 ```bash
 cd /Users/anas/Desktop/MedEvents
 make down
 rm -rf docker-data/
 make up
 ```
+
 Expected: fresh Postgres, empty volume.
 
 - [ ] **Step 2: Run migrations**
@@ -5555,11 +6180,13 @@ Wait — the Makefile already `cd`s into `services/ingest`. Correct invocation f
 DATABASE_URL=postgresql://medevents:medevents@localhost:5432/medevents \
   uv --directory services/ingest run medevents-ingest seed-sources --path config/sources.yaml
 ```
+
 Expected: `upserted 1 source(s) from config/sources.yaml`.
 
 - [ ] **Step 4: Start Next.js dev server**
 
 Run:
+
 ```bash
 ADMIN_PASSWORD_HASH=<paste> \
   IRON_SESSION_PASSWORD=$(openssl rand -hex 32) \
@@ -5581,14 +6208,17 @@ ADMIN_PASSWORD_HASH=<paste> \
 - [ ] **Step 6: Verify audit_log entries**
 
 In psql:
+
 ```sql
 SELECT actor, action, target_kind, details_json FROM audit_log ORDER BY occurred_at DESC LIMIT 5;
 ```
+
 Expected: at least one `source.run` row from Step 5.
 
 - [ ] **Step 7: Run all tests + CI gates locally**
 
 Run:
+
 ```bash
 make lint
 make typecheck
@@ -5600,6 +6230,7 @@ cd apps/web && DATABASE_URL=postgresql://medevents:medevents@localhost:5432/mede
 cd /Users/anas/Desktop/MedEvents
 cd apps/web && pnpm db:pull && cd ../.. && git diff --quiet packages/shared/db/schema.ts
 ```
+
 Expected: all green; no drift.
 
 - [ ] **Step 8: Record done-criteria confirmation**
@@ -5611,6 +6242,7 @@ git checkout -b docs/w1-done-confirmation
 ```
 
 Create `docs/runbooks/w1-done-confirmation.md`:
+
 ```markdown
 # W1 Done Confirmation
 
@@ -5655,6 +6287,7 @@ git checkout main && git pull
 - [ ] **Step 1: Enable branch protection on `main`**
 
 Run:
+
 ```bash
 gh api -X PUT "repos/$(gh repo view --json nameWithOwner -q .nameWithOwner)/branches/main/protection" \
   -H "Accept: application/vnd.github+json" \
@@ -5666,6 +6299,7 @@ gh api -X PUT "repos/$(gh repo view --json nameWithOwner -q .nameWithOwner)/bran
   -F required_pull_request_reviews.required_approving_review_count=0 \
   -F restrictions=
 ```
+
 Expected: branch protection applied; the three named CI jobs are required.
 
 - [ ] **Step 2: Verify the next PR enforces them**
@@ -5679,6 +6313,7 @@ git checkout -b docs/state-after-w1
 ```
 
 Update `docs/state.md` "Next focus" block — mark W1 done, set W2 as next:
+
 ```markdown
 | W1 foundation | ✅ Complete |
 | W0+W1 implementation plan | ✅ Executed |
@@ -5692,6 +6327,7 @@ Commit and merge.
 ## Self-review (performed after writing this plan)
 
 **1. Spec coverage** — each W1 spec done-criterion mapped to a task:
+
 - Tables 1–6 → Tasks 13–18 ✅
 - Extensions → Task 12 ✅
 - Indexes → Task 19 ✅
@@ -5711,6 +6347,7 @@ Commit and merge.
 **2. Placeholder scan** — no "TBD"/"TODO"/"implement later"/"similar to"/undefined references in any step. The only intentional deferrals (generic fallback parser body, actual ADA parser body) are explicitly marked W2/W3 and have a hard-error path, not a stub.
 
 **3. Type consistency** — names verified across tasks:
+
 - `Source`/`SourceSeed` Pydantic models (Task 23) flow into `upsert_source_seed` (Task 23), `load_source_seeds` (Task 24), and `parser_for(src.parser_name)` (Task 26). Consistent.
 - `Parser` Protocol, `DiscoveredPage`, `FetchedContent`, `ParsedEvent`, `SourcePageRef` all defined in Task 25 base.py and imported in Task 26 test file.
 - TS: `SourceRow` / `EventRow` / `EventDetail` / `ReviewRow` / `AuditWriteInput` each defined once and consumed by their respective route handlers.
@@ -5719,6 +6356,7 @@ Commit and merge.
 **4. Plan discipline** — every code step shows real code; every command step shows the exact command + expected output; commits are per-task with conventional prefixes; tests precede implementation where TDD fits (password, CSRF, parser registry, seed loader, events filter, repositories, audit).
 
 **Gaps found and fixed inline:**
+
 - Added Task 39 (README + runbook) — was implicit but needed.
 - Added Task 40 (manual end-to-end smoke) — the spec's 15 done-criteria needed an explicit verification task.
 - Added Task 41 (branch protection + state.md update) — closes the loop so subsequent waves start from a known-good baseline.
@@ -5734,4 +6372,3 @@ Commit and merge.
 **2. Inline Execution** — Execute tasks in this session using `superpowers:executing-plans`, batch execution with checkpoints for review. Faster end-to-end, but this session's context will fill up fast given the plan size.
 
 **Which approach?**
-
