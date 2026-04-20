@@ -97,8 +97,7 @@ def test_upsert_event_source_inserts_then_updates_last_seen_at() -> None:
         )
         rows = s.execute(
             text(
-                "SELECT count(*) FROM event_sources "
-                "WHERE event_id = :eid AND source_page_id = :pid"
+                "SELECT count(*) FROM event_sources WHERE event_id = :eid AND source_page_id = :pid"
             ),
             {"eid": str(event_id), "pid": str(page_id)},
         ).scalar_one()
