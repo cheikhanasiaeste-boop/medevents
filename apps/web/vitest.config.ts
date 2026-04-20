@@ -13,6 +13,7 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "."),
       "@medevents/shared": path.resolve(__dirname, "../../packages/shared"),
+      "server-only": path.resolve(__dirname, "tests/__mocks__/server-only.ts"),
     },
   },
 });
