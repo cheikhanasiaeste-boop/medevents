@@ -139,16 +139,21 @@ export default async function EventEditPage({
           >
             Save
           </button>
-          <form method="POST" action={`/admin/events/${e.id}/unpublish`}>
-            <input type="hidden" name="_csrf" value={csrf} />
-            <button
-              type="submit"
-              className="rounded border border-slate-300 px-4 py-2"
-            >
-              Unpublish
-            </button>
-          </form>
         </div>
+      </form>
+
+      <form
+        method="POST"
+        action={`/admin/events/${e.id}/unpublish`}
+        className="mt-3"
+      >
+        <input type="hidden" name="_csrf" value={csrf} />
+        <button
+          type="submit"
+          className="rounded border border-slate-300 px-4 py-2"
+        >
+          Unpublish
+        </button>
       </form>
     </div>
   );

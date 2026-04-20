@@ -13,16 +13,24 @@ export const EventsFilterSchema = z.object({
 
 export type EventsFilter = z.infer<typeof EventsFilterSchema>;
 
-/** Parse query-string-shaped input into a validated filter; returns defaults on empty input. */
+/**
+ * Parse query-string-shaped input into a validated filter; returns defaults on empty input.
+ *
+ * Empty strings (`""`) from HTML form fields left blank are coerced to `undefined`
+ * so schema `.optional()` semantics behave as users expect. Without this, a form
+ * submitted with blank "Search title" and "any" Lifecycle throws a Zod 500.
+ */
 export function parseEventsFilter(
   input: Record<string, string | undefined>,
 ): EventsFilter {
+  const undef = (v: string | undefined) =>
+    v === undefined || v === "" ? undefined : v;
   return EventsFilterSchema.parse({
-    q: input.q,
-    source_id: input.source_id,
-    lifecycle: input.lifecycle,
-    is_published: input.is_published,
-    page: input.page,
-    per_page: input.per_page,
+    q: undef(input.q),
+    source_id: undef(input.source_id),
+    lifecycle: undef(input.lifecycle),
+    is_published: undef(input.is_published),
+    page: undef(input.page),
+    per_page: undef(input.per_page),
   });
 }
