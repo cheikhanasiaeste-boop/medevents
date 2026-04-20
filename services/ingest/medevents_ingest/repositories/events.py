@@ -149,18 +149,21 @@ def update_event_fields(
             raise ValueError(f"{k!r} is not an updatable event column")
     if not changes:
         session.execute(
-            text("UPDATE events SET last_checked_at = now() WHERE id = :id"),
+            text("UPDATE events SET last_checked_at = clock_timestamp() WHERE id = :id"),
             {"id": str(event_id)},
         )
         return
 
     assignments = ", ".join(f"{k} = :{k}" for k in changes)
-    ts_columns = "last_checked_at = now()"
+    ts_columns = "last_checked_at = clock_timestamp()"
     if material:
-        ts_columns += ", last_changed_at = now()"
+        ts_columns += ", last_changed_at = clock_timestamp()"
     params: dict[str, Any] = dict(changes)
     params["id"] = str(event_id)
     session.execute(
-        text(f"UPDATE events SET {assignments}, {ts_columns}, updated_at = now() WHERE id = :id"),
+        text(
+            f"UPDATE events SET {assignments}, {ts_columns}, updated_at = clock_timestamp()"
+            " WHERE id = :id"
+        ),
         params,
     )
