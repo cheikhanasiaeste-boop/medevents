@@ -6,9 +6,11 @@ from datetime import date
 
 from medevents_ingest.normalize import (
     ParsedDateRange,
+    ParsedLocation,
     infer_event_kind,
     infer_format,
     parse_date_range,
+    parse_location,
 )
 
 
@@ -90,3 +92,30 @@ class TestInferEventKind:
 
     def test_unknown_is_other(self) -> None:
         assert infer_event_kind("Mystery Event") == "other"
+
+
+class TestParseLocation:
+    def test_city_country(self) -> None:
+        assert parse_location("Umbria, Italy") == ParsedLocation(
+            city="Umbria", country_iso="IT", venue_name=None
+        )
+
+    def test_us_city_no_country_defaults_us_when_hinted(self) -> None:
+        assert parse_location("Indianapolis", default_country_iso="US") == ParsedLocation(
+            city="Indianapolis", country_iso="US", venue_name=None
+        )
+
+    def test_barcelona_spain(self) -> None:
+        assert parse_location("Barcelona, Spain") == ParsedLocation(
+            city="Barcelona", country_iso="ES", venue_name=None
+        )
+
+    def test_venue_prefix(self) -> None:
+        assert parse_location(
+            "Indiana Convention Center, Indianapolis", default_country_iso="US"
+        ) == ParsedLocation(
+            venue_name="Indiana Convention Center", city="Indianapolis", country_iso="US"
+        )
+
+    def test_empty_returns_empty_parsed_location(self) -> None:
+        assert parse_location("") == ParsedLocation(city=None, country_iso=None, venue_name=None)

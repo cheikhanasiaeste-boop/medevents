@@ -182,3 +182,64 @@ def infer_event_kind(raw_title: str) -> str:
     if "travel destination" in t:
         return "training"
     return "other"
+
+
+_COUNTRY_NAME_TO_ISO: dict[str, str] = {
+    "united states": "US",
+    "usa": "US",
+    "u.s.a.": "US",
+    "u.s.": "US",
+    "us": "US",
+    "italy": "IT",
+    "spain": "ES",
+    "france": "FR",
+    "germany": "DE",
+    "united kingdom": "GB",
+    "uk": "GB",
+    "morocco": "MA",
+    "algeria": "DZ",
+    "tunisia": "TN",
+    "dubai": "AE",
+    "uae": "AE",
+    "united arab emirates": "AE",
+    "canada": "CA",
+}
+
+
+@dataclass(frozen=True)
+class ParsedLocation:
+    city: str | None = None
+    country_iso: str | None = None
+    venue_name: str | None = None
+
+
+def parse_location(raw: str, *, default_country_iso: str | None = None) -> ParsedLocation:
+    """Parse a location-ish string into (venue_name?, city, country_iso?).
+
+    Intentionally conservative for W2 - no geocoding, no fuzzy matching. Rules:
+      - "City, Country"             -> city=City, country_iso=lookup(Country)
+      - "Venue, City"               -> venue_name=Venue, city=City, country_iso=default
+      - "City"                      -> city=City, country_iso=default
+      - "" or whitespace            -> all fields None
+    Unknown country names leave country_iso=None (caller decides whether to review).
+    """
+    text = raw.strip().replace("\u00a0", " ")
+    if not text:
+        return ParsedLocation()
+    parts = [p.strip() for p in text.split(",") if p.strip()]
+    if len(parts) == 1:
+        return ParsedLocation(city=parts[0], country_iso=default_country_iso, venue_name=None)
+    if len(parts) == 2:
+        # Disambiguate "City, Country" vs "Venue, City":
+        iso = _COUNTRY_NAME_TO_ISO.get(parts[1].lower())
+        if iso is not None:
+            return ParsedLocation(city=parts[0], country_iso=iso, venue_name=None)
+        # Treat part 0 as venue, part 1 as city, default country.
+        return ParsedLocation(venue_name=parts[0], city=parts[1], country_iso=default_country_iso)
+    # 3+ segments -> assume "Venue, City, Country"
+    iso = _COUNTRY_NAME_TO_ISO.get(parts[-1].lower())
+    return ParsedLocation(
+        venue_name=parts[0],
+        city=parts[1],
+        country_iso=iso if iso is not None else default_country_iso,
+    )
