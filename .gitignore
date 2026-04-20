@@ -1,0 +1,44 @@
+# Node
+node_modules/
+.next/
+.turbo/
+*.tsbuildinfo
+dist/
+out/
+.vercel/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Env / secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Drizzle
+drizzle/
+
+# Test artifacts
+coverage/
+playwright-report/
+test-results/
+
+# Docker volumes
+docker-data/
+
+# Local CLI scratch
+*.log
