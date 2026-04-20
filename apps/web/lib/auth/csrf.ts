@@ -1,5 +1,6 @@
 import "server-only";
 import crypto from "node:crypto";
+import type { SessionData } from "./session";
 
 /**
  * Double-submit CSRF token bound to a session id.
@@ -25,6 +26,20 @@ export function generateCsrfToken(sessionId: string): string {
     .update(sessionId + "." + random)
     .digest("hex");
   return random + "." + mac;
+}
+
+/**
+ * Derive a stable per-session id to bind CSRF tokens to.
+ * Must only be called on an authenticated session (actor + issuedAt + expiresAt set).
+ * Throws if the session is not authenticated, to keep callers honest.
+ */
+export function getCsrfSessionId(session: SessionData): string {
+  if (!session.actor || !session.issuedAt || !session.expiresAt) {
+    throw new Error(
+      "getCsrfSessionId called on an unauthenticated session — check isAuthenticated first",
+    );
+  }
+  return `${session.actor}:${session.issuedAt}`;
 }
 
 export function verifyCsrfToken(token: string, sessionId: string): boolean {
