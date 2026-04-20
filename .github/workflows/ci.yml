@@ -1,0 +1,124 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ts:
+    name: TypeScript (lint + typecheck + unit tests)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+
+  python:
+    name: Python (ruff + mypy + pytest)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: medevents
+          POSTGRES_PASSWORD: medevents
+          POSTGRES_DB: medevents
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U medevents"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://medevents:medevents@localhost:5432/medevents
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Enable required extensions on test DB
+        run: |
+          psql "$DATABASE_URL" -c "CREATE EXTENSION IF NOT EXISTS pgcrypto;"
+          psql "$DATABASE_URL" -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+          psql "$DATABASE_URL" -c "CREATE EXTENSION IF NOT EXISTS unaccent;"
+          psql "$DATABASE_URL" -c "CREATE EXTENSION IF NOT EXISTS citext;"
+      - working-directory: services/ingest
+        run: uv sync
+      - working-directory: services/ingest
+        run: uv run ruff check .
+      - working-directory: services/ingest
+        run: uv run ruff format --check .
+      - working-directory: services/ingest
+        run: uv run mypy medevents_ingest
+      - working-directory: services/ingest
+        run: uv run alembic -c ../../db/migrations/alembic.ini upgrade head
+      - working-directory: services/ingest
+        run: uv run pytest -v
+
+  schema-drift:
+    name: Drizzle schema drift check
+    runs-on: ubuntu-latest
+    needs: python
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: medevents
+          POSTGRES_PASSWORD: medevents
+          POSTGRES_DB: medevents
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U medevents"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://medevents:medevents@localhost:5432/medevents
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Apply migrations
+        run: |
+          psql "$DATABASE_URL" -c "CREATE EXTENSION IF NOT EXISTS pgcrypto;"
+          psql "$DATABASE_URL" -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+          psql "$DATABASE_URL" -c "CREATE EXTENSION IF NOT EXISTS unaccent;"
+          psql "$DATABASE_URL" -c "CREATE EXTENSION IF NOT EXISTS citext;"
+          cd services/ingest && uv sync && uv run alembic -c ../../db/migrations/alembic.ini upgrade head
+      - run: pnpm install --frozen-lockfile
+      - name: drizzle-kit pull and verify no diff
+        working-directory: apps/web
+        run: |
+          pnpm db:pull
+          if ! git diff --quiet ../../packages/shared/db/schema.ts; then
+            echo "ERROR: drizzle-kit pull produced changes not in repo. Commit the regenerated schema.ts."
+            git diff ../../packages/shared/db/schema.ts
+            exit 1
+          fi

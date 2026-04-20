@@ -16,7 +16,7 @@ MVP is not trying to be a perfect source-of-truth platform on day one. It is try
 
 Medical and dental professionals planning which fairs, seminars, congresses, and trainings to attend.
 
-**Primary job:** *filtered browsing* — "show me relevant events by specialty, region, date range, and format."
+**Primary job:** _filtered browsing_ — "show me relevant events by specialty, region, date range, and format."
 
 Not a feed. Not a blog. Not a generic calendar website.
 
@@ -36,13 +36,13 @@ The product should feel premium and decision-dense, but the system should earn c
 
 ## MVP scope
 
-| Dimension | Commitment |
-|---|---|
-| Category | Medical and dental events, with scope narrowing allowed if focus pressure appears |
-| Coverage | Curated known sources first; automation over breadth theater |
-| Effort | Solo, fast validation, complexity added only when proven |
-| Infra stance | Simplest stack that keeps automation reliable |
-| Primary UX | Filtered browsing (premium directory) |
+| Dimension    | Commitment                                                                        |
+| ------------ | --------------------------------------------------------------------------------- |
+| Category     | Medical and dental events, with scope narrowing allowed if focus pressure appears |
+| Coverage     | Curated known sources first; automation over breadth theater                      |
+| Effort       | Solo, fast validation, complexity added only when proven                          |
+| Infra stance | Simplest stack that keeps automation reliable                                     |
+| Primary UX   | Filtered browsing (premium directory)                                             |
 
 ## Decision heuristics
 

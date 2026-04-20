@@ -1,13 +1,13 @@
 # MedEvents — W1 Foundation Sub-Spec (Schema, Parser Interface, Operator Bones)
 
-| | |
-|---|---|
-| **Status** | Active |
-| **Date** | 2026-04-20 |
-| **Wave** | W1 (foundation under W0 setup) |
-| **Scope** | Implementation-driving spec for the foundation wave: database schema, migration tooling, parser interface, MVP operator pages, search approach |
-| **Reads with** | [`docs/mission.md`](../../mission.md), [`docs/guidelines.md`](../../guidelines.md), [`docs/state.md`](../../state.md), [`./2026-04-20-medevents-automated-directory-mvp.md`](./2026-04-20-medevents-automated-directory-mvp.md) |
-| **Plan target** | One combined W0+W1 implementation plan follows this spec |
+|                 |                                                                                                                                                                                                                                 |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Status**      | Active                                                                                                                                                                                                                          |
+| **Date**        | 2026-04-20                                                                                                                                                                                                                      |
+| **Wave**        | W1 (foundation under W0 setup)                                                                                                                                                                                                  |
+| **Scope**       | Implementation-driving spec for the foundation wave: database schema, migration tooling, parser interface, MVP operator pages, search approach                                                                                  |
+| **Reads with**  | [`docs/mission.md`](../../mission.md), [`docs/guidelines.md`](../../guidelines.md), [`docs/state.md`](../../state.md), [`./2026-04-20-medevents-automated-directory-mvp.md`](./2026-04-20-medevents-automated-directory-mvp.md) |
+| **Plan target** | One combined W0+W1 implementation plan follows this spec                                                                                                                                                                        |
 
 ---
 
@@ -16,6 +16,7 @@
 This sub-spec covers **only the foundation choices that shape the W0 setup**. Anything not listed here is out of scope and lives in a later wave's sub-spec (W2 ingestion logic, W3 dedupe + multi-source, W4 public polish, W5 hardening).
 
 **In scope:**
+
 - Database schema (6 tables) and indexes
 - Migration tooling and ownership
 - Type generation between Postgres and TS
@@ -27,6 +28,7 @@ This sub-spec covers **only the foundation choices that shape the W0 setup**. An
 - Audit log table
 
 **Out of scope:**
+
 - Actual ingestion pipeline implementation (W2)
 - Generic fallback parser implementation (W3)
 - Multi-source dedupe heuristics (W3)
@@ -38,24 +40,24 @@ This sub-spec covers **only the foundation choices that shape the W0 setup**. An
 
 ## 1 — Locked decisions (W1 brainstorm outcomes)
 
-| # | Topic | Decision |
-|---|---|---|
-| 1 | DB type generation | `drizzle-kit pull` for **DB-derived TS types only**. Hand-write Zod schemas at form/request boundaries where runtime validation matters. |
-| 2 | Specialty storage | `events.specialty_codes text[]` (denormalized, GIN-indexed). Join table is a post-MVP migration when relevance scores or M:N analytics are needed. |
-| 3 | Source error visibility | `sources.last_error_message text NULL` for operator UI. |
-| 4 | Generic fallback parser | Defer to W3. No second-source pressure in W2. |
-| 5 | Scheduling | Fly.io scheduled machines invoking the CLI. No in-process scheduler. |
-| 6 | Audit log | `audit_log` is the 6th MVP table. Worthwhile, not overengineering. |
-| 7 | "Run now" action | **Sync** for single-source runs only. If flaky in real deployment, fall back to CLI-only rather than build job infra. |
-| 8 | Edit form | Full canonical-field override allowed (operator override is part of the exception path). |
-| 9 | Default browse | Exclude `cancelled` and `completed` from default lists; opt-in via filter (`?include=cancelled,completed`). |
-| 10 | Pagination | Offset (`LIMIT/OFFSET`) for MVP. Cursor is a post-pain optimization. |
-| 11 | Schema enums | `text` columns with `CHECK` constraints (no Postgres ENUM types — reversible without migration friction). |
-| 12 | Postgres extensions | `pgcrypto` (`gen_random_uuid`), `pg_trgm`, `unaccent`, `citext`. No PostGIS, no pgvector at MVP. |
-| 13 | Local dev | docker-compose with one Postgres service. |
-| 14 | Prod DB | Neon (managed). Branching is genuinely useful even at MVP. |
-| 15 | Migration ownership | Alembic, hand-written migrations (no SQLAlchemy autogenerate). Lives in `db/migrations/`. |
-| 16 | Audit-log-driven mutations | Every operator mutation writes one `audit_log` row before returning success. |
+| #   | Topic                      | Decision                                                                                                                                           |
+| --- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | DB type generation         | `drizzle-kit pull` for **DB-derived TS types only**. Hand-write Zod schemas at form/request boundaries where runtime validation matters.           |
+| 2   | Specialty storage          | `events.specialty_codes text[]` (denormalized, GIN-indexed). Join table is a post-MVP migration when relevance scores or M:N analytics are needed. |
+| 3   | Source error visibility    | `sources.last_error_message text NULL` for operator UI.                                                                                            |
+| 4   | Generic fallback parser    | Defer to W3. No second-source pressure in W2.                                                                                                      |
+| 5   | Scheduling                 | Fly.io scheduled machines invoking the CLI. No in-process scheduler.                                                                               |
+| 6   | Audit log                  | `audit_log` is the 6th MVP table. Worthwhile, not overengineering.                                                                                 |
+| 7   | "Run now" action           | **Sync** for single-source runs only. If flaky in real deployment, fall back to CLI-only rather than build job infra.                              |
+| 8   | Edit form                  | Full canonical-field override allowed (operator override is part of the exception path).                                                           |
+| 9   | Default browse             | Exclude `cancelled` and `completed` from default lists; opt-in via filter (`?include=cancelled,completed`).                                        |
+| 10  | Pagination                 | Offset (`LIMIT/OFFSET`) for MVP. Cursor is a post-pain optimization.                                                                               |
+| 11  | Schema enums               | `text` columns with `CHECK` constraints (no Postgres ENUM types — reversible without migration friction).                                          |
+| 12  | Postgres extensions        | `pgcrypto` (`gen_random_uuid`), `pg_trgm`, `unaccent`, `citext`. No PostGIS, no pgvector at MVP.                                                   |
+| 13  | Local dev                  | docker-compose with one Postgres service.                                                                                                          |
+| 14  | Prod DB                    | Neon (managed). Branching is genuinely useful even at MVP.                                                                                         |
+| 15  | Migration ownership        | Alembic, hand-written migrations (no SQLAlchemy autogenerate). Lives in `db/migrations/`.                                                          |
+| 16  | Audit-log-driven mutations | Every operator mutation writes one `audit_log` row before returning success.                                                                       |
 
 ---
 
@@ -332,27 +334,27 @@ medevents-ingest run --source ada --page <url>  # re-process a single page
 
 All under the `(admin)` route group, gated by middleware checking the session cookie.
 
-| Path | Purpose |
-|---|---|
-| `/admin/login` | Password form |
-| `/admin` | Dashboard: counts (sources, events, open reviews); recent runs feed |
-| `/admin/sources` | Source list with `last_crawled_at`, `last_error_at`, "Run now", "Toggle active" buttons |
-| `/admin/sources/[id]` | Source detail: recent runs, recent pages, `last_error_message`, edit notes |
-| `/admin/review` | Open review queue, filterable by `kind` |
-| `/admin/review/[id]` | Single review item: per-`kind` UI (merge candidate, dismiss, mark resolved) |
-| `/admin/events` | Event search by title (`pg_trgm` `%`), filters: source / lifecycle_status / is_published |
-| `/admin/events/[id]` | Event detail with full edit form, attached `event_sources`, "Unpublish", "Merge into…" |
+| Path                  | Purpose                                                                                  |
+| --------------------- | ---------------------------------------------------------------------------------------- |
+| `/admin/login`        | Password form                                                                            |
+| `/admin`              | Dashboard: counts (sources, events, open reviews); recent runs feed                      |
+| `/admin/sources`      | Source list with `last_crawled_at`, `last_error_at`, "Run now", "Toggle active" buttons  |
+| `/admin/sources/[id]` | Source detail: recent runs, recent pages, `last_error_message`, edit notes               |
+| `/admin/review`       | Open review queue, filterable by `kind`                                                  |
+| `/admin/review/[id]`  | Single review item: per-`kind` UI (merge candidate, dismiss, mark resolved)              |
+| `/admin/events`       | Event search by title (`pg_trgm` `%`), filters: source / lifecycle_status / is_published |
+| `/admin/events/[id]`  | Event detail with full edit form, attached `event_sources`, "Unpublish", "Merge into…"   |
 
 ### Mutating actions (POST route handlers in Next.js)
 
-| Endpoint | Body | Result |
-|---|---|---|
-| `POST /admin/sources/[id]/run` | none | Sync invocation of the ingest CLI for a single source. Blocks until complete or 60s timeout (whichever first). Writes `audit_log('source.run', target_id=source_id)`. **If flaky in real use, this button gets removed and the operator runs CLI directly** — no job-queue infra. |
-| `POST /admin/sources/[id]/toggle-active` | none | Flips `is_active`. `audit_log('source.toggle')`. |
-| `POST /admin/review/[id]/resolve` | `{ resolution_note }` | Sets `status='resolved'`, `resolved_at`, `resolved_by`, `resolution_note`. `audit_log('review.resolve')`. |
-| `POST /admin/review/[id]/merge` | `{ target_event_id }` | Only for `kind='duplicate_candidate'`. Re-points `event_sources` to target, deletes the duplicate, creates `audit_log('review.merge')`. |
-| `POST /admin/events/[id]` | `{ ...editable fields }` | Updates any canonical field. `audit_log('event.edit', details_json={changed_fields})`. |
-| `POST /admin/events/[id]/unpublish` | none | Sets `is_published=false`. `audit_log('event.unpublish')`. |
+| Endpoint                                 | Body                     | Result                                                                                                                                                                                                                                                                            |
+| ---------------------------------------- | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /admin/sources/[id]/run`           | none                     | Sync invocation of the ingest CLI for a single source. Blocks until complete or 60s timeout (whichever first). Writes `audit_log('source.run', target_id=source_id)`. **If flaky in real use, this button gets removed and the operator runs CLI directly** — no job-queue infra. |
+| `POST /admin/sources/[id]/toggle-active` | none                     | Flips `is_active`. `audit_log('source.toggle')`.                                                                                                                                                                                                                                  |
+| `POST /admin/review/[id]/resolve`        | `{ resolution_note }`    | Sets `status='resolved'`, `resolved_at`, `resolved_by`, `resolution_note`. `audit_log('review.resolve')`.                                                                                                                                                                         |
+| `POST /admin/review/[id]/merge`          | `{ target_event_id }`    | Only for `kind='duplicate_candidate'`. Re-points `event_sources` to target, deletes the duplicate, creates `audit_log('review.merge')`.                                                                                                                                           |
+| `POST /admin/events/[id]`                | `{ ...editable fields }` | Updates any canonical field. `audit_log('event.edit', details_json={changed_fields})`.                                                                                                                                                                                            |
+| `POST /admin/events/[id]/unpublish`      | none                     | Sets `is_published=false`. `audit_log('event.unpublish')`.                                                                                                                                                                                                                        |
 
 **Editable fields on `/admin/events/[id]`** (full canonical-field override): `title, summary, starts_on, ends_on, timezone, city, country_iso, venue_name, format, event_kind, lifecycle_status, specialty_codes, organizer_name, source_url, registration_url, slug, is_published`.
 
@@ -408,23 +410,23 @@ LIMIT $limit OFFSET $offset;
 
 The wave is complete when:
 
-| # | Criterion |
-|---|---|
-| 1 | All 6 tables exist in Postgres via Alembic migration (forward-only). |
-| 2 | All extensions enabled: `pgcrypto`, `pg_trgm`, `unaccent`, `citext`. |
-| 3 | All MVP indexes created and verified via `\d+`. |
-| 4 | `drizzle-kit pull` emits clean TS types into `packages/shared/db/`; CI passes the drift gate. |
-| 5 | `config/sources.yaml` seed file defines at least 1 source (ADA) with `parser_name = 'ada_listing'`. |
-| 6 | `config/specialties.yaml` defines the dental specialty codes used in seed events. |
-| 7 | Importer command `medevents-ingest seed-sources` upserts the YAML into `sources`. |
-| 8 | Parser interface (`Parser` Protocol + `@register_parser` decorator + `parser_for(source)` resolver) is in place; `services/ingest/parsers/__init__.py` registers an empty registry. |
-| 9 | CLI shape exists: `medevents-ingest run --source <code>` is callable but only resolves the parser and exits cleanly (full ingest logic is W2). |
-| 10 | Operator routes scaffolded under `apps/web/app/(admin)/`: login, dashboard, sources list/detail, review list/detail, events list/detail. Pages render against real DB; mutating handlers write `audit_log`. |
-| 11 | Login flow works end-to-end: password hash check → iron-session cookie → middleware-protected admin pages. |
-| 12 | "Run now" button on `/admin/sources/[id]` invokes the CLI sync (in W1 this just resolves and exits cleanly; W2 makes it actually crawl). |
-| 13 | `/admin/events` returns paginated rows with the W1 filter SQL working; `pg_trgm` fuzzy title proven by manual smoke. |
-| 14 | All mutating actions write `audit_log` rows; verified by inspecting the table after operator clicks. |
-| 15 | CI gates green: lint + types + Alembic forward + drizzle-kit pull drift + Vitest smoke + Playwright login flow. |
+| #   | Criterion                                                                                                                                                                                                   |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | All 6 tables exist in Postgres via Alembic migration (forward-only).                                                                                                                                        |
+| 2   | All extensions enabled: `pgcrypto`, `pg_trgm`, `unaccent`, `citext`.                                                                                                                                        |
+| 3   | All MVP indexes created and verified via `\d+`.                                                                                                                                                             |
+| 4   | `drizzle-kit pull` emits clean TS types into `packages/shared/db/`; CI passes the drift gate.                                                                                                               |
+| 5   | `config/sources.yaml` seed file defines at least 1 source (ADA) with `parser_name = 'ada_listing'`.                                                                                                         |
+| 6   | `config/specialties.yaml` defines the dental specialty codes used in seed events.                                                                                                                           |
+| 7   | Importer command `medevents-ingest seed-sources` upserts the YAML into `sources`.                                                                                                                           |
+| 8   | Parser interface (`Parser` Protocol + `@register_parser` decorator + `parser_for(source)` resolver) is in place; `services/ingest/parsers/__init__.py` registers an empty registry.                         |
+| 9   | CLI shape exists: `medevents-ingest run --source <code>` is callable but only resolves the parser and exits cleanly (full ingest logic is W2).                                                              |
+| 10  | Operator routes scaffolded under `apps/web/app/(admin)/`: login, dashboard, sources list/detail, review list/detail, events list/detail. Pages render against real DB; mutating handlers write `audit_log`. |
+| 11  | Login flow works end-to-end: password hash check → iron-session cookie → middleware-protected admin pages.                                                                                                  |
+| 12  | "Run now" button on `/admin/sources/[id]` invokes the CLI sync (in W1 this just resolves and exits cleanly; W2 makes it actually crawl).                                                                    |
+| 13  | `/admin/events` returns paginated rows with the W1 filter SQL working; `pg_trgm` fuzzy title proven by manual smoke.                                                                                        |
+| 14  | All mutating actions write `audit_log` rows; verified by inspecting the table after operator clicks.                                                                                                        |
+| 15  | CI gates green: lint + types + Alembic forward + drizzle-kit pull drift + Vitest smoke + Playwright login flow.                                                                                             |
 
 ---
 
@@ -454,10 +456,10 @@ The wave is complete when:
 
 ## 13 — Status
 
-| Step | State |
-|---|---|
-| W1 brainstorm | ✅ Complete (defaults locked + 3 schema fixes + sync-run guardrail) |
-| W1 sub-spec | ✅ This document |
-| W0+W1 implementation plan | ⏳ Next via `writing-plans` skill |
-| W0 setup (git init local first → gh repo create) | ⏳ Step 1 of the plan |
-| W2 sub-spec brainstorm | ⏳ Follows W1 implementation completion + gate |
+| Step                                             | State                                                               |
+| ------------------------------------------------ | ------------------------------------------------------------------- |
+| W1 brainstorm                                    | ✅ Complete (defaults locked + 3 schema fixes + sync-run guardrail) |
+| W1 sub-spec                                      | ✅ This document                                                    |
+| W0+W1 implementation plan                        | ⏳ Next via `writing-plans` skill                                   |
+| W0 setup (git init local first → gh repo create) | ⏳ Step 1 of the plan                                               |
+| W2 sub-spec brainstorm                           | ⏳ Follows W1 implementation completion + gate                      |

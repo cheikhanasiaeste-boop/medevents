@@ -1,0 +1,35 @@
+# Package manager lockfiles (managed by the package manager, not prettier)
+pnpm-lock.yaml
+uv.lock
+package-lock.json
+yarn.lock
+
+# Next.js generated files
+.next/
+next-env.d.ts
+
+# Python artifacts
+.venv/
+__pycache__/
+*.pyc
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Secrets baseline (detect-secrets managed)
+.secrets.baseline
+
+# Drizzle output (introspection managed)
+packages/shared/db/schema.ts
+packages/shared/db/relations.ts
+packages/shared/db/meta/
+
+# Build outputs
+dist/
+out/
+coverage/
+playwright-report/
+test-results/
+
+# Docker volumes
+docker-data/
