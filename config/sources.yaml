@@ -2,6 +2,12 @@
 # This file is the source of truth for `sources.onboarded_by = 'seed'` rows.
 # Adding/editing a source: open a PR; the importer (`medevents-ingest seed-sources`)
 # upserts these rows on every run.
+#
+# Source-code naming convention — see docs/runbooks/ada-fixtures.md:
+#   - short shared-calendar parsers: organization abbreviation only
+#     (ada, gnydm)
+#   - single-flagship meetings: abbreviation + event slug, snake_case
+#     (aap_annual_meeting, fdi_wdc, eao_congress, cds_midwinter)
 
 - code: ada
   name: American Dental Association
@@ -12,8 +18,11 @@
   parser_name: ada_listing
   crawl_frequency: weekly
   crawl_config:
-    listing_url: https://www.ada.org/meetings-events
+    listing_url: https://www.ada.org/education/continuing-education/ada-ce-live-workshops
     pagination: none
     rate_limit_per_minute: 10
   notes: |
-    ADA primary listings page. Detail pages on www.ada.org/meetings-events/.
+    ADA continuing-education live workshops schedule + ADA Scientific Session
+    landing. W2 implementation plan treats both as seed pages. See
+    docs/superpowers/specs/2026-04-20-medevents-w2-first-source-ingestion.md §2
+    and docs/runbooks/ada-fixtures.md for the exact URL resolution.
