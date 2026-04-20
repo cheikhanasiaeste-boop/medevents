@@ -4,7 +4,12 @@ from __future__ import annotations
 
 from datetime import date
 
-from medevents_ingest.normalize import ParsedDateRange, parse_date_range
+from medevents_ingest.normalize import (
+    ParsedDateRange,
+    infer_event_kind,
+    infer_format,
+    parse_date_range,
+)
 
 
 class TestParseDateRange:
@@ -45,3 +50,43 @@ class TestParseDateRange:
 
     def test_empty_returns_none(self) -> None:
         assert parse_date_range("", page_year=2026) is None
+
+
+class TestInferFormat:
+    def test_live_webinar_is_virtual(self) -> None:
+        assert infer_format("Live Webinar: Pharmacology") == "virtual"
+
+    def test_live_workshop_is_in_person(self) -> None:
+        assert infer_format("Live Workshop on Botulinum Toxins") == "in_person"
+
+    def test_seminar_is_in_person(self) -> None:
+        assert infer_format("Continuing Education Seminar") == "in_person"
+
+    def test_scientific_session_is_in_person(self) -> None:
+        assert infer_format("ADA 2026 Scientific Session") == "in_person"
+
+    def test_travel_destination_is_in_person(self) -> None:
+        assert infer_format("Travel Destination CE: Umbria, Italy") == "in_person"
+
+    def test_unknown_label_returns_unknown(self) -> None:
+        assert infer_format("Mystery Event") == "unknown"
+
+
+class TestInferEventKind:
+    def test_scientific_session_is_conference(self) -> None:
+        assert infer_event_kind("ADA 2026 Scientific Session") == "conference"
+
+    def test_workshop_is_workshop(self) -> None:
+        assert infer_event_kind("Live Workshop on Botox") == "workshop"
+
+    def test_seminar_is_seminar(self) -> None:
+        assert infer_event_kind("Oral Cancer Seminar") == "seminar"
+
+    def test_webinar_is_webinar(self) -> None:
+        assert infer_event_kind("Live Webinar: Pharmacology") == "webinar"
+
+    def test_travel_destination_ce_is_training(self) -> None:
+        assert infer_event_kind("Travel Destination CE: Pharmacology") == "training"
+
+    def test_unknown_is_other(self) -> None:
+        assert infer_event_kind("Mystery Event") == "other"

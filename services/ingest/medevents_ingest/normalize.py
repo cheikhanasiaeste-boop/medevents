@@ -141,3 +141,44 @@ def parse_date_range(raw: str, *, page_year: int | None) -> ParsedDateRange | No
         return ParsedDateRange(starts_on=d, ends_on=None)
 
     return None
+
+
+def infer_format(raw_title: str) -> str:
+    """Map a raw event title to 'virtual' | 'in_person' | 'unknown'.
+
+    Rules (W2 spec §5):
+      - 'Live Webinar' -> virtual
+      - 'Live Workshop', 'Seminar', 'Scientific Session', 'Travel Destination' -> in_person
+      - anything else -> unknown
+    """
+    t = raw_title.lower()
+    if "webinar" in t:
+        return "virtual"
+    if any(k in t for k in ("workshop", "seminar", "scientific session", "travel destination")):
+        return "in_person"
+    return "unknown"
+
+
+def infer_event_kind(raw_title: str) -> str:
+    """Map a raw event title to the events.event_kind check-constraint domain.
+
+    Rules (W2 spec §5):
+      - 'Scientific Session' -> conference
+      - 'Workshop'           -> workshop
+      - 'Seminar'            -> seminar
+      - 'Webinar'            -> webinar
+      - 'Travel Destination' -> training
+      - anything else        -> other
+    """
+    t = raw_title.lower()
+    if "scientific session" in t:
+        return "conference"
+    if "workshop" in t:
+        return "workshop"
+    if "seminar" in t:
+        return "seminar"
+    if "webinar" in t:
+        return "webinar"
+    if "travel destination" in t:
+        return "training"
+    return "other"
