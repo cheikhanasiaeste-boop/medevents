@@ -1,3 +1,5 @@
+import { loginAction } from "./actions";
+
 export default async function LoginPage({
   searchParams,
 }: {
@@ -17,7 +19,7 @@ export default async function LoginPage({
         </p>
       )}
 
-      <form method="POST" action="/admin/login" className="mt-6 space-y-3">
+      <form action={loginAction} className="mt-6 space-y-3">
         <input type="hidden" name="next" value={params.next ?? "/admin"} />
         <label className="block text-sm font-medium text-slate-700">
           Password
