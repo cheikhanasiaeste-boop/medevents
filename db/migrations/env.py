@@ -6,13 +6,23 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
+
+def _normalize_pg_url(url: str) -> str:
+    """Force SQLAlchemy to use the psycopg (v3) driver since we ship psycopg, not psycopg2."""
+    if url.startswith("postgresql://"):
+        return "postgresql+psycopg://" + url[len("postgresql://") :]
+    return url
+
+
 config = context.config
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-if (db_url := os.getenv("DATABASE_URL")) is not None:
-    config.set_main_option("sqlalchemy.url", db_url)
+_env_url = os.getenv("DATABASE_URL")
+_current_url = _env_url if _env_url is not None else config.get_main_option("sqlalchemy.url")
+if _current_url is not None:
+    config.set_main_option("sqlalchemy.url", _normalize_pg_url(_current_url))
 
 target_metadata = None  # We hand-write SQL; no autogenerate.
 
