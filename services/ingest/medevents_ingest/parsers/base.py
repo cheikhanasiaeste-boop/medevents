@@ -84,5 +84,9 @@ class Parser(Protocol):
     def fetch(self, page: SourcePageRef) -> FetchedContent:
         """Fetch a single page. Default impl typically uses httpx; override for Playwright."""
 
-    def parse(self, content: FetchedContent) -> ParsedEvent | None:
-        """Return None when the page is not a recognizable event detail page."""
+    def parse(self, content: FetchedContent) -> Iterator[ParsedEvent]:
+        """Yield 0, 1, or N events extracted from the fetched content.
+
+        Listing pages yield one event per schedule row. Detail pages typically yield
+        one event. Non-event pages yield nothing.
+        """

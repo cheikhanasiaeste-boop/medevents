@@ -44,8 +44,8 @@ def _make_fake_parser_class(name: str) -> type:
                 content_hash="deadbeef",
             )
 
-        def parse(self, content: FetchedContent) -> ParsedEvent | None:
-            return None
+        def parse(self, content: FetchedContent) -> Iterator[ParsedEvent]:
+            return iter(())  # zero events
 
     _FakeParser.__name__ = f"Fake_{name}"
     return _FakeParser
