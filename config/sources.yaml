@@ -1,0 +1,19 @@
+# Curated seed sources for MVP.
+# This file is the source of truth for `sources.onboarded_by = 'seed'` rows.
+# Adding/editing a source: open a PR; the importer (`medevents-ingest seed-sources`)
+# upserts these rows on every run.
+
+- code: ada
+  name: American Dental Association
+  homepage_url: https://www.ada.org/
+  source_type: society
+  country_iso: US
+  is_active: true
+  parser_name: ada_listing
+  crawl_frequency: weekly
+  crawl_config:
+    listing_url: https://www.ada.org/meetings-events
+    pagination: none
+    rate_limit_per_minute: 10
+  notes: |
+    ADA primary listings page. Detail pages on www.ada.org/meetings-events/.
