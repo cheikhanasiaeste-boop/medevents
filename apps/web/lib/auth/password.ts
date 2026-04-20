@@ -1,26 +1,27 @@
 import "server-only";
-import argon2 from "argon2";
+import { hash, verify } from "@node-rs/argon2";
 
+// Algorithm.Argon2id = 2 (const enum; inlined manually due to isolatedModules)
 const ARGON2_OPTIONS = {
-  type: argon2.argon2id,
-  memoryCost: 19_456, // 19 MiB
+  algorithm: 2 as const, // Argon2id
+  memoryCost: 19_456,
   timeCost: 2,
   parallelism: 1,
-} satisfies argon2.Options;
+} as const;
 
 export async function hashPassword(plain: string): Promise<string> {
   if (plain.length < 12) {
     throw new Error("password must be at least 12 characters");
   }
-  return argon2.hash(plain, ARGON2_OPTIONS);
+  return hash(plain, ARGON2_OPTIONS);
 }
 
 export async function verifyPassword(
-  hash: string,
+  hashed: string,
   plain: string,
 ): Promise<boolean> {
   try {
-    return await argon2.verify(hash, plain);
+    return await verify(hashed, plain);
   } catch {
     return false;
   }

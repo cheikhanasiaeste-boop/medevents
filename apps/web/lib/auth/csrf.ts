@@ -17,11 +17,8 @@ function getSecret(): string {
   return s;
 }
 
-export function generateCsrfToken(
-  sessionId: string,
-  secretOverride?: string,
-): string {
-  const secret = secretOverride ?? getSecret();
+export function generateCsrfToken(sessionId: string): string {
+  const secret = getSecret();
   const random = crypto.randomBytes(16).toString("hex");
   const mac = crypto
     .createHmac("sha256", secret)
@@ -30,12 +27,8 @@ export function generateCsrfToken(
   return random + "." + mac;
 }
 
-export function verifyCsrfToken(
-  token: string,
-  sessionId: string,
-  secretOverride?: string,
-): boolean {
-  const secret = secretOverride ?? getSecret();
+export function verifyCsrfToken(token: string, sessionId: string): boolean {
+  const secret = getSecret();
   const parts = token.split(".");
   if (parts.length !== 2) return false;
   const [random, mac] = parts;
