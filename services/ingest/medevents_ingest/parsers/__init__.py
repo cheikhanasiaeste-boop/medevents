@@ -73,3 +73,6 @@ __all__ = [
     "register_parser",
     "registered_parser_names",
 ]
+
+# Side-effect: registers the ADA parser.
+from . import ada  # noqa: E402,F401
