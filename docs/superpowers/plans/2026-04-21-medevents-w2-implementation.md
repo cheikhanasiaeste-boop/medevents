@@ -14,18 +14,18 @@
 
 ## Progress
 
-_Unstarted — first task is §Phase 1 Task 1._
+_W2 implementation complete on 2026-04-21; see docs/runbooks/w2-done-confirmation.md for §9 criteria tick-off._
 
 | Phase | Scope                                                                          | State |
 | ----- | ------------------------------------------------------------------------------ | ----- |
-| 1     | Deps + `Parser.parse()` Protocol widening                                      | ⏳    |
-| 2     | Normalization pure functions (dates, format, event-kind, location)             | ⏳    |
-| 3     | Repository layer for `source_pages`, `events`, `event_sources`, `review_items` | ⏳    |
-| 4     | HTTP fetch + content-hash                                                      | ⏳    |
-| 5     | ADA parser (listing + detail)                                                  | ⏳    |
-| 6     | Pipeline orchestration + source-local dedupe + review-item generation          | ⏳    |
-| 7     | CLI wiring + seed URL array in sources.yaml                                    | ⏳    |
-| 8     | End-to-end fixture integration test + §9 exit criteria confirmation            | ⏳    |
+| 1     | Deps + `Parser.parse()` Protocol widening                                      | ✅    |
+| 2     | Normalization pure functions (dates, format, event-kind, location)             | ✅    |
+| 3     | Repository layer for `source_pages`, `events`, `event_sources`, `review_items` | ✅    |
+| 4     | HTTP fetch + content-hash                                                      | ✅    |
+| 5     | ADA parser (listing + detail)                                                  | ✅    |
+| 6     | Pipeline orchestration + source-local dedupe + review-item generation          | ✅    |
+| 7     | CLI wiring + seed URL array in sources.yaml                                    | ✅    |
+| 8     | End-to-end fixture integration test + §9 exit criteria confirmation            | ✅    |
 
 ---
 

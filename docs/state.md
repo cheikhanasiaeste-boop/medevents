@@ -1,13 +1,24 @@
 # MedEvents — Current State
 
-_Last updated: 2026-04-21 at Phase 10 closeout; W0+W1 foundation wave is complete on `main`._
+_Last updated: 2026-04-21 at W2 closeout; ADA first-source ingestion is live on main._
 
 ## Status
 
-**W0+W1 foundation wave is complete.** Phases 0-10 are shipped on `main`; W2 (first-source ingestion with ADA) is the next active wave.
+**W0+W1 foundation + W2 ADA ingestion are complete.** Phases 0-10 (foundation) + 8 W2 phases + two fix PRs are all shipped on main; the pipeline runs against live ADA and creates/dedupes events cleanly.
 
 Current mainline checkpoints:
 
+- `061a7de` — chore: bump ruff pre-commit hook to match CI
+- `7a6cce5` — fix: ADA content_hash ignores rotating Sitecore tracking attrs (discovered in live smoke)
+- `503d68a` — W2 Phase 7: CLI wiring + seed_urls array
+- `0d29d20` — W2 Phase 6: pipeline.run_source orchestration
+- `280d59a` — W2 Phase 5: AdaListingParser
+- `4e70e1b` — W2 Phase 4: fetch.fetch_url with content_hash
+- `5588179` — W2 Phase 3: 4 repositories
+- `aab5bd2` — W2 Phase 2: normalize helpers
+- `d6550ec` — W2 Phase 1: bs4/lxml deps + Parser.parse() widened
+- `8ea639f` — W2 docs (spec + prep plan) tracked
+- `83870d6` — W2 prep artifacts (fixtures, naming, seed URL fix)
 - `docs/state-after-w1` — W0+W1 close: branch protection on `main`, final docs sync (this PR)
 - `781dc44` — Phase 10 Task 40: W1 done-confirmation doc against the spec's 15 criteria
 - `3952968` — Phase 10 Task 39: top-level README + local-dev runbook
@@ -24,6 +35,7 @@ Verification state:
 - W1 done-criteria confirmed against spec §10: [`docs/runbooks/w1-done-confirmation.md`](runbooks/w1-done-confirmation.md)
 - Manual browser smoke of the operator happy path completed successfully against the local Homebrew Postgres setup; the three bugs it surfaced are fixed in PR `#28`
 - An opt-in Playwright happy-path smoke spec exists at `apps/web/tests/e2e/happy-path-smoke.spec.ts`; not part of CI
+- Live ADA smoke completed on 2026-04-21: first run created 6 events (Scientific Session + 5 CE rows); subsequent runs report skipped_unchanged=2 via the content_hash gate.
 
 Primary MVP spec:
 
@@ -110,15 +122,16 @@ Reference-only target-state spec:
 
 ## Next focus
 
-| Step                                        | State                                               |
-| ------------------------------------------- | --------------------------------------------------- |
-| Automated directory MVP spec                | ✅ Active                                           |
-| Target-state platform spec                  | ✅ Reference only                                   |
-| W0+W1 foundation                            | ✅ Complete (Phases 0-10 shipped, `main` protected) |
-| W0+W1 implementation plan                   | ✅ Executed                                         |
-| Manual operator smoke                       | ✅ Completed                                        |
-| W2 — one-source end-to-end automation (ADA) | ⏳ Next                                             |
-| Intelligence-platform planning              | ❌ Deferred until justified                         |
+| Step                                                    | State                                                                            |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Automated directory MVP spec                            | ✅ Active                                                                        |
+| Target-state platform spec                              | ✅ Reference only                                                                |
+| W0+W1 foundation                                        | ✅ Complete (Phases 0-10 shipped, `main` protected)                              |
+| W0+W1 implementation plan                               | ✅ Executed                                                                      |
+| Manual operator smoke                                   | ✅ Completed                                                                     |
+| W2 — one-source end-to-end automation (ADA)             | ✅ Complete (live ADA ingestion on main; 6 events on first run; dedupe verified) |
+| W3 — second source + generic fallback + dedupe maturity | ⏳ Next (candidate: gnydm smoke, then fallback)                                  |
+| Intelligence-platform planning                          | ❌ Deferred until justified                                                      |
 
 ## How to use this document
 
