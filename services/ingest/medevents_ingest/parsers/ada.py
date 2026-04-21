@@ -12,6 +12,7 @@ no recursive crawling in W2 per spec §3.
 
 from __future__ import annotations
 
+import hashlib
 import re
 from collections.abc import Iterator
 from typing import Any
@@ -24,6 +25,28 @@ from .base import DiscoveredPage, FetchedContent, ParsedEvent, SourcePageRef
 
 _ADA_HOST = "www.ada.org"
 _ENGAGE_HOST = "engage.ada.org"
+
+# ADA is a Sitecore site that embeds rotating per-request tracking attributes
+# (featured-story carousel, item versions) into every page. Those attributes have
+# nothing to do with the event content, so stripping them before hashing is what
+# makes the pipeline's content-hash skip gate actually fire on unchanged pages.
+_SITECORE_DYNAMIC_PATTERNS: tuple[re.Pattern[str], ...] = (
+    re.compile(r"data-sc-page-name(?:-full-path)?='[^']*'"),
+    re.compile(r"data-sc-item-(?:uri|id)='[^']*'"),
+    re.compile(r'itemUri:\s*"sitecore://[^"]*"'),
+)
+
+
+def _normalize_body_for_hashing(body: bytes) -> bytes:
+    """Strip ADA/Sitecore per-request tracking attributes before hashing.
+
+    The body itself is passed to the parser unchanged — this only affects the
+    content_hash used by the pipeline's skip gate.
+    """
+    text_val = body.decode("utf-8", errors="replace")
+    for pat in _SITECORE_DYNAMIC_PATTERNS:
+        text_val = pat.sub("", text_val)
+    return text_val.encode("utf-8")
 
 
 @register_parser("ada_listing")
@@ -45,7 +68,7 @@ class AdaListingParser:
         from ..fetch import fetch_url, make_default_client
 
         with make_default_client() as client:
-            return fetch_url(
+            fc = fetch_url(
                 page.url,
                 client=client,
                 user_agent=(
@@ -54,6 +77,15 @@ class AdaListingParser:
                     "contact: cheikhanas.iaeste@gmail.com)"
                 ),
             )
+        stable_hash = hashlib.sha256(_normalize_body_for_hashing(fc.body)).hexdigest()
+        return FetchedContent(
+            url=fc.url,
+            status_code=fc.status_code,
+            content_type=fc.content_type,
+            body=fc.body,
+            fetched_at=fc.fetched_at,
+            content_hash=stable_hash,
+        )
 
     def parse(self, content: FetchedContent) -> Iterator[ParsedEvent]:
         soup = BeautifulSoup(content.body, "lxml")
