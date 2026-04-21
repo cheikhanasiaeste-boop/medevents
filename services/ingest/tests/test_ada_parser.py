@@ -63,9 +63,9 @@ def test_parse_workshops_extracts_date_range_for_june_12_13() -> None:
     botox = next(
         (e for e in events if "Botulinum" in e.title and e.starts_on == "2026-06-12"), None
     )
-    assert (
-        botox is not None
-    ), f"no June 12 Botulinum match; titles seen: {[e.title for e in events]}"
+    assert botox is not None, (
+        f"no June 12 Botulinum match; titles seen: {[e.title for e in events]}"
+    )
     assert botox.ends_on == "2026-06-13"
     assert botox.format == "in_person"
     assert botox.event_kind == "workshop"
@@ -82,9 +82,9 @@ def test_parse_workshops_extracts_external_registration_and_location() -> None:
         (e for e in events if "Travel Destination" in e.title and e.starts_on == "2026-09-08"),
         None,
     )
-    assert (
-        umbria is not None
-    ), f"no Umbria Travel Destination match; starts_on seen: {[e.starts_on for e in events]}"
+    assert umbria is not None, (
+        f"no Umbria Travel Destination match; starts_on seen: {[e.starts_on for e in events]}"
+    )
     assert umbria.registration_url and umbria.registration_url.startswith("https://engage.ada.org/")
     assert umbria.city == "Umbria"
     assert umbria.country_iso == "IT"
