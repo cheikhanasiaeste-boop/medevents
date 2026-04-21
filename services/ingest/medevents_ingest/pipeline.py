@@ -182,7 +182,20 @@ def _persist_event(
         starts_on=starts_on,
     )
     if match_id is None and candidate.registration_url:
-        match_id = find_event_by_registration_url(session, candidate.registration_url)
+        url_match_id = find_event_by_registration_url(session, candidate.registration_url)
+        if url_match_id is not None:
+            # Only use this match if the start date also aligns — prevents collapsing two
+            # distinct occurrences of the same recurring course that share a registration URL.
+            row = (
+                session.execute(
+                    text("SELECT starts_on FROM events WHERE id = :id"),
+                    {"id": str(url_match_id)},
+                )
+                .mappings()
+                .one()
+            )
+            if row["starts_on"] == starts_on:
+                match_id = url_match_id
 
     if match_id is None:
         event_id = insert_event(
