@@ -15,6 +15,7 @@ from pathlib import Path
 import pytest
 from medevents_ingest.db import session_scope
 from medevents_ingest.models import SourceSeed
+from medevents_ingest.parsers import registered_parser_names
 from medevents_ingest.parsers.base import FetchedContent, SourcePageRef
 from medevents_ingest.pipeline import PipelineResult, run_source
 from medevents_ingest.repositories.sources import upsert_source_seed
@@ -26,6 +27,17 @@ pytestmark = pytest.mark.skipif(
 )
 
 FIXTURES = Path(__file__).parent / "fixtures" / "ada"
+
+
+@pytest.fixture(autouse=True)
+def _ensure_ada_registered() -> None:
+    """Re-register the ADA parser if test_parser_registry cleared the registry."""
+    if "ada_listing" not in registered_parser_names():
+        import importlib
+
+        import medevents_ingest.parsers.ada as _ada_mod
+
+        importlib.reload(_ada_mod)
 
 
 @pytest.fixture(autouse=True)
