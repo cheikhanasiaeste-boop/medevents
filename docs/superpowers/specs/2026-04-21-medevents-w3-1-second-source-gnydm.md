@@ -38,7 +38,13 @@ Ship one reliable end-to-end ingestion flow for GNYDM that:
 
 ### Decision
 
-Use `gnydm` as the second source. `sources.code = 'gnydm'`, `parser_name = 'gnydm_listing'`. Naming follows the convention adopted in [`docs/runbooks/ada-fixtures.md`](../../runbooks/ada-fixtures.md) (short shared-calendar parsers use the organization abbreviation only).
+Use `gnydm` as the second source:
+
+- `sources.code = 'gnydm'` — abbreviation-only, per the convention in [`docs/runbooks/ada-fixtures.md`](../../runbooks/ada-fixtures.md) §"Source-code naming convention".
+- Parser module path: `services/ingest/medevents_ingest/parsers/gnydm.py` — file name mirrors `sources.code`.
+- `parser_name = 'gnydm_listing'` — registered under a descriptive name, same pattern ADA uses (`parser_name: ada_listing` while `sources.code` stays `ada`).
+
+The abbreviation-only rule applies to `sources.code` and the parser module path; `parser_name` is allowed to be descriptive.
 
 ### Why GNYDM
 
@@ -81,8 +87,16 @@ GNYDM uses a **fixed seed list**, same posture as W2/ADA. No recursive crawl exp
 
 ### Detail extraction (homepage)
 
-- Identify the venue block containing `JACOB K. JAVITS CONVENTION CENTER` (or the `Jacob K. Javits Convention Center` inline span variant) plus the nearby date block for the current edition.
-- Yield exactly one `ParsedEvent` for that edition.
+The Meeting-Dates line plus the `JACOB K. JAVITS CONVENTION CENTER` venue block are rendered inside the shared site header and therefore appear on multiple surfaces (the homepage, the future-meetings listing, and the non-seeded `/about/about-gnydm/` page). The venue+date pair alone is **not** a sufficient detail signal. The detail extractor emits a `ParsedEvent` only when **all** of the following hold:
+
+1. `FetchedContent.url` matches the seeded homepage URL (`https://www.gnydm.com/`, up to trailing slash normalization) — the fixed-seed list makes this an available anchor.
+2. The parsed HTML contains at least one `h1.swiper-title` element (the homepage hero-carousel slide, absent from every other fixture).
+3. The Meeting-Dates line is present and parseable.
+4. The venue block is present.
+
+When all four hold, extract the current edition's dates from the Meeting Dates line and yield exactly one `ParsedEvent` for that edition. If any condition fails, yield zero events.
+
+Rationale: the URL anchor pins classification to the one page we intentionally seed as `detail`, and the `h1.swiper-title` check gives structural evidence that the page really is the homepage — so the `about-gnydm` unit-test canary in §8 reliably yields zero events even if it is accidentally routed through the detail code path in a future refactor.
 
 ### Non-event handling
 
@@ -99,6 +113,8 @@ Same `ParsedEvent` shape W2 produces. Required fields populated for every GNYDM 
 - `organizer_name` = `"Greater New York Dental Meeting"`.
 - `source_url` = the URL of the seed page that produced this candidate.
 - `raw_title` and `raw_date_text` populated with the source excerpt for provenance.
+
+`summary` remains optional in W3.1. Parsers must **not** invent filler copy solely to exercise §6 precedence — `summary` is persisted directly onto `events` and is likely to surface to end users, so noise has a product cost. The §6 precedence test instead uses a controlled-disagreement test double; see §6 for the contract.
 
 ---
 
@@ -137,13 +153,18 @@ After **one** successful run against the two seed pages:
 
 ### Detail-over-listing precedence
 
-When the two candidates for the same logical event disagree on a field (for example, a more polished summary on the homepage vs the condensed description on the listing), the **detail-page candidate wins**. The spec does not mandate a mechanism; the implementation plan is free to choose any of:
+When the two candidates for the same logical event disagree on a field, the **detail-page candidate wins**. Under the default shipped fixtures the two candidates are not expected to disagree on any field (see §4: every required field is either deterministically derivable from page content that both pages share, or constant); disagreement is exercised through the controlled-disagreement test described below. The spec does not mandate a mechanism; the implementation plan is free to choose any of:
 
 - deterministic seed-processing order (listing first, detail second) that leverages last-write-wins;
 - explicit precedence branching inside `pipeline._persist_event` that consults `event_sources.source_page_id → source_pages.page_kind`;
 - any other mechanism that produces the same observable outcome.
 
-Whatever mechanism lands must be pinned by an integration test asserting the observable outcome: after a single run, a known listing-specific string does NOT appear on the 2026 event if a detail-specific string is available for the same field.
+Whatever mechanism lands must be pinned by an integration test that exercises a **controlled disagreement** on a single field — the authoritative precedence field for this test is `summary` — without requiring the shipped parsers to emit filler copy. The test manufactures the disagreement via one of:
+
+- a parser monkeypatch / test double that makes the listing candidate and the detail candidate return different non-null `summary` values for the 2026 edition on a single run, or
+- a dedicated test-only fixture variant (not shipped in the default fixture set) that carries listing-vs-detail summary differences.
+
+After one run over the (mocked or test-only) disagreement setup, the persisted 2026 `events` row resolves to the **detail** candidate's `summary` value. A complementary assertion checks that this precedence behavior does not alter the real-fixture run: over the default shipped fixtures (where §4 leaves `summary` null on both sides), the 2026 row's `summary` is null and the exit-criteria counts in §9 are unchanged.
 
 ### Re-run idempotence
 
@@ -179,10 +200,12 @@ No new review-item kinds are introduced by GNYDM.
 
 - parser: listing page yields the 2026, 2027, 2028 editions with correct dates, city, country, venue, format, event_kind, organizer
 - parser: homepage yields exactly one event (2026 edition) with the same field shape
-- parser: about-gnydm fixture yields zero events
+- parser: about-gnydm fixture yields zero events when routed through either the listing or the detail code path (the detail signal in §4 must not fire on about-gnydm — `h1.swiper-title` is absent and the URL is not the seeded homepage URL)
 - parser: `discover()` yields the two seed URLs with page_kind `listing` and `detail`
 - normalize: `parse_date_range` correctly strips `"Friday, "`-style weekday prefixes before applying the existing grammar (at least: same-month range, cross-month range, both with weekday prefix; no regression on the existing ADA cases)
-- pipeline integration (DB-gated): a single run over both seed pages produces exactly one `events` row for the 2026 edition with two `event_sources` rows (one per seed page); the observable precedence test from §6 passes
+- pipeline integration (DB-gated): a single run over both seed pages produces exactly one `events` row for the 2026 edition with two `event_sources` rows (one per seed page)
+- pipeline integration (DB-gated): a **controlled-disagreement** precedence test per §6 — using a parser monkeypatch or a test-only fixture variant to make the listing and detail candidates disagree on `summary` — resolves to the detail candidate's value on the persisted 2026 row
+- pipeline integration (DB-gated): the default-fixture run (no monkeypatch) leaves `summary` null on the 2026 row, confirming the shipped parsers are not injecting filler copy
 
 ### Canary posture
 
