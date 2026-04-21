@@ -18,11 +18,11 @@
   parser_name: ada_listing
   crawl_frequency: weekly
   crawl_config:
-    listing_url: https://www.ada.org/education/continuing-education/ada-ce-live-workshops
+    seed_urls:
+      - https://www.ada.org/education/continuing-education/ada-ce-live-workshops
+      - https://www.ada.org/education/scientific-session
     pagination: none
     rate_limit_per_minute: 10
   notes: |
     ADA continuing-education live workshops schedule + ADA Scientific Session
-    landing. W2 implementation plan treats both as seed pages. See
-    docs/superpowers/specs/2026-04-20-medevents-w2-first-source-ingestion.md §2
-    and docs/runbooks/ada-fixtures.md for the exact URL resolution.
+    landing. See docs/superpowers/specs/2026-04-20-medevents-w2-first-source-ingestion.md §2.

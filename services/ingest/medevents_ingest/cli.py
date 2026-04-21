@@ -47,27 +47,34 @@ def run(
     force: bool = typer.Option(False, "--force", help="Ignore last_crawled_at."),
     dry_run: bool = typer.Option(False, "--dry-run", help="Parse without writing."),
 ) -> None:
-    """Run ingest for one source.
+    """Run ingest for one source end-to-end (fetch -> parse -> upsert)."""
+    from .pipeline import run_source
 
-    W1: resolves the source + parser and exits cleanly. The actual fetch/parse/dedupe
-    body is W2 work — this command exists so the operator 'Run now' button can be
-    wired in W1 and verified end-to-end (it'll be a no-op until W2).
-    """
+    if dry_run:
+        typer.echo("ERROR: --dry-run is not yet implemented (W3).", err=True)
+        raise typer.Exit(code=4)
+
     with session_scope() as s:
         src = get_source_by_code(s, source)
-    if src is None:
-        typer.echo(f"ERROR: source '{source}' not found in DB. Run seed-sources?", err=True)
-        raise typer.Exit(code=2)
+        if src is None:
+            typer.echo(f"ERROR: source '{source}' not found in DB. Run seed-sources?", err=True)
+            raise typer.Exit(code=2)
+        try:
+            parser_for(src.parser_name)
+        except UnknownParserError as exc:
+            typer.echo(f"ERROR: {exc}", err=True)
+            raise typer.Exit(code=3) from exc
 
-    try:
-        parser = parser_for(src.parser_name)
-    except UnknownParserError as exc:
-        typer.echo(f"ERROR: {exc}", err=True)
-        raise typer.Exit(code=3) from exc
+        result = run_source(s, source_code=source)
 
-    typer.echo(f"resolved source='{src.code}' parser='{parser.name}'")
-    typer.echo(f"force={force} dry_run={dry_run}")
-    typer.echo("W1: parser body not yet implemented (see W2 spec). Exiting cleanly.")
+    typer.echo(
+        f"source={result.source_code} "
+        f"fetched={result.pages_fetched} "
+        f"skipped_unchanged={result.pages_skipped_unchanged} "
+        f"created={result.events_created} "
+        f"updated={result.events_updated} "
+        f"review_items={result.review_items_created}"
+    )
 
 
 if __name__ == "__main__":
