@@ -840,21 +840,45 @@ HOMEPAGE_URL = "https://www.gnydm.com/"
 
 
 @pytest.fixture(autouse=True)
-def _alias_test_database_url(monkeypatch: pytest.MonkeyPatch) -> None:
+def _alias_test_database_url(
+    _no_env_pollution: None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> Iterator[None]:
     """Re-point DATABASE_URL at TEST_DATABASE_URL after conftest strips it.
 
-    conftest.py's `_no_env_pollution` (autouse, function-scoped) runs first
-    and scrubs DATABASE_URL. This fixture runs afterwards (module-level
-    autouse) and puts the disposable test-DB URL back so
-    `medevents_ingest.config.get_settings()` resolves to the test DB.
+    The `_no_env_pollution` parameter is a DELIBERATE FIXTURE DEPENDENCY
+    on conftest.py's scrubber — NOT unused. pytest does NOT guarantee any
+    ordering between two independent same-scope autouse fixtures, so the
+    conftest scrubber could otherwise run AFTER this alias and delete
+    DATABASE_URL at test time. When that happens `config.Settings` falls
+    back to its default DSN (`postgresql://medevents:...@.../medevents`
+    — the DEV DB), and the `_clean_db` TRUNCATE would wipe the dev
+    database. Making `_no_env_pollution` a parameter forces pytest to
+    resolve it first, so the alias below is the last write to
+    DATABASE_URL before the test runs.
 
-    Also reset the cached `_engine` / `_SessionLocal` in `medevents_ingest.db`
-    so a fresh engine is created against TEST_DATABASE_URL rather than any
-    engine left over from a previous test module.
+    Engine-cache discipline: reset `medevents_ingest.db._engine` /
+    `_SessionLocal` at BOTH setup AND teardown.
+    * Setup reset — a prior test may have populated the global cache
+      against a different DSN; we need a fresh engine bound to the
+      test DB.
+    * Teardown reset — this test just populated the cache against the
+      test DB; if we leave it, a subsequent ADA pipeline test (which
+      also caches globally and reads DATABASE_URL = dev DB) would
+      inherit a stale test-DB-bound engine and silently operate on
+      the wrong database.
+    Explicit assignment (not `monkeypatch.setattr`) because we want to
+    set to None at teardown unconditionally, not restore whatever
+    stale value was there at setup time.
     """
     monkeypatch.setenv("DATABASE_URL", os.environ["TEST_DATABASE_URL"])
-    monkeypatch.setattr(_db, "_engine", None, raising=False)
-    monkeypatch.setattr(_db, "_SessionLocal", None, raising=False)
+    _db._engine = None
+    _db._SessionLocal = None
+    try:
+        yield
+    finally:
+        _db._engine = None
+        _db._SessionLocal = None
 
 
 @pytest.fixture(autouse=True)
