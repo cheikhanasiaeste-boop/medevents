@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 from medevents_ingest.parsers._reset_for_tests import reset_registry
 from medevents_ingest.parsers.ada import _normalize_body_for_hashing
-from medevents_ingest.parsers.base import FetchedContent
+from medevents_ingest.parsers.base import FetchedContent, Parser
 
 FIXTURES = Path(__file__).parent / "fixtures" / "ada"
 
@@ -31,7 +31,7 @@ def _reset_registry() -> None:
     reset_registry()
 
 
-def _get_parser():
+def _get_parser() -> Parser:
     import importlib
 
     import medevents_ingest.parsers.ada as ada

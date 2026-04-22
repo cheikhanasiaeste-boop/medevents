@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 from medevents_ingest.parsers._reset_for_tests import reset_registry
-from medevents_ingest.parsers.base import FetchedContent
+from medevents_ingest.parsers.base import FetchedContent, Parser
 
 FIXTURES = Path(__file__).parent / "fixtures" / "gnydm"
 LISTING_URL = "https://www.gnydm.com/about/future-meetings/"
@@ -36,7 +36,7 @@ def _reset_registry() -> None:
     reset_registry()
 
 
-def _get_parser():
+def _get_parser() -> Parser:
     import importlib
 
     import medevents_ingest.parsers.gnydm as gnydm
@@ -201,6 +201,7 @@ def test_listing_raw_title_is_source_excerpt() -> None:
     assert events, "expected listing events from fixture"
     for e in events:
         year = e.starts_on[:4]
+        assert e.raw_title is not None, "spec W3.1 §4 requires raw_title populated"
         assert year in e.raw_title, f"year {year!r} not found in raw_title {e.raw_title!r}"
         assert "Meeting Dates:" in e.raw_title, (
             f"'Meeting Dates:' not found in raw_title {e.raw_title!r}"
@@ -216,9 +217,9 @@ def test_homepage_raw_title_is_swiper_title_text() -> None:
     from bs4 import BeautifulSoup
 
     fixture_body = (FIXTURES / "homepage.html").read_bytes()
-    expected = (
-        BeautifulSoup(fixture_body, "lxml").select_one("h1.swiper-title").get_text(strip=True)
-    )
+    swiper = BeautifulSoup(fixture_body, "lxml").select_one("h1.swiper-title")
+    assert swiper is not None, "fixture must contain h1.swiper-title (classifier precondition)"
+    expected = swiper.get_text(strip=True)
 
     parser = _get_parser()
     content = _fetched("homepage.html", HOMEPAGE_URL)
