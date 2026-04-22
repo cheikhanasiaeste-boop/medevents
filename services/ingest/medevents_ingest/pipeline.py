@@ -26,6 +26,7 @@ from uuid import UUID
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from .models import Source
 from .parsers import parser_for
 from .parsers.base import ParsedEvent, SourcePageRef
 from .repositories.event_sources import upsert_event_source
@@ -41,7 +42,7 @@ from .repositories.source_pages import (
     record_fetch,
     upsert_source_page,
 )
-from .repositories.sources import get_source_by_code
+from .repositories.sources import get_source_by_code, update_source_run_status
 
 
 @dataclass(frozen=True)
@@ -69,10 +70,50 @@ _MATERIAL_FIELDS: frozenset[str] = frozenset(
 )
 
 
-def run_source(session: Session, *, source_code: str) -> PipelineResult:
+def run_source(
+    session: Session,
+    *,
+    source_code: str,
+    force: bool = False,
+) -> PipelineResult:
+    """Run ingest for a single source.
+
+    `force` is a plumbing-only parameter in W3.2a — it threads through from
+    the CLI so W3.2b's due-selection logic can honor it. No behavioral
+    effect in this wave. Spec §4 D6 locks the keyword-only shape.
+
+    On completion, writes `sources.last_crawled_at / last_success_at` via
+    `update_source_run_status("success")` on the caller's session (commits
+    with the main transaction). On error, writes `last_crawled_at /
+    last_error_at / last_error_message` via a fresh short-lived session so
+    the state survives the main transaction's rollback (spec §4 D3).
+    """
+    # Force is currently plumbing-only; silence the "unused argument" lint.
+    _ = force
+
     source = get_source_by_code(session, source_code)
     if source is None:
+        # Source-not-found is an error from the pipeline's perspective.
+        _record_error_bookkeeping_fresh_session(
+            source_code=source_code,
+            error_message=f"source '{source_code}' not found",
+        )
         raise ValueError(f"source '{source_code}' not found")
+
+    try:
+        result = _run_source_inner(session, source=source)
+    except Exception as exc:
+        _record_error_bookkeeping_fresh_session(
+            source_id=source.id,
+            error_message=str(exc) or exc.__class__.__name__,
+        )
+        raise
+
+    update_source_run_status(session, source_id=source.id, status="success")
+    return result
+
+
+def _run_source_inner(session: Session, *, source: Source) -> PipelineResult:
     parser = parser_for(source.parser_name)
 
     pages_fetched = 0
@@ -155,13 +196,46 @@ def run_source(session: Session, *, source_code: str) -> PipelineResult:
             review_items_created += 1
 
     return PipelineResult(
-        source_code=source_code,
+        source_code=source.code,
         pages_fetched=pages_fetched,
         pages_skipped_unchanged=pages_skipped_unchanged,
         events_created=events_created,
         events_updated=events_updated,
         review_items_created=review_items_created,
     )
+
+
+def _record_error_bookkeeping_fresh_session(
+    *,
+    source_id: UUID | None = None,
+    source_code: str | None = None,
+    error_message: str,
+) -> None:
+    """Write error bookkeeping in a NEW session so rollback of the caller's
+    session doesn't take the error state down with it (spec §4 D3).
+
+    Accepts either `source_id` (when the source was successfully resolved)
+    OR `source_code` (when the source-not-found branch short-circuited
+    before we had an id). If a code is given but the source row doesn't
+    exist, silently returns — there's nothing to update.
+    """
+    from .db import session_scope as _fresh_session_scope
+
+    with _fresh_session_scope() as fresh:
+        resolved_id = source_id
+        if resolved_id is None and source_code is not None:
+            src = get_source_by_code(fresh, source_code)
+            if src is None:
+                return
+            resolved_id = src.id
+        if resolved_id is None:
+            return
+        update_source_run_status(
+            fresh,
+            source_id=resolved_id,
+            status="error",
+            error_message=error_message,
+        )
 
 
 def _persist_event(

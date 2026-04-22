@@ -65,7 +65,7 @@ def run(
             typer.echo(f"ERROR: {exc}", err=True)
             raise typer.Exit(code=3) from exc
 
-        result = run_source(s, source_code=source)
+        result = run_source(s, source_code=source, force=force)
 
     typer.echo(
         f"source={result.source_code} "
