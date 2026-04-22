@@ -26,3 +26,22 @@
   notes: |
     ADA continuing-education live workshops schedule + ADA Scientific Session
     landing. See docs/superpowers/specs/2026-04-20-medevents-w2-first-source-ingestion.md §2.
+
+- code: gnydm
+  name: Greater New York Dental Meeting
+  homepage_url: https://www.gnydm.com/
+  source_type: society
+  country_iso: US
+  is_active: true
+  parser_name: gnydm_listing
+  crawl_frequency: weekly
+  crawl_config:
+    seed_urls:
+      - https://www.gnydm.com/about/future-meetings/
+      - https://www.gnydm.com/
+    pagination: none
+    rate_limit_per_minute: 10
+  notes: |
+    GNYDM future-meetings listing (2026/2027/2028 editions) + homepage detail
+    for the current (2026) edition. See
+    docs/superpowers/specs/2026-04-21-medevents-w3-1-second-source-gnydm.md.
