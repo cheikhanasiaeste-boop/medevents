@@ -1,28 +1,28 @@
 # MedEvents TODO
 
-_Last updated: 2026-04-23 — W3.2c shipped; parser/pipeline boundary hardened. W3.2d (third source — `aap_annual_meeting`) is next._
+_Last updated: 2026-04-23 — W3.2c shipped; parser/pipeline boundary hardened. W3.2d (Fly scheduled machines) is next; third source follows as W3.2e._
 
 ## Now
 
-**W3.2d — Third curated source: `aap_annual_meeting`.** Proves the two-source pattern generalizes to three without code rework. With W3.2a/b/c shipped, the third source inherits: real bookkeeping, due-selection, drift observability, clean None semantics, and true `raw_title` provenance — so onboarding is pure parser work + fixtures + config wiring.
+**Sequence correction (2026-04-23):** the user's W3.1 → W3.2 architectural review said "after automation is in place, onboard source three." Earlier TODO snapshots had labeled third-source as W3.2d and Fly scheduler as W3.2e. Swapping so execution matches the user's intent: ship the scheduler BEFORE the third source so the third source goes live into already-automated infrastructure instead of adding manual-operation noise.
 
-**Candidate source:** AAP (American Academy of Periodontology) Annual Meeting. Per the W3.1 prep-plan §3 ordering, `aap_annual_meeting` is the next-best candidate after GNYDM; `fdi_wdc` (FDI World Dental Congress) follows.
+**W3.2d — Fly.io scheduled machines wired to `run --all`.** Architecture locked in [`w1-foundation.md:324`](superpowers/specs/2026-04-20-medevents-w1-foundation.md) ("A small Fly machine wakes hourly, runs `medevents-ingest run --all`, exits"). With W3.2b's primitive on `main`, the Fly machine has something concrete to call. The scheduler wave is narrow: infra config (Dockerfile, fly.toml, secrets, scheduled machine), minimal deploy verification, and a done-confirmation that captures the first real autonomous run.
 
 **Scope (to lock in the sub-spec):**
 
-- Source-code naming + canary protocol (same discipline as W3.1 prep).
-- Fixtures + robots + byte-stability review.
-- Parser module `parsers/aap.py` following the W3.1 parser shape (discover + fetch + parse + classifier).
-- `config/sources.yaml` entry + seed.
-- Live smoke + done-confirmation.
+- Dockerfile for the ingest service (multi-stage Python + uv).
+- `fly.toml` with scheduled machine definition (hourly wake).
+- Secret management (`DATABASE_URL` via `fly secrets`).
+- Deploy verification: cold-start timing, `run --all` exit behavior under Fly-specific constraints (read-only FS, ephemeral disks, etc.).
+- Done-confirmation: screenshot or log snippet of the Fly machine's first autonomous `run --all` exit, plus the admin UI `/admin/sources` showing updated `last_crawled_at` from that autonomous run.
 
-**Prep work that may justify a sub-wave W3.2d-prep:** fetching AAP fixtures, reviewing robots.txt, byte-stability check across three consecutive fetches (mirror the GNYDM prep in PR #45). Decide in the sub-spec whether prep is a separate PR or bundled.
+**Prerequisites:** the user must have a Fly.io account + app created for the ingest service. If `flyctl` and the app aren't set up yet, the sub-wave authoring step flags that as an operator task.
 
 **Next concrete action:** author the W3.2d sub-spec via `superpowers:brainstorming` + `superpowers:writing-plans`.
 
 ### Remaining W3.2 sequence (after W3.2d)
 
-- **W3.2e — External scheduler wiring.** **Fly.io scheduled machines** per [`w1-foundation.md:324`](superpowers/specs/2026-04-20-medevents-w1-foundation.md). `run --all` is on `main` (W3.2b) so the Fly machine has something concrete to call. The scheduler wires in UNCHANGED regardless of how many curated sources ship — running after the third source proves the primitive at a realistic source count.
+- **W3.2e — Third curated source: `aap_annual_meeting`.** Proves the two-source pattern generalizes to three sources running autonomously (post-W3.2d wiring). Per W3.1 prep-plan §3: `aap_annual_meeting` (AAP Annual Meeting) first, then `fdi_wdc` (FDI World Dental Congress). Scope mirrors W3.1: fixtures + robots + byte-stability prep, parser module, config entry, live smoke, done-confirmation. Generic fallback stays deferred until three curated sources prove or break the pattern.
 
 ## Next
 
