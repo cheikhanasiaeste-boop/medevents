@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import text
@@ -118,3 +119,61 @@ def get_source_by_code(session: Session, code: str) -> Source | None:
         .one_or_none()
     )
     return Source.model_validate(dict(row)) if row else None
+
+
+def get_active_sources(session: Session) -> list[Source]:
+    """Return every active source, ordered by code for determinism."""
+    rows = (
+        session.execute(
+            text(
+                "SELECT id, code, name, homepage_url, source_type, country_iso, "
+                "is_active, parser_name, crawl_frequency, crawl_config, "
+                "last_crawled_at, last_success_at, last_error_at, last_error_message, "
+                "notes, created_at, updated_at "
+                "FROM sources WHERE is_active = true "
+                "ORDER BY code"
+            )
+        )
+        .mappings()
+        .all()
+    )
+    return [Source(**dict(row)) for row in rows]
+
+
+def get_active_due_sources(session: Session, *, now: datetime) -> list[Source]:
+    """Return active sources whose schedule is due.
+
+    Due = `last_crawled_at IS NULL OR last_crawled_at + frequency_delta <= now`.
+    Filtering happens SQL-side via a CASE expression so we don't pull every
+    active source into Python just to filter.
+
+    Ordered by `last_crawled_at NULLS FIRST, code` so never-crawled sources
+    run first on initial deploy, then the least-recently-crawled sources,
+    and code as a deterministic tiebreaker.
+    """
+    rows = (
+        session.execute(
+            text(
+                "SELECT id, code, name, homepage_url, source_type, country_iso, "
+                "is_active, parser_name, crawl_frequency, crawl_config, "
+                "last_crawled_at, last_success_at, last_error_at, last_error_message, "
+                "notes, created_at, updated_at "
+                "FROM sources "
+                "WHERE is_active = true "
+                "  AND ( "
+                "    last_crawled_at IS NULL "
+                "    OR last_crawled_at + (CASE crawl_frequency "
+                "                            WHEN 'daily'    THEN interval '1 day' "
+                "                            WHEN 'weekly'   THEN interval '7 days' "
+                "                            WHEN 'biweekly' THEN interval '14 days' "
+                "                            WHEN 'monthly'  THEN interval '30 days' "
+                "                          END) <= :now_ts "
+                "  ) "
+                "ORDER BY last_crawled_at NULLS FIRST, code"
+            ),
+            {"now_ts": now},
+        )
+        .mappings()
+        .all()
+    )
+    return [Source(**dict(row)) for row in rows]
