@@ -1,15 +1,32 @@
 # MedEvents TODO
 
-_Last updated: 2026-04-22 — W3.1 shipped end-to-end (Phases 1–5); W3.2 direction TBD._
+_Last updated: 2026-04-22 — W3.1 shipped end-to-end (Phases 1–5); W3.2 sequenced below after architectural review corrected my "just wire a scheduler" first-pass recommendation._
 
 ## Now
 
-- [ ] **Pick W3.2 direction.** With two curated sources live (ADA + GNYDM), the next wave should be one of:
-  - (a) **Periodic scheduler** — wire `medevents-ingest run` into a GitHub Actions cron or a host cron so the ingest runs without operator action. The two parsers have no value unless they run on a schedule.
-  - (b) **Third source onboarding** — candidate order per prep plan: `aap_annual_meeting`, then `fdi_wdc`. Proves the two-source pattern generalizes to a third without code rework.
-  - (c) **Generic fallback parser** — explicitly deferred by spec §10 until the curated-parser pattern is proven; a third curated source first is the better test.
+**W3.2 is a four-wave sequence, not a single scheduler wave.** Review of the shipped code against the W1 spec surfaces three gaps that must close before any external scheduler is useful:
 
-  **Recommendation:** start with (a). Ingested-once-then-stale data is worse than no data, and both curated sources are already shipped. (b) and (c) are easier to justify after the scheduler is in place.
+- **W3.2a — Source-run bookkeeping.** Required before any due-selection scheduler can exist.
+  - `pipeline.run_source()` does not write `sources.last_crawled_at / last_success_at / last_error_at / last_error_message` on completion. The admin UI already reads those fields ([`sources/page.tsx:15`](../apps/web/app/%28admin%29/admin/sources/page.tsx), [`sources/[id]/page.tsx:36`](../apps/web/app/%28admin%29/admin/sources/%5Bid%5D/page.tsx)) and is effectively lying to the operator today.
+  - `cli.py:47` declares `--force` ("Ignore last_crawled_at.") but the flag is never threaded into `run_source()` — currently a no-op.
+  - Scope: write the four timestamps on the success and error paths in `pipeline.run_source()`; thread `--force` through to the (future) due-selection check; integration tests cover success, error, and force-override paths.
+
+- **W3.2b — `run --all` + due-selection.** The W1 spec at [`w1-foundation.md:304`](superpowers/specs/2026-04-20-medevents-w1-foundation.md) promised this entrypoint; it does not exist today.
+  - CLI gains `medevents-ingest run --all` — iterates `sources` where `is_active = true` AND the schedule is due per `crawl_frequency` + `last_crawled_at`.
+  - `--force` bypasses the due check and runs every active source.
+  - Depends on W3.2a landing first — without `last_crawled_at` being written, due-selection has nothing to look at.
+
+- **W3.2c — Detail-page drift observability (gate before any third source).**
+  - Today, if the GNYDM homepage classifier silently starts yielding zero events (markup drift, logo rename, `<sup>` structure change), the listing keeps the 2026 row alive and the run reports healthy — but detail-over-listing enrichment quietly disappears. `pipeline.py:146` only emits `parser_failure` when a _listing_ page yields zero; detail pages are silent.
+  - Scope: when a _seeded_ page classified as detail (NOT a canary) yields zero events, emit a `review_items` row or at minimum a structured warning. Canaries (URL + markup-known-negative like `about-gnydm`) must not trigger.
+  - Also decide the `_diff_event_fields` `None`-as-clear semantic: should `None` from a later-processed page be allowed to clear fields won by an earlier page? Decision belongs in the W3.2c spec.
+  - Low-priority carry: `raw_title` for GNYDM currently stores the year (listing) or synthesized title (homepage), not a raw source excerpt — spec §4 promised source-originating provenance. Weakens future audit/debug tooling but does not corrupt data. Fix during W3.2c since we're already touching the parser.
+
+- **W3.2d — Third source onboarding.** Only after W3.2a + W3.2b + W3.2c land. Candidate: `aap_annual_meeting` (per prep plan §3, then `fdi_wdc`). Generic fallback stays deferred until a third curated source either proves or breaks the pattern.
+
+- **W3.2e — External scheduler wiring.** Target is **Fly.io scheduled machines** per the architecture decision in [`w1-foundation.md:324`](superpowers/specs/2026-04-20-medevents-w1-foundation.md) — NOT GitHub Actions cron, NOT host cron. The W3.2e spec should explicitly close that options discussion. Only ship after W3.2a + W3.2b are on `main` so the Fly machine has `medevents-ingest run --all` to call.
+
+**Next concrete action:** author the W3.2a sub-spec (source-run bookkeeping) via the `superpowers:brainstorming` + `writing-plans` skills. Do not open implementation branches until the spec + plan pair is reviewed.
 
 ## Next
 
@@ -17,7 +34,7 @@ _Last updated: 2026-04-22 — W3.1 shipped end-to-end (Phases 1–5); W3.2 direc
 - [ ] Implement `--dry-run` (currently exits 4 per `cli.py:53-55`). Candidate for late-W3 if operators need preview runs for risky source config changes.
 - [ ] Audit the ADA schedule rows that returned `None` from `_row_to_event` — any should have landed in `review_items` per W2 spec §7? Currently silent-dropped. Not blocking W3.2.
 - [ ] Pre-existing mypy errors in `tests/test_ada_parser.py` + related test-harness files (11 errors surfaced by `uv run mypy .`). CI does not check these (CI mypy scope is `medevents_ingest` only). Either add type hints or `# type: ignore` suppressions.
-- [ ] Partial-page precedence drift risk: `pipeline._diff_event_fields` treats `None` in the incoming candidate as a deliberate clear. If one seed page's hash changes and the other's doesn't, a re-fetch of the changed page can clobber precedence-won fields from the unchanged page. Revisit if observed in the wild.
+- [ ] Partial-page precedence drift risk: `pipeline._diff_event_fields` treats `None` in the incoming candidate as a deliberate clear — revisit in W3.2c spec.
 
 ## Later
 
