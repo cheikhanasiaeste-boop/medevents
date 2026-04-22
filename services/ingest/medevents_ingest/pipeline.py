@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from typing import Any
 from uuid import UUID
 
@@ -42,7 +42,12 @@ from .repositories.source_pages import (
     record_fetch,
     upsert_source_page,
 )
-from .repositories.sources import get_source_by_code, update_source_run_status
+from .repositories.sources import (
+    get_active_due_sources,
+    get_active_sources,
+    get_source_by_code,
+    update_source_run_status,
+)
 
 
 @dataclass(frozen=True)
@@ -68,6 +73,37 @@ _MATERIAL_FIELDS: frozenset[str] = frozenset(
         "registration_url",
     }
 )
+
+
+_FREQUENCY_DELTA: dict[str, timedelta] = {
+    "daily": timedelta(days=1),
+    "weekly": timedelta(days=7),
+    "biweekly": timedelta(days=14),
+    "monthly": timedelta(days=30),
+}
+
+
+def is_due(
+    frequency: str,
+    last_crawled_at: datetime | None,
+    *,
+    now: datetime,
+) -> bool:
+    """Return True when a source is due for a re-crawl.
+
+    Spec §4 D1: crawl_frequency is one of the four string literals in
+    `_FREQUENCY_DELTA`. A source that has never been crawled
+    (`last_crawled_at is None`) is ALWAYS due. Otherwise, due iff
+    `last_crawled_at + frequency_delta <= now`.
+
+    Kept as a Python-side pure function for unit testability even
+    though the production batch path uses SQL-side filtering in
+    `get_active_due_sources()` (spec §4 D2).
+    """
+    if last_crawled_at is None:
+        return True
+    delta = _FREQUENCY_DELTA[frequency]
+    return last_crawled_at + delta <= now
 
 
 def run_source(
@@ -369,3 +405,94 @@ def _normalize_title(title: str) -> str:
 def _slugify(title: str, starts_on: date) -> str:
     base = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
     return f"{base[:60].rstrip('-')}-{starts_on.isoformat()}"
+
+
+@dataclass(frozen=True)
+class BatchResult:
+    """Aggregate outcome of a `run --all` invocation (spec §3)."""
+
+    sources_selected: int
+    succeeded: int
+    failed: int
+    skipped_not_due: int
+
+
+def run_all(session: Session, *, force: bool, now: datetime) -> BatchResult:
+    """Run every active source that is due (or every active source if `force`).
+
+    Per-source failures are caught and logged to stderr; the batch continues
+    (spec §4 D4). Returns an aggregated BatchResult. The caller decides the
+    process exit code from the result.
+
+    `now` is captured once and passed in so every source in the batch is
+    evaluated against the same moment, and tests can inject a deterministic
+    timestamp (spec §4 D5).
+
+    Bookkeeping: each source goes through `run_source()` which already writes
+    `last_crawled_at` / `last_success_at` / `last_error_*` via the W3.2a
+    fresh-session helper on the error path.
+    """
+    import sys  # local import to keep module-top imports focused
+
+    if force:
+        # Under --force we still honor is_active=false (spec §4 D3).
+        selected = get_active_sources(session)
+        skipped_not_due = 0
+    else:
+        all_active = get_active_sources(session)
+        due = get_active_due_sources(session, now=now)
+        due_codes = {s.code for s in due}
+        selected = due
+        skipped_not_due = sum(1 for s in all_active if s.code not in due_codes)
+
+        # Print skipped-not-due per-source lines for operator visibility.
+        for s in all_active:
+            if s.code not in due_codes:
+                next_due = _next_due_at(s.crawl_frequency, s.last_crawled_at)
+                print(
+                    f"source={s.code} skipped=not_due "
+                    f"(last_crawled_at={s.last_crawled_at}, next_due={next_due})"
+                )
+
+    succeeded = 0
+    failed = 0
+    for src in selected:
+        try:
+            result = run_source(session, source_code=src.code, force=force)
+            print(
+                f"source={result.source_code} "
+                f"fetched={result.pages_fetched} "
+                f"skipped_unchanged={result.pages_skipped_unchanged} "
+                f"created={result.events_created} "
+                f"updated={result.events_updated} "
+                f"review_items={result.review_items_created}"
+            )
+            succeeded += 1
+        except Exception as exc:
+            # `run_source`'s error path already wrote bookkeeping via a fresh
+            # session; we just need to log and continue.
+            print(
+                f"source={src.code} error={exc.__class__.__name__}: {exc}",
+                file=sys.stderr,
+            )
+            session.rollback()
+            failed += 1
+
+    print(
+        f"batch=run-all sources={len(selected)} "
+        f"succeeded={succeeded} failed={failed} "
+        f"skipped_not_due={skipped_not_due}"
+    )
+    return BatchResult(
+        sources_selected=len(selected),
+        succeeded=succeeded,
+        failed=failed,
+        skipped_not_due=skipped_not_due,
+    )
+
+
+def _next_due_at(frequency: str, last_crawled_at: datetime | None) -> str:
+    """Format the next-due timestamp for the skipped=not_due output line."""
+    if last_crawled_at is None:
+        return "now (never crawled)"
+    return (last_crawled_at + _FREQUENCY_DELTA[frequency]).isoformat()

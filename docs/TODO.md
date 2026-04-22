@@ -1,28 +1,22 @@
 # MedEvents TODO
 
-_Last updated: 2026-04-22 — W3.2a shipped; pipeline.run_source() now writes all four sources bookkeeping columns and `--force` is plumbed end-to-end. W3.2b is next._
+_Last updated: 2026-04-23 — W3.2b shipped; `run --all` + SQL-side due-selection live; `--force` is now behaviorally real under `--all`. W3.2c is next._
 
 ## Now
 
-**W3.2b — `medevents-ingest run --all` + due-selection.** The W1 spec at [`w1-foundation.md:304`](superpowers/specs/2026-04-20-medevents-w1-foundation.md) promised this entrypoint; it does not exist today. W3.2a's bookkeeping (shipped: `last_crawled_at` now written on every run) is the precondition that makes this wave buildable.
+**W3.2c — Detail-page drift observability + `_diff_event_fields` `None`-as-clear decision + GNYDM `raw_title` provenance fix.** Gate before W3.2d (third source). Three related changes bundled because they all touch the parser ↔ pipeline boundary:
 
-- CLI gains `medevents-ingest run --all` — iterates `sources` where `is_active = true` AND the schedule is due per `crawl_frequency` + `last_crawled_at`.
-- `--force` becomes behaviorally real: bypasses the due check and runs every active source regardless of recency.
-- Decisions to lock in the sub-spec: how to interpret `crawl_frequency` (is it a `timedelta` lookup table? a `relativedelta`? an explicit cron expression?), whether `run --all` aggregates results or prints per-source lines, whether a failing single source aborts the rest of the batch or continues.
+- **Detail-page silence.** Today, if the GNYDM homepage classifier silently yields zero events (markup drift, logo rename, `<sup>` structure change), [`pipeline.py:146`](services/ingest/medevents_ingest/pipeline.py) only emits `parser_failure` when a _listing_ page yields zero; detail pages are silent. The run reports healthy while detail-over-listing enrichment quietly disappears. Scope: when a _seeded_ page classified as detail (NOT a canary) yields zero events, emit a `review_items` row. Canaries (URL + markup-known-negative like `about-gnydm`) must not trigger.
+- **`_diff_event_fields` `None`-as-clear.** Today a `None` in the incoming candidate is treated as a deliberate clear. If one seed page's hash changes and the other's doesn't, a re-fetch of the changed page can clobber precedence-won fields from the unchanged page. Decision needed: should `None` from a later-processed page be allowed to clear fields won by an earlier page?
+- **`raw_title` provenance.** `parsers/gnydm.py` stores the year_text for listing rows and a synthesized canonical title for homepage rows — not actual source excerpts. Spec W3.1 §4 promised source-originating provenance. Fix while we're already touching the parser.
 
-**Next concrete action:** author the W3.2b sub-spec via `superpowers:brainstorming` + `superpowers:writing-plans` skills.
+**Next concrete action:** author the W3.2c sub-spec via `superpowers:brainstorming` + `superpowers:writing-plans`.
 
-### Remaining W3.2 sequence (after W3.2b)
+### Remaining W3.2 sequence (after W3.2c)
 
-- **W3.2c — Detail-page drift observability (gate before any third source).**
-  - Today, if the GNYDM homepage classifier silently starts yielding zero events (markup drift, logo rename, `<sup>` structure change), the listing keeps the 2026 row alive and the run reports healthy — but detail-over-listing enrichment quietly disappears. `pipeline.py:146` only emits `parser_failure` when a _listing_ page yields zero; detail pages are silent.
-  - Scope: when a _seeded_ page classified as detail (NOT a canary) yields zero events, emit a `review_items` row or at minimum a structured warning. Canaries (URL + markup-known-negative like `about-gnydm`) must not trigger.
-  - Also decide the `_diff_event_fields` `None`-as-clear semantic: should `None` from a later-processed page be allowed to clear fields won by an earlier page? Decision belongs in the W3.2c spec.
-  - Low-priority carry: `raw_title` for GNYDM currently stores the year (listing) or synthesized title (homepage), not a raw source excerpt — spec §4 promised source-originating provenance. Fix during W3.2c since we're already touching the parser.
+- **W3.2d — Third source onboarding.** Candidate: `aap_annual_meeting` (per prep plan §3, then `fdi_wdc`). Generic fallback stays deferred until a third curated source either proves or breaks the pattern.
 
-- **W3.2d — Third source onboarding.** Only after W3.2b + W3.2c land. Candidate: `aap_annual_meeting` (per prep plan §3, then `fdi_wdc`). Generic fallback stays deferred until a third curated source either proves or breaks the pattern.
-
-- **W3.2e — External scheduler wiring.** Target is **Fly.io scheduled machines** per the architecture decision in [`w1-foundation.md:324`](superpowers/specs/2026-04-20-medevents-w1-foundation.md) — NOT GitHub Actions cron, NOT host cron. Only ship after W3.2b is on `main` so the Fly machine has `medevents-ingest run --all` to call.
+- **W3.2e — External scheduler wiring.** **Fly.io scheduled machines** per [`w1-foundation.md:324`](superpowers/specs/2026-04-20-medevents-w1-foundation.md). `run --all` is now on `main` (W3.2b) so the Fly machine has something concrete to call.
 
 ## Next
 
@@ -40,6 +34,7 @@ _Last updated: 2026-04-22 — W3.2a shipped; pipeline.run_source() now writes al
 
 ## Shipped on Main
 
+- [x] W3.2b `run --all` + due-selection — CLI gains `medevents-ingest run --all`; iterates `is_active` + schedule-due sources via SQL-side CASE filter; continues on per-source failure; `--force` bypasses due check (but STILL respects `is_active=false`); `--source`/`--all` mutex validated; batch summary + per-source stdout + per-source stderr on failures. 8 new tests (4 DB-gated integration + 4 unit parametrized across all 4 `crawl_frequency` boundaries). See `docs/runbooks/w3.2b-done-confirmation.md`.
 - [x] W3.2a source-run bookkeeping + `--force` plumbing — pipeline now writes `last_crawled_at` / `last_success_at` on success and `last_crawled_at` / `last_error_at` / `last_error_message` on error (via a fresh session so writes survive rollback). Admin UI sources pages display real timestamps for the first time. See `docs/runbooks/w3.2a-done-confirmation.md`.
 - [x] W3.1 GNYDM second-source onboarding shipped end-to-end — 5 phases, 5 PRs (#50, #51, #52, #53, #54). Two sources now live; intra-source dedupe + detail-over-listing precedence proven on real data. See `docs/runbooks/w3.1-done-confirmation.md`.
 - [x] W3.1 plan + sub-spec merged (PR #48 + PR #46).

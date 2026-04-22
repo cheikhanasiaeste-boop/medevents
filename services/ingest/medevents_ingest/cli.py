@@ -43,21 +43,60 @@ def seed_sources(
 
 @app.command()
 def run(
-    source: str = typer.Option(..., "--source", "-s", help="Source code (e.g. 'ada')."),
-    force: bool = typer.Option(False, "--force", help="Ignore last_crawled_at."),
+    source: str | None = typer.Option(
+        None,
+        "--source",
+        "-s",
+        help="Source code (e.g. 'ada'). Mutually exclusive with --all.",
+    ),
+    run_all_flag: bool = typer.Option(
+        False,
+        "--all",
+        help="Run every active source whose schedule is due. Mutually exclusive with --source.",
+    ),
+    force: bool = typer.Option(
+        False,
+        "--force",
+        help="Under --all: run every active source regardless of due-ness.",
+    ),
     dry_run: bool = typer.Option(False, "--dry-run", help="Parse without writing."),
 ) -> None:
-    """Run ingest for one source end-to-end (fetch -> parse -> upsert)."""
-    from .pipeline import run_source
+    """Run ingest for one source OR every active, due source."""
+    from datetime import UTC, datetime
+
+    from .pipeline import run_all, run_source
+
+    if source is None and not run_all_flag:
+        typer.echo("ERROR: must pass either --source CODE or --all", err=True)
+        raise typer.Exit(code=2)
+    if source is not None and run_all_flag:
+        typer.echo("ERROR: --source and --all are mutually exclusive", err=True)
+        raise typer.Exit(code=2)
 
     if dry_run:
-        typer.echo("ERROR: --dry-run is not yet implemented (W3).", err=True)
+        typer.echo("ERROR: --dry-run is not yet implemented (W3.2+).", err=True)
         raise typer.Exit(code=4)
 
+    if run_all_flag:
+        with session_scope() as s:
+            batch = run_all(s, force=force, now=datetime.now(UTC))
+        # Exit 0 if at least one source succeeded OR every source was skipped-not-due.
+        # Exit non-zero only if at least one source was selected AND every selected source failed.
+        if batch.sources_selected > 0 and batch.succeeded == 0:
+            raise typer.Exit(code=1)
+        return
+
+    # Single-source path (unchanged semantic; --force still plumbing only here).
+    # `source` is narrowed to `str` by the mutex validation above — if
+    # run_all_flag is False, `source` must be non-None.
+    assert source is not None
     with session_scope() as s:
         src = get_source_by_code(s, source)
         if src is None:
-            typer.echo(f"ERROR: source '{source}' not found in DB. Run seed-sources?", err=True)
+            typer.echo(
+                f"ERROR: source '{source}' not found in DB. Run seed-sources?",
+                err=True,
+            )
             raise typer.Exit(code=2)
         try:
             parser_for(src.parser_name)
