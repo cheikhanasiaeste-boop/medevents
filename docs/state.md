@@ -1,13 +1,14 @@
 # MedEvents — Current State
 
-_Last updated: 2026-04-22 — W3.1 shipped end-to-end (Phases 1–5); ingest now runs against two curated sources (ADA + GNYDM)._
+_Last updated: 2026-04-22 — W3.1 + W3.2a shipped; ingest pipeline now writes source-run bookkeeping that the admin UI already expected, and `--force` is plumbed end-to-end._
 
 ## Status
 
-**W0+W1 foundation + W2 ADA ingestion + W3.1 GNYDM second-source onboarding are complete.** The ingest pipeline now runs against two curated sources with intra-source dedupe, detail-over-listing precedence, re-run idempotence, and a disposable-test-DB safety discipline proven in CI. See [`docs/runbooks/w3.1-done-confirmation.md`](runbooks/w3.1-done-confirmation.md) for the §9 evidence map.
+**W0+W1 foundation + W2 ADA ingestion + W3.1 GNYDM + W3.2a source-run bookkeeping are complete.** Every `medevents-ingest run` now leaves the `sources` row honestly reflecting what happened — `last_crawled_at`, `last_success_at`, `last_error_at`, `last_error_message` are all being written per W1 spec §305 on both success and error paths. The admin UI's source pages display real timestamps for the first time. `--force` is threaded from CLI to `run_source()` as callable plumbing; W3.2b picks it up behaviorally. See [`docs/runbooks/w3.2a-done-confirmation.md`](runbooks/w3.2a-done-confirmation.md) and [`docs/runbooks/w3.1-done-confirmation.md`](runbooks/w3.1-done-confirmation.md) for evidence maps.
 
 Current mainline checkpoints:
 
+- W3.2a squash commit — pending (this PR's merge commit, will appear as the most recent `feat(w3.2a):` entry)
 - `c63920b` — W3.1 Phase 4: wire gnydm into config/sources.yaml (PR #53)
 - `c4c1c60` — W3.1 Phase 3: pipeline integration tests — dedupe + precedence + idempotence (PR #52)
 - `e2491f2` — W3.1 Phase 2: GnydmListingParser — listing + detail + canary (PR #51)
@@ -133,32 +134,32 @@ Reference-only target-state spec:
 ## Restart Notes
 
 - This machine is using local Homebrew Postgres 16 for development because `qemu`/Colima failed on macOS 12 Intel. Do not assume Docker is the working local DB path. See [`docs/runbooks/local-postgres-macos12.md`](runbooks/local-postgres-macos12.md).
-- W3.1 is complete. W3.2 is sequenced as five sub-waves (bookkeeping → `run --all` → drift observability → third source → Fly scheduler) per the architectural review; see [`docs/TODO.md`](TODO.md) "Now" section. Start with W3.2a; scheduler wiring comes last, not first.
+- W3.1 + W3.2a are complete. W3.2 continues as sequenced sub-waves (`run --all` → drift observability → third source → Fly scheduler) per [`docs/TODO.md`](TODO.md) "Now" section. Next wave is W3.2b.
 - Local dev DB now holds: 6 ADA events (W2 smoke) + 3 GNYDM editions (W3.1 smoke); the 2026 GNYDM edition has 2 event_sources rows. That state is safe to keep.
 - A disposable `medevents_test` Postgres database exists alongside the dev DB with the same migrations applied. It is used exclusively by `tests/test_gnydm_pipeline.py` (gated on `TEST_DATABASE_URL`); every test TRUNCATEs all ingest tables before running. Do NOT point `DATABASE_URL` at `medevents_test` or vice versa.
 - `docs/phase8-sync-pending` exists locally at `66c6ff3` from an older W0+W1 docs-sync attempt. Stale; reference only.
 
 ## Next focus
 
-| Step                                                                          | State                                                                                                                |
-| ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| Automated directory MVP spec                                                  | ✅ Active                                                                                                            |
-| Target-state platform spec                                                    | ✅ Reference only                                                                                                    |
-| W0+W1 foundation                                                              | ✅ Complete (Phases 0-10 shipped, `main` protected)                                                                  |
-| W0+W1 implementation plan                                                     | ✅ Executed                                                                                                          |
-| Manual operator smoke                                                         | ✅ Completed                                                                                                         |
-| W2 — one-source end-to-end automation (ADA)                                   | ✅ Complete (live ADA ingestion on main; 6 events on first run; dedupe verified)                                     |
-| W3.1 — second-source onboarding (GNYDM)                                       | ✅ Complete (live GNYDM ingestion on main; 3 editions + dedupe + precedence verified; see w3.1-done-confirmation.md) |
-| W3.2a — source-run bookkeeping (`last_crawled_at`, `--force` wiring)          | 🟡 Next — precondition for any scheduler; admin UI already reads these fields, pipeline doesn't write them yet       |
-| W3.2b — `run --all` + due-selection (W1 spec §304 entry-point)                | ⏳ After 3.2a                                                                                                        |
-| W3.2c — detail-page drift observability + `_diff_event_fields` `None`-rule    | ⏳ Gate before third source — seeded detail page yielding zero events must signal, not be silent                     |
-| W3.2d — third curated source (`aap_annual_meeting`)                           | ⏳ After 3.2a/b/c                                                                                                    |
-| W3.2e — external scheduler (Fly.io scheduled machines per w1-foundation §324) | ⏳ After 3.2a/b — architecture already locked to Fly, NOT GitHub Actions or host cron                                |
-| Intelligence-platform planning                                                | ❌ Deferred until justified                                                                                          |
+| Step                                                                          | State                                                                                                                                                               |
+| ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Automated directory MVP spec                                                  | ✅ Active                                                                                                                                                           |
+| Target-state platform spec                                                    | ✅ Reference only                                                                                                                                                   |
+| W0+W1 foundation                                                              | ✅ Complete (Phases 0-10 shipped, `main` protected)                                                                                                                 |
+| W0+W1 implementation plan                                                     | ✅ Executed                                                                                                                                                         |
+| Manual operator smoke                                                         | ✅ Completed                                                                                                                                                        |
+| W2 — one-source end-to-end automation (ADA)                                   | ✅ Complete (live ADA ingestion on main; 6 events on first run; dedupe verified)                                                                                    |
+| W3.1 — second-source onboarding (GNYDM)                                       | ✅ Complete (live GNYDM ingestion on main; 3 editions + dedupe + precedence verified; see w3.1-done-confirmation.md)                                                |
+| W3.2a — source-run bookkeeping (`last_crawled_at`, `--force` wiring)          | ✅ Complete — 4 new tests (3 DB-gated + signature smoke), pipeline writes all four `sources` bookkeeping columns on success + error; see w3.2a-done-confirmation.md |
+| W3.2b — `run --all` + due-selection (W1 spec §304 entry-point)                | 🟡 Next — CLI gains `run --all`, iterates `is_active` + schedule-due sources; `--force` becomes behaviorally real                                                   |
+| W3.2c — detail-page drift observability + `_diff_event_fields` `None`-rule    | ⏳ Gate before third source — seeded detail page yielding zero events must signal, not be silent                                                                    |
+| W3.2d — third curated source (`aap_annual_meeting`)                           | ⏳ After 3.2a/b/c                                                                                                                                                   |
+| W3.2e — external scheduler (Fly.io scheduled machines per w1-foundation §324) | ⏳ After 3.2a/b — architecture already locked to Fly, NOT GitHub Actions or host cron                                                                               |
+| Intelligence-platform planning                                                | ❌ Deferred until justified                                                                                                                                         |
 
 ## How to use this document
 
 - **Resuming work?** Read this file first, then `docs/TODO.md`, then `docs/runbooks/w3.1-done-confirmation.md` for the latest shipped wave.
-- **Continuing execution?** W0+W1, W2, and W3.1 are closed. Next concrete action is authoring the W3.2a sub-spec (source-run bookkeeping) via `superpowers:brainstorming` + `superpowers:writing-plans`. Do NOT jump to scheduler wiring; the internal primitives it needs do not exist yet.
+- **Continuing execution?** W0+W1, W2, W3.1, and W3.2a are closed. Next concrete action is authoring the W3.2b sub-spec (`run --all` + due-selection) via `superpowers:brainstorming` + `superpowers:writing-plans`. External scheduler wiring (W3.2e, Fly.io scheduled machines) comes after W3.2b/c, not before.
 - **Planning future work?** Follow the automated directory MVP spec unless a new decision explicitly changes direction.
 - **Using the target-state spec?** Treat it as a later-phase reference, not an instruction to build all layers now.
