@@ -1,0 +1,53 @@
+# Fly.io app config for medevents-ingest scheduled machine.
+#
+# Architecture decision: W1 foundation spec §324 — "A small Fly machine wakes
+# hourly, runs `medevents-ingest run --all`, exits. No long-running scheduler
+# process." W3.2d sub-spec locks the details.
+#
+# Placement: this file lives at the REPO ROOT (not services/ingest/) because
+# the Dockerfile references workspace-level files (root pyproject.toml +
+# root uv.lock) that Fly's default build context wouldn't reach if fly.toml
+# were under services/ingest/. `build.dockerfile` points at the service-
+# specific Dockerfile relative to this directory.
+#
+# Before first deploy, the operator must run through
+# docs/runbooks/w3.2d-fly-scheduler-deploy.md:
+#   1. `fly apps create <app-name>` (adjust `app` below if different)
+#   2. Provision / attach a Postgres (Fly PG or external cloud PG)
+#   3. `fly secrets set DATABASE_URL=postgresql://...`
+#   4. `fly deploy` (from repo root)
+
+app = "medevents-ingest"
+primary_region = "iad"  # operator picks the region nearest their Postgres host
+
+[build]
+  dockerfile = "services/ingest/Dockerfile"
+
+[env]
+  # Nothing non-secret required at runtime. config/sources.yaml is baked into
+  # the image, log level / user-agent are inside the Python code. DATABASE_URL
+  # is a Fly secret, not an env var here.
+
+# Scheduled machine: wakes once per hour, runs `medevents-ingest run --all`
+# (the image's default CMD), exits. Fly auto-creates / auto-destroys the
+# machine per tick — no idle-running cost.
+#
+# Fly's scheduled-machine terminology and syntax are described at
+#   https://fly.io/docs/apps/scheduled-machines/
+# Accepted shortcuts: "hourly", "daily", "weekly", "monthly". Cron expressions
+# are also accepted via `fly machine run --schedule '<cron>'`.
+#
+# Resource sizing: 1 shared CPU / 256MB is sufficient for two curated sources;
+# revisit when source count grows past ~10.
+[[machines]]
+  name = "ingest-scheduled"
+  schedule = "hourly"
+  auto_destroy = true
+
+  [machines.vm]
+    cpu_kind = "shared"
+    cpus = 1
+    memory_mb = 256
+
+# No [http_service] block — ingest exposes no HTTP port. Fly will start the
+# machine, run the container's CMD to completion, capture logs, and destroy.
