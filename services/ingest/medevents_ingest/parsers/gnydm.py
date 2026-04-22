@@ -151,7 +151,7 @@ def _parse_listing(content: FetchedContent, soup: BeautifulSoup) -> Iterator[Par
             organizer_name=_ORGANIZER,
             source_url=content.url,
             registration_url=None,
-            raw_title=year_text,
+            raw_title=f"{year_text} · {meeting_line}",
             raw_date_text=raw_date,
         )
 
@@ -175,6 +175,21 @@ def _extract_year_from_logo(soup: BeautifulSoup) -> int | None:
         if m:
             return int(m.group(1))
     return None
+
+
+def _swiper_title_text(soup: BeautifulSoup) -> str | None:
+    """Return the text content of the ``h1.swiper-title`` element, or None if empty.
+
+    The detail classifier already requires this element to be present, so by
+    the time ``_parse_homepage`` is called the element is guaranteed to exist.
+    We still guard against an empty text node so the caller can fall back to
+    the synthesised title rather than storing an empty string as provenance.
+    """
+    el = soup.select_one("h1.swiper-title")
+    if el is None:
+        return None
+    text = el.get_text(strip=True)
+    return text if text else None
 
 
 def _parse_homepage(content: FetchedContent, soup: BeautifulSoup) -> ParsedEvent | None:
@@ -228,6 +243,6 @@ def _parse_homepage(content: FetchedContent, soup: BeautifulSoup) -> ParsedEvent
         organizer_name=_ORGANIZER,
         source_url=content.url,
         registration_url=None,
-        raw_title=f"{_ORGANIZER} {year}",
+        raw_title=_swiper_title_text(soup) or f"{_ORGANIZER} {year}",
         raw_date_text=raw_date,
     )
