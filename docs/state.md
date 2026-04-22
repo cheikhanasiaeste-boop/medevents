@@ -1,13 +1,14 @@
 # MedEvents — Current State
 
-_Last updated: 2026-04-21 — W2 closed, W3.1 prep shipped, W3.1 spec open in PR #46 awaiting review._
+_Last updated: 2026-04-22 — W2 closed, W3.1 prep + sub-spec shipped, W3.1 implementation plan open in PR #48 with review changes requested._
 
 ## Status
 
-**W0+W1 foundation + W2 ADA ingestion are complete.** **W3.1 (GNYDM second-source onboarding) is in prep-and-spec phase:** fixtures + robots + byte-stability review shipped on `main`; the W3.1 sub-spec is open in PR #46 on branch `docs/w3-1-spec-second-source-gnydm` awaiting user approval before the implementation plan is drafted.
+**W0+W1 foundation + W2 ADA ingestion are complete.** **W3.1 (GNYDM second-source onboarding) is at the plan-revision gate:** the sub-spec merged to `main` as `ed86dc9` (PR #46); the implementation plan is drafted on branch `docs/w3-1-plan` (commit `327b2e6`, PR #48) with an explicit "Request changes" review — four findings (two high, two medium). Fixes were designed and discussed in the review thread but NOT yet pushed; session was paused for an IDE restart before revisions could land. The next step is to apply those fixes on `docs/w3-1-plan` and push to PR #48 for re-review.
 
 Current mainline checkpoints:
 
+- `ed86dc9` — W3.1 sub-spec merged (PR #46)
 - `a4cedb4` — W3.1 prep: GNYDM canary fixtures + robots/byte-stability review (PR #45)
 - `061a7de` — chore: bump ruff pre-commit hook to match CI
 - `7a6cce5` — fix: ADA content_hash ignores rotating Sitecore tracking attrs (discovered in live smoke)
@@ -41,7 +42,7 @@ Verification state:
 
 ## Open PRs awaiting review
 
-- **PR #46** — [docs(w3.1): sub-spec for second-source onboarding (GNYDM)](https://github.com/cheikhanasiaeste-boop/medevents/pull/46). Branch `docs/w3-1-spec-second-source-gnydm`. Content at `docs/superpowers/specs/2026-04-21-medevents-w3-1-second-source-gnydm.md`. Awaiting user approval; once merged, the next step is the W3.1 implementation plan via the `writing-plans` skill.
+- **PR #48** — [docs(w3.1): implementation plan — 5 phases, 16 tasks](https://github.com/cheikhanasiaeste-boop/medevents/pull/48). Branch `docs/w3-1-plan`. Content at `docs/superpowers/plans/2026-04-21-medevents-w3-1-implementation.md`. User reviewed and requested changes — four findings tracked in `docs/TODO.md` under "Now". Re-review once fixes land on the same branch.
 
 Primary MVP spec:
 
@@ -53,7 +54,11 @@ Active foundation plan:
 
 Active wave sub-spec:
 
-- W3.1 (in review): [`docs/superpowers/specs/2026-04-21-medevents-w3-1-second-source-gnydm.md`](superpowers/specs/2026-04-21-medevents-w3-1-second-source-gnydm.md) on branch `docs/w3-1-spec-second-source-gnydm` (PR #46)
+- W3.1 (merged): [`docs/superpowers/specs/2026-04-21-medevents-w3-1-second-source-gnydm.md`](superpowers/specs/2026-04-21-medevents-w3-1-second-source-gnydm.md)
+
+Active wave implementation plan:
+
+- W3.1 (in review, revisions pending): [`docs/superpowers/plans/2026-04-21-medevents-w3-1-implementation.md`](superpowers/plans/2026-04-21-medevents-w3-1-implementation.md) on branch `docs/w3-1-plan` (PR #48). Review raised four findings; fix designs are captured in `MEMORY.md` under the W3.1 in-progress entry.
 
 Historical wave sub-specs:
 
@@ -125,27 +130,27 @@ Reference-only target-state spec:
 ## Restart Notes
 
 - This machine is using local Homebrew Postgres 16 for development because `qemu`/Colima failed on macOS 12 Intel. Do not assume Docker is the working local DB path. See [`docs/runbooks/local-postgres-macos12.md`](runbooks/local-postgres-macos12.md).
-- W3.1 resume sequence: (1) review PR #46 for the W3.1 sub-spec and either request changes or approve; (2) once merged, invoke the `superpowers:writing-plans` skill to author the W3.1 implementation plan; (3) execute the plan task-by-task behind the same branch-protection + per-task-PR discipline used for W2.
-- Local DB currently holds the 6 ADA events from the W2 live smoke. That state is safe to keep; W3.1 will add GNYDM events alongside, not replace ADA.
+- W3.1 resume sequence: (1) read the `project_w3_1_in_progress.md` memory entry for the four PR #48 review findings and the proposed fixes; (2) apply the fixes on branch `docs/w3-1-plan` (separate test DB + content-derived year + seed-sources path + replace `--dry-run` smoke); (3) push to PR #48 and comment a change summary for re-review; (4) once the user re-approves and merges, dispatch execution subagent-driven, one worker per task, per the standing `feedback_plan_execution_mode.md` preference.
+- Local DB currently holds the 6 ADA events from the W2 live smoke. That state is safe to keep; W3.1 will add GNYDM events alongside, not replace ADA. **Pipeline integration tests require a dedicated `medevents_test` database — do NOT run Phase 3 against the dev DB** (the TRUNCATE fixture would wipe the ADA smoke data). This is one of the four findings PR #48 is being revised to address.
 - `docs/phase8-sync-pending` exists locally at `66c6ff3` from an older W0+W1 docs-sync attempt. Stale; reference only.
 
 ## Next focus
 
-| Step                                                | State                                                                            |
-| --------------------------------------------------- | -------------------------------------------------------------------------------- |
-| Automated directory MVP spec                        | ✅ Active                                                                        |
-| Target-state platform spec                          | ✅ Reference only                                                                |
-| W0+W1 foundation                                    | ✅ Complete (Phases 0-10 shipped, `main` protected)                              |
-| W0+W1 implementation plan                           | ✅ Executed                                                                      |
-| Manual operator smoke                               | ✅ Completed                                                                     |
-| W2 — one-source end-to-end automation (ADA)         | ✅ Complete (live ADA ingestion on main; 6 events on first run; dedupe verified) |
-| W3.1 — second-source onboarding (GNYDM)             | 🟡 In review — prep shipped (a4cedb4), sub-spec open in PR #46                   |
-| W3.2+ — generic fallback + scheduler + third source | ⏳ After W3.1 lands                                                              |
-| Intelligence-platform planning                      | ❌ Deferred until justified                                                      |
+| Step                                                | State                                                                              |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Automated directory MVP spec                        | ✅ Active                                                                          |
+| Target-state platform spec                          | ✅ Reference only                                                                  |
+| W0+W1 foundation                                    | ✅ Complete (Phases 0-10 shipped, `main` protected)                                |
+| W0+W1 implementation plan                           | ✅ Executed                                                                        |
+| Manual operator smoke                               | ✅ Completed                                                                       |
+| W2 — one-source end-to-end automation (ADA)         | ✅ Complete (live ADA ingestion on main; 6 events on first run; dedupe verified)   |
+| W3.1 — second-source onboarding (GNYDM)             | 🟡 In review — spec merged (`ed86dc9`), plan open in PR #48 with changes requested |
+| W3.2+ — generic fallback + scheduler + third source | ⏳ After W3.1 lands                                                                |
+| Intelligence-platform planning                      | ❌ Deferred until justified                                                        |
 
 ## How to use this document
 
-- **Resuming work?** Read this file first, then `docs/TODO.md`, then the W3.1 spec in PR #46.
-- **Continuing execution?** W0+W1 and W2 are closed. Next concrete action is reviewing PR #46 (W3.1 spec). After it merges, the implementation-plan step follows via the `superpowers:writing-plans` skill.
+- **Resuming work?** Read this file first, then `docs/TODO.md`, then the W3.1 plan revisions outlined in the `project_w3_1_in_progress.md` memory entry.
+- **Continuing execution?** W0+W1 and W2 are closed. W3.1 spec is merged. Next concrete action is applying the four fix designs on branch `docs/w3-1-plan` and pushing to PR #48 for re-review. Execution mode after PR #48 merges is subagent-driven (one worker per task) per standing preference.
 - **Planning future work?** Follow the automated directory MVP spec unless a new decision explicitly changes direction.
 - **Using the target-state spec?** Treat it as a later-phase reference, not an instruction to build all layers now.

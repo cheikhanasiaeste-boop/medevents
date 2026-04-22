@@ -1,11 +1,17 @@
 # MedEvents TODO
 
-_Last updated: 2026-04-21 — W2 closed, W3.1 prep shipped, W3.1 spec in PR #46 awaiting review._
+_Last updated: 2026-04-22 — W2 closed, W3.1 spec merged, W3.1 plan open in PR #48 with changes requested; session paused for IDE restart before fixes were applied._
 
 ## Now
 
-- [ ] **Review PR #46** — [docs(w3.1): sub-spec for second-source onboarding (GNYDM)](https://github.com/cheikhanasiaeste-boop/medevents/pull/46). Branch `docs/w3-1-spec-second-source-gnydm`. Content at `docs/superpowers/specs/2026-04-21-medevents-w3-1-second-source-gnydm.md`. Approve, request changes, or close; nothing downstream can proceed until this resolves.
-- [ ] **After PR #46 merges:** invoke the `superpowers:writing-plans` skill to author the W3.1 implementation plan against the merged spec. Do not start implementation until the plan is reviewed.
+- [ ] **Answer two design questions on PR #48 before applying fixes** (they block the revision): (a) for Fix #1 (dev-DB wipe), use a dedicated `TEST_DATABASE_URL` env var or overload `DATABASE_URL` with shell-discipline-only? Assistant recommends `TEST_DATABASE_URL`. (b) for Fix #2 (content-derived year), also update spec §4 to name the logo-year signal, or keep it as plan-level implementation detail? Assistant recommends plan-level only.
+- [ ] **Apply the four PR #48 fixes on branch `docs/w3-1-plan`** (full fix designs are in the `project_w3_1_in_progress.md` memory entry):
+  - [ ] Fix #1 (High) — require a dedicated `medevents_test` DB for Phase 3; add destructive warning banner; Phase 5 re-points `DATABASE_URL` back at the dev DB for live smoke.
+  - [ ] Fix #2 (High) — replace `_date.today()` year inference in `_parse_homepage` with `/images/logo-YYYY.png` extraction (content-derived, clock-independent). Add fifth classifier condition + two unit tests (logo-year assertion + homepage-without-logo returns empty).
+  - [ ] Fix #3 (Medium) — append `--path ../../config/sources.yaml` to the Phase 4 `seed-sources` command so the relative path resolves correctly after the `cd services/ingest`.
+  - [ ] Fix #4 (Medium) — drop the `--dry-run` smoke from Phase 4 Task 12 Step 2; replace with a real source-resolution probe via a `uv run python -c "..."` one-liner that calls `get_source_by_code` and asserts non-None.
+- [ ] **Push to PR #48 + comment a change summary for re-review.** Do not merge until the user re-approves.
+- [ ] **After PR #48 merges:** dispatch execution subagent-driven, one worker per task, starting with Phase 1 (normalize widening). Per standing `feedback_plan_execution_mode.md` preference.
 
 ## Next
 
@@ -25,6 +31,7 @@ _Last updated: 2026-04-21 — W2 closed, W3.1 prep shipped, W3.1 spec in PR #46 
 
 ## Shipped on Main
 
+- [x] W3.1 sub-spec merged to `main` as `ed86dc9` (PR #46). Final spec reflects two review cycles: detail classifier tightened (URL + `h1.swiper-title` + Meeting Dates + venue), precedence pinned via a controlled-disagreement test double on `summary`, naming-convention sentence rewritten. `h1.swiper-title` residual-risk note carried forward.
 - [x] W3.1 prep: GNYDM canary fixtures + robots/byte-stability review + source-code naming + stability-check protocol as default for future sources (PR #45, `a4cedb4`).
 - [x] W3 direction decision: `gnydm` chosen as W3.1 second source before any scheduler or generic-fallback work.
 - [x] W2 first-source ingestion (ADA) shipped: parser, pipeline, dedupe, review-item emission. Live smoke on main at `b0cd668`.
