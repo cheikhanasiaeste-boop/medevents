@@ -1,22 +1,28 @@
 # MedEvents TODO
 
-_Last updated: 2026-04-23 — W3.2b shipped; `run --all` + SQL-side due-selection live; `--force` is now behaviorally real under `--all`. W3.2c is next._
+_Last updated: 2026-04-23 — W3.2c shipped; parser/pipeline boundary hardened. W3.2d (third source — `aap_annual_meeting`) is next._
 
 ## Now
 
-**W3.2c — Detail-page drift observability + `_diff_event_fields` `None`-as-clear decision + GNYDM `raw_title` provenance fix.** Gate before W3.2d (third source). Three related changes bundled because they all touch the parser ↔ pipeline boundary:
+**W3.2d — Third curated source: `aap_annual_meeting`.** Proves the two-source pattern generalizes to three without code rework. With W3.2a/b/c shipped, the third source inherits: real bookkeeping, due-selection, drift observability, clean None semantics, and true `raw_title` provenance — so onboarding is pure parser work + fixtures + config wiring.
 
-- **Detail-page silence.** Today, if the GNYDM homepage classifier silently yields zero events (markup drift, logo rename, `<sup>` structure change), [`pipeline.py:146`](services/ingest/medevents_ingest/pipeline.py) only emits `parser_failure` when a _listing_ page yields zero; detail pages are silent. The run reports healthy while detail-over-listing enrichment quietly disappears. Scope: when a _seeded_ page classified as detail (NOT a canary) yields zero events, emit a `review_items` row. Canaries (URL + markup-known-negative like `about-gnydm`) must not trigger.
-- **`_diff_event_fields` `None`-as-clear.** Today a `None` in the incoming candidate is treated as a deliberate clear. If one seed page's hash changes and the other's doesn't, a re-fetch of the changed page can clobber precedence-won fields from the unchanged page. Decision needed: should `None` from a later-processed page be allowed to clear fields won by an earlier page?
-- **`raw_title` provenance.** `parsers/gnydm.py` stores the year_text for listing rows and a synthesized canonical title for homepage rows — not actual source excerpts. Spec W3.1 §4 promised source-originating provenance. Fix while we're already touching the parser.
+**Candidate source:** AAP (American Academy of Periodontology) Annual Meeting. Per the W3.1 prep-plan §3 ordering, `aap_annual_meeting` is the next-best candidate after GNYDM; `fdi_wdc` (FDI World Dental Congress) follows.
 
-**Next concrete action:** author the W3.2c sub-spec via `superpowers:brainstorming` + `superpowers:writing-plans`.
+**Scope (to lock in the sub-spec):**
 
-### Remaining W3.2 sequence (after W3.2c)
+- Source-code naming + canary protocol (same discipline as W3.1 prep).
+- Fixtures + robots + byte-stability review.
+- Parser module `parsers/aap.py` following the W3.1 parser shape (discover + fetch + parse + classifier).
+- `config/sources.yaml` entry + seed.
+- Live smoke + done-confirmation.
 
-- **W3.2d — Third source onboarding.** Candidate: `aap_annual_meeting` (per prep plan §3, then `fdi_wdc`). Generic fallback stays deferred until a third curated source either proves or breaks the pattern.
+**Prep work that may justify a sub-wave W3.2d-prep:** fetching AAP fixtures, reviewing robots.txt, byte-stability check across three consecutive fetches (mirror the GNYDM prep in PR #45). Decide in the sub-spec whether prep is a separate PR or bundled.
 
-- **W3.2e — External scheduler wiring.** **Fly.io scheduled machines** per [`w1-foundation.md:324`](superpowers/specs/2026-04-20-medevents-w1-foundation.md). `run --all` is now on `main` (W3.2b) so the Fly machine has something concrete to call.
+**Next concrete action:** author the W3.2d sub-spec via `superpowers:brainstorming` + `superpowers:writing-plans`.
+
+### Remaining W3.2 sequence (after W3.2d)
+
+- **W3.2e — External scheduler wiring.** **Fly.io scheduled machines** per [`w1-foundation.md:324`](superpowers/specs/2026-04-20-medevents-w1-foundation.md). `run --all` is on `main` (W3.2b) so the Fly machine has something concrete to call. The scheduler wires in UNCHANGED regardless of how many curated sources ship — running after the third source proves the primitive at a realistic source count.
 
 ## Next
 
@@ -34,6 +40,7 @@ _Last updated: 2026-04-23 — W3.2b shipped; `run --all` + SQL-side due-selectio
 
 ## Shipped on Main
 
+- [x] W3.2c drift observability + None-rule + raw_title provenance — detail-page zero-yield now fires `parser_failure` (symmetric with listing, carries `page_kind` in details_json); `_diff_event_fields` treats candidate None as "no contribution" (preserves existing non-null fields); GNYDM `raw_title` is now a real source excerpt (listing = year + meeting-dates; homepage = `h1.swiper-title` text). 4 new tests. See `docs/runbooks/w3.2c-done-confirmation.md`.
 - [x] W3.2b `run --all` + due-selection — CLI gains `medevents-ingest run --all`; iterates `is_active` + schedule-due sources via SQL-side CASE filter; continues on per-source failure; `--force` bypasses due check (but STILL respects `is_active=false`); `--source`/`--all` mutex validated; batch summary + per-source stdout + per-source stderr on failures. 8 new tests (4 DB-gated integration + 4 unit parametrized across all 4 `crawl_frequency` boundaries). See `docs/runbooks/w3.2b-done-confirmation.md`.
 - [x] W3.2a source-run bookkeeping + `--force` plumbing — pipeline now writes `last_crawled_at` / `last_success_at` on success and `last_crawled_at` / `last_error_at` / `last_error_message` on error (via a fresh session so writes survive rollback). Admin UI sources pages display real timestamps for the first time. See `docs/runbooks/w3.2a-done-confirmation.md`.
 - [x] W3.1 GNYDM second-source onboarding shipped end-to-end — 5 phases, 5 PRs (#50, #51, #52, #53, #54). Two sources now live; intra-source dedupe + detail-over-listing precedence proven on real data. See `docs/runbooks/w3.1-done-confirmation.md`.

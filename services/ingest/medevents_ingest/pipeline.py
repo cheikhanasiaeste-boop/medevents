@@ -227,7 +227,25 @@ def _run_source_inner(session: Session, *, source: Source) -> PipelineResult:
                 source_id=source.id,
                 source_page_id=source_page_id,
                 event_id=None,
-                details={"reason": "listing page parsed 0 events; check template drift"},
+                details={
+                    "page_url": discovered.url,
+                    "page_kind": "listing",
+                    "reason": "zero_events",
+                },
+            )
+            review_items_created += 1
+        elif not any_event_emitted and discovered.page_kind == "detail":
+            insert_review_item(
+                session,
+                kind="parser_failure",
+                source_id=source.id,
+                source_page_id=source_page_id,
+                event_id=None,
+                details={
+                    "page_url": discovered.url,
+                    "page_kind": "detail",
+                    "reason": "zero_events",
+                },
             )
             review_items_created += 1
 
@@ -372,11 +390,26 @@ def _diff_event_fields(
     material = False
 
     def set_if_changed(field: str, new_val: Any) -> None:
+        """Record a field change only when the candidate has a concrete value.
+
+        Spec §4 D2 (W3.2c): when ``new_val is None`` and the existing row
+        already has a non-None value, the candidate is treated as "no
+        contribution" rather than an explicit clear — the existing value is
+        preserved.  When both are None, or when ``new_val`` is non-None and
+        differs from the persisted value, the existing change-recording
+        behaviour applies.
+
+        Rationale: shipped parsers MUST NOT invent filler copy; ``None``
+        means "I didn't extract this," not "clear the field."
+        """
         nonlocal material
         old_val = row[field]
         normalized_new = new_val
         if field in {"starts_on", "ends_on"} and isinstance(new_val, str):
             normalized_new = date.fromisoformat(new_val) if new_val else None
+        # Spec §4 D2: candidate None means "no contribution", not "clear".
+        if normalized_new is None and old_val is not None:
+            return
         if old_val != normalized_new:
             changes[field] = normalized_new
             if field in _MATERIAL_FIELDS:

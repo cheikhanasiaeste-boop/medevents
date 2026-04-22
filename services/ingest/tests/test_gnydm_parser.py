@@ -187,3 +187,43 @@ def test_homepage_without_logo_yields_zero_events() -> None:
     )
     events = list(parser.parse(content))
     assert events == []
+
+
+def test_listing_raw_title_is_source_excerpt() -> None:
+    """Spec §5 test 3 (W3.2c): each listing event's raw_title must contain
+    both the year token (e.g. '2026') AND the 'Meeting Dates:' line from the
+    source HTML — confirming the title is a real source excerpt, not a
+    synthesised string.
+    """
+    parser = _get_parser()
+    content = _fetched("future-meetings.html", LISTING_URL)
+    events = list(parser.parse(content))
+    assert events, "expected listing events from fixture"
+    for e in events:
+        year = e.starts_on[:4]
+        assert year in e.raw_title, f"year {year!r} not found in raw_title {e.raw_title!r}"
+        assert "Meeting Dates:" in e.raw_title, (
+            f"'Meeting Dates:' not found in raw_title {e.raw_title!r}"
+        )
+
+
+def test_homepage_raw_title_is_swiper_title_text() -> None:
+    """Spec §5 test 4 (W3.2c): the homepage event's raw_title must equal the
+    text content of the fixture's first ``h1.swiper-title`` element — computed
+    inline from the fixture so a template change surfaces as a test failure,
+    not a false pass.
+    """
+    from bs4 import BeautifulSoup
+
+    fixture_body = (FIXTURES / "homepage.html").read_bytes()
+    expected = (
+        BeautifulSoup(fixture_body, "lxml").select_one("h1.swiper-title").get_text(strip=True)
+    )
+
+    parser = _get_parser()
+    content = _fetched("homepage.html", HOMEPAGE_URL)
+    events = list(parser.parse(content))
+    assert len(events) == 1, f"expected 1 homepage event, got {len(events)}"
+    assert events[0].raw_title == expected, (
+        f"raw_title {events[0].raw_title!r} != expected swiper-title text {expected!r}"
+    )
