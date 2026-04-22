@@ -1,6 +1,6 @@
 # MedEvents — Current State
 
-_Last updated: 2026-04-23 — W3.2c shipped; parser/pipeline boundary hardened (detail-drift signal, None-no-clobber rule, raw_title provenance). Third source onboarding (W3.2d) is next._
+_Last updated: 2026-04-23 — W3.2c shipped; parser/pipeline boundary hardened (detail-drift signal, None-no-clobber rule, raw_title provenance). Fly scheduled machines (W3.2d) is next; third source follows as W3.2e per the swapped sequence in TODO.md._
 
 ## Status
 
@@ -136,7 +136,7 @@ Reference-only target-state spec:
 ## Restart Notes
 
 - This machine is using local Homebrew Postgres 16 for development because `qemu`/Colima failed on macOS 12 Intel. Do not assume Docker is the working local DB path. See [`docs/runbooks/local-postgres-macos12.md`](runbooks/local-postgres-macos12.md).
-- W3.1 + W3.2a + W3.2b + W3.2c are complete. W3.2 continues as sequenced sub-waves (third source → Fly scheduler) per [`docs/TODO.md`](TODO.md) "Now" section. Next wave is W3.2d.
+- W3.1 + W3.2a + W3.2b + W3.2c are complete. W3.2 continues as sequenced sub-waves (Fly scheduler → third source) per [`docs/TODO.md`](TODO.md) "Now" section — order swapped from the earlier W3.2c runbook based on the user review principle "after automation is in place, onboard source three." Next wave is W3.2d (Fly).
 - Local dev DB now holds: 6 ADA events (W2 smoke) + 3 GNYDM editions (W3.1 smoke); the 2026 GNYDM edition has 2 event_sources rows. That state is safe to keep.
 - A disposable `medevents_test` Postgres database exists alongside the dev DB with the same migrations applied. It is used exclusively by `tests/test_gnydm_pipeline.py` (gated on `TEST_DATABASE_URL`); every test TRUNCATEs all ingest tables before running. Do NOT point `DATABASE_URL` at `medevents_test` or vice versa.
 - `docs/phase8-sync-pending` exists locally at `66c6ff3` from an older W0+W1 docs-sync attempt. Stale; reference only.
@@ -155,13 +155,13 @@ Reference-only target-state spec:
 | W3.2a — source-run bookkeeping (`last_crawled_at`, `--force` wiring)          | ✅ Complete — 4 new tests (3 DB-gated + signature smoke), pipeline writes all four `sources` bookkeeping columns on success + error; see w3.2a-done-confirmation.md                                         |
 | W3.2b — `run --all` + due-selection (W1 spec §304 entry-point)                | ✅ Complete — 8 new tests (4 DB-gated + 4 is_due unit cases with parametrize expanding to 11); SQL-side due filter via CASE expression; continues-on-failure proven live; see w3.2b-done-confirmation.md    |
 | W3.2c — detail-page drift observability + `_diff_event_fields` `None`-rule    | ✅ Complete — detail-zero emits `parser_failure` with `page_kind` in details_json; candidate None no longer clobbers; GNYDM `raw_title` is true source excerpt; 4 new tests; see w3.2c-done-confirmation.md |
-| W3.2d — third curated source (`aap_annual_meeting`)                           | 🟡 Next — proves the two-source pattern generalizes to a third source; generic fallback stays deferred until three curated sources ship                                                                     |
-| W3.2e — external scheduler (Fly.io scheduled machines per w1-foundation §324) | ⏳ After 3.2a/b — architecture already locked to Fly, NOT GitHub Actions or host cron                                                                                                                       |
+| W3.2d — external scheduler (Fly.io scheduled machines per w1-foundation §324) | 🟡 Next — wires `medevents-ingest run --all` into an hourly Fly machine; order swapped (was W3.2e) so automation is in place before a third source lands                                                    |
+| W3.2e — third curated source (`aap_annual_meeting`)                           | ⏳ After 3.2d — proves three-source pattern runs autonomously post-scheduler wiring                                                                                                                         |
 | Intelligence-platform planning                                                | ❌ Deferred until justified                                                                                                                                                                                 |
 
 ## How to use this document
 
 - **Resuming work?** Read this file first, then `docs/TODO.md`, then `docs/runbooks/w3.1-done-confirmation.md` for the latest shipped wave.
-- **Continuing execution?** W0+W1, W2, W3.1, W3.2a, W3.2b, and W3.2c are closed. Next concrete action is authoring the W3.2d sub-spec (third source onboarding — `aap_annual_meeting`). External scheduler wiring (W3.2e, Fly.io scheduled machines) comes after W3.2d.
+- **Continuing execution?** W0+W1, W2, W3.1, W3.2a, W3.2b, and W3.2c are closed. Next concrete action is authoring the W3.2d sub-spec (Fly.io scheduled machines wiring). Third source onboarding (W3.2e, `aap_annual_meeting`) comes after W3.2d.
 - **Planning future work?** Follow the automated directory MVP spec unless a new decision explicitly changes direction.
 - **Using the target-state spec?** Treat it as a later-phase reference, not an instruction to build all layers now.
