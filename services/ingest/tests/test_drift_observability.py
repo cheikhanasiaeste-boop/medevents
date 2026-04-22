@@ -22,6 +22,7 @@ from medevents_ingest.parsers.base import FetchedContent, ParsedEvent, SourcePag
 from medevents_ingest.pipeline import run_source
 from medevents_ingest.repositories.sources import upsert_source_seed
 from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 # Gate on TEST_DATABASE_URL — these tests TRUNCATE every ingest table and must
 # never run against the dev DB.
@@ -87,7 +88,7 @@ def _clean_db() -> None:
         )
 
 
-def _seed_gnydm(session) -> None:
+def _seed_gnydm(session: Session) -> None:
     upsert_source_seed(
         session,
         SourceSeed(

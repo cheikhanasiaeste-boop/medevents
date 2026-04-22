@@ -20,6 +20,7 @@ from medevents_ingest.parsers.base import FetchedContent, SourcePageRef
 from medevents_ingest.pipeline import PipelineResult, run_source
 from medevents_ingest.repositories.sources import upsert_source_seed
 from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 pytestmark = pytest.mark.skipif(
     "DATABASE_URL" not in os.environ,
@@ -51,7 +52,7 @@ def _clean_db() -> None:
         )
 
 
-def _seed_ada(session) -> None:
+def _seed_ada(session: Session) -> None:
     upsert_source_seed(
         session,
         SourceSeed(

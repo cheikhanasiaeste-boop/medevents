@@ -20,6 +20,7 @@ from medevents_ingest.parsers.base import FetchedContent, ParsedEvent, SourcePag
 from medevents_ingest.pipeline import PipelineResult, run_source
 from medevents_ingest.repositories.sources import upsert_source_seed
 from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 # Phase 3 tests TRUNCATE every ingest table on every test, so they MUST NOT
 # run against the dev DB. We gate on TEST_DATABASE_URL (a dedicated, disposable
@@ -100,7 +101,7 @@ def _clean_db() -> None:
         )
 
 
-def _seed_gnydm(session) -> None:
+def _seed_gnydm(session: Session) -> None:
     upsert_source_seed(
         session,
         SourceSeed(

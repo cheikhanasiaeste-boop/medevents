@@ -37,8 +37,6 @@ Per W3.1 prep-plan §3: `aap_annual_meeting` (American Academy of Periodontology
 - [ ] Decide whether to wire the existing Playwright happy-path spec into CI, or keep it opt-in local-only.
 - [ ] Implement `--dry-run` (currently exits 4 per `cli.py:53-55`). Candidate for late-W3 if operators need preview runs for risky source config changes.
 - [ ] Audit the ADA schedule rows that returned `None` from `_row_to_event` — any should have landed in `review_items` per W2 spec §7? Currently silent-dropped. Not blocking W3.2.
-- [ ] Pre-existing mypy errors in `tests/test_ada_parser.py` + related test-harness files (11 errors surfaced by `uv run mypy .`). CI does not check these (CI mypy scope is `medevents_ingest` only). Either add type hints or `# type: ignore` suppressions.
-- [ ] Partial-page precedence drift risk: `pipeline._diff_event_fields` treats `None` in the incoming candidate as a deliberate clear — revisit in W3.2c spec.
 
 ## Later
 
@@ -48,6 +46,8 @@ Per W3.1 prep-plan §3: `aap_annual_meeting` (American Academy of Periodontology
 
 ## Shipped on Main
 
+- [x] test-harness mypy cleanup — 27 pre-existing mypy errors across `test_ada_parser.py`, `test_gnydm_parser.py`, `test_gnydm_pipeline.py`, `test_drift_observability.py`, `test_pipeline.py`, `test_repositories_event_sources.py` resolved by typing `_get_parser() -> Parser`, `_seed_*(session: Session)`, `_fresh_event(...) -> UUID`, and narrowing a `BeautifulSoup.select_one()` result. `uv run mypy .` (repo-wide) now clean; CI unaffected (CI scope is `medevents_ingest` only).
+- [x] W3.2c `_diff_event_fields` None-as-clear fix addresses the partial-page precedence drift risk flagged in earlier TODO snapshots; item closed.
 - [x] W3.2d repo artifacts — `services/ingest/Dockerfile` (multi-stage Python 3.12 + uv + non-root user, CMD = `medevents-ingest run --all`), `fly.toml` at repo root (scheduled-machine config, hourly wake, 256MB / shared CPU), `docs/runbooks/w3.2d-fly-scheduler-deploy.md` (operator deploy runbook with Fly PG + external PG strategies + rollback), `docs/runbooks/w3.2d-done-confirmation.md` (skeleton). Live deploy requires operator action; PR body + runbook explicit about the boundary.
 - [x] W3.2c drift observability + None-rule + raw_title provenance — detail-page zero-yield now fires `parser_failure` (symmetric with listing, carries `page_kind` in details_json); `_diff_event_fields` treats candidate None as "no contribution" (preserves existing non-null fields); GNYDM `raw_title` is now a real source excerpt (listing = year + meeting-dates; homepage = `h1.swiper-title` text). 4 new tests. See `docs/runbooks/w3.2c-done-confirmation.md`.
 - [x] W3.2b `run --all` + due-selection — CLI gains `medevents-ingest run --all`; iterates `is_active` + schedule-due sources via SQL-side CASE filter; continues on per-source failure; `--force` bypasses due check (but STILL respects `is_active=false`); `--source`/`--all` mutex validated; batch summary + per-source stdout + per-source stderr on failures. 8 new tests (4 DB-gated integration + 4 unit parametrized across all 4 `crawl_frequency` boundaries). See `docs/runbooks/w3.2b-done-confirmation.md`.

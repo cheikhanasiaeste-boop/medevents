@@ -4,15 +4,17 @@ from __future__ import annotations
 
 import os
 from datetime import date
+from uuid import UUID
 
 import pytest
 from medevents_ingest.db import session_scope
-from medevents_ingest.models import SourceSeed
+from medevents_ingest.models import Source, SourceSeed
 from medevents_ingest.repositories.event_sources import upsert_event_source
 from medevents_ingest.repositories.events import insert_event
 from medevents_ingest.repositories.source_pages import upsert_source_page
 from medevents_ingest.repositories.sources import upsert_source_seed
 from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 pytestmark = pytest.mark.skipif(
     "DATABASE_URL" not in os.environ,
@@ -43,7 +45,7 @@ def _seed_ada() -> SourceSeed:
     )
 
 
-def _fresh_event(session, source):
+def _fresh_event(session: Session, source: Source) -> UUID:
     return insert_event(
         session,
         slug=f"e-{date.today().isoformat()}",
