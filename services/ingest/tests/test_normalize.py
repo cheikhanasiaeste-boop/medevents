@@ -44,6 +44,18 @@ class TestParseDateRange:
         result = parse_date_range("October 1st, 2026", page_year=None)
         assert result == ParsedDateRange(starts_on=date(2026, 10, 1), ends_on=None)
 
+    def test_weekday_prefix_same_month_range(self) -> None:
+        result = parse_date_range("Friday, November 27th - Tuesday, November 30th", page_year=2027)
+        assert result == ParsedDateRange(starts_on=date(2027, 11, 27), ends_on=date(2027, 11, 30))
+
+    def test_weekday_prefix_cross_month_range(self) -> None:
+        result = parse_date_range("Friday, November 27th - Tuesday, December 1st", page_year=2026)
+        assert result == ParsedDateRange(starts_on=date(2026, 11, 27), ends_on=date(2026, 12, 1))
+
+    def test_weekday_prefix_single_day(self) -> None:
+        result = parse_date_range("Monday, June 1st, 2026", page_year=None)
+        assert result == ParsedDateRange(starts_on=date(2026, 6, 1), ends_on=None)
+
     def test_year_omitted_and_no_page_year_returns_none(self) -> None:
         assert parse_date_range("June 12\u201313", page_year=None) is None
 

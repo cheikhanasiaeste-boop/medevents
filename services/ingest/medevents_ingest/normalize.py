@@ -44,6 +44,15 @@ _MONTH = r"(?P<m{0}>[A-Za-z]+)\.?"
 _DAY = r"(?P<d{0}>\d{{1,2}})(?:st|nd|rd|th)?"
 _YEAR_OPT = r"(?:,\s*(?P<y{0}>\d{{4}}))?"
 
+# Strip leading-day-of-week tokens like "Friday, " that some sources prepend to
+# dates. GNYDM's future-meetings listing uses this form on both ends of a range
+# (e.g. "Friday, November 27th - Tuesday, December 1st"). The widening is
+# applied as a preprocessor so the existing grammars stay unchanged.
+_WEEKDAY_PREFIX = re.compile(
+    r"\b(?:Mon|Tues?|Wednes?|Thurs?|Fri|Satur?|Sun)(?:day)?,\s+",
+    re.IGNORECASE,
+)
+
 
 @dataclass(frozen=True)
 class ParsedDateRange:
@@ -80,6 +89,7 @@ def parse_date_range(raw: str, *, page_year: int | None) -> ParsedDateRange | No
     if not raw:
         return None
     raw = raw.strip().replace("\u00a0", " ")
+    raw = _WEEKDAY_PREFIX.sub("", raw)
 
     # Same-month range: "June 12-13" with optional ", 2026"
     m = re.match(
