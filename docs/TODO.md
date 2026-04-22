@@ -1,28 +1,36 @@
 # MedEvents TODO
 
-_Last updated: 2026-04-23 — W3.2c shipped; parser/pipeline boundary hardened. W3.2d (Fly scheduled machines) is next; third source follows as W3.2e._
+_Last updated: 2026-04-23 — W3.2d repo artifacts shipped (Dockerfile + fly.toml + deploy runbook); operator runs the runbook to complete live deployment. Autonomous work continues with W3.2e (third source)._
 
 ## Now
 
-**Sequence correction (2026-04-23):** the user's W3.1 → W3.2 architectural review said "after automation is in place, onboard source three." Earlier TODO snapshots had labeled third-source as W3.2d and Fly scheduler as W3.2e. Swapping so execution matches the user's intent: ship the scheduler BEFORE the third source so the third source goes live into already-automated infrastructure instead of adding manual-operation noise.
+**Two tracks in parallel:**
 
-**W3.2d — Fly.io scheduled machines wired to `run --all`.** Architecture locked in [`w1-foundation.md:324`](superpowers/specs/2026-04-20-medevents-w1-foundation.md) ("A small Fly machine wakes hourly, runs `medevents-ingest run --all`, exits"). With W3.2b's primitive on `main`, the Fly machine has something concrete to call. The scheduler wave is narrow: infra config (Dockerfile, fly.toml, secrets, scheduled machine), minimal deploy verification, and a done-confirmation that captures the first real autonomous run.
+### Track A (operator-gated) — W3.2d live deployment
 
-**Scope (to lock in the sub-spec):**
+Repo artifacts on `main`:
 
-- Dockerfile for the ingest service (multi-stage Python + uv).
-- `fly.toml` with scheduled machine definition (hourly wake).
-- Secret management (`DATABASE_URL` via `fly secrets`).
-- Deploy verification: cold-start timing, `run --all` exit behavior under Fly-specific constraints (read-only FS, ephemeral disks, etc.).
-- Done-confirmation: screenshot or log snippet of the Fly machine's first autonomous `run --all` exit, plus the admin UI `/admin/sources` showing updated `last_crawled_at` from that autonomous run.
+- `services/ingest/Dockerfile` — multi-stage Python 3.12 + uv image; default CMD = `medevents-ingest run --all`.
+- `fly.toml` at repo root — scheduled machine config, hourly wake, 256MB / shared CPU.
+- `docs/runbooks/w3.2d-fly-scheduler-deploy.md` — step-by-step operator runbook.
+- `docs/runbooks/w3.2d-done-confirmation.md` — skeleton the operator fills in after the first autonomous run.
 
-**Prerequisites:** the user must have a Fly.io account + app created for the ingest service. If `flyctl` and the app aren't set up yet, the sub-wave authoring step flags that as an operator task.
+**Operator action required** (not autonomously runnable — needs Fly.io account + billing + credentials):
 
-**Next concrete action:** author the W3.2d sub-spec via `superpowers:brainstorming` + `superpowers:writing-plans`.
+1. `fly apps create medevents-ingest` (or operator-chosen name).
+2. Provision / attach Postgres (Fly PG or external cloud PG).
+3. `fly secrets set DATABASE_URL=...`.
+4. `fly deploy` from repo root.
+5. Verify first scheduled run via `fly logs`.
+6. Fill in `w3.2d-done-confirmation.md` and commit.
 
-### Remaining W3.2 sequence (after W3.2d)
+### Track B (autonomous) — W3.2e third source
 
-- **W3.2e — Third curated source: `aap_annual_meeting`.** Proves the two-source pattern generalizes to three sources running autonomously (post-W3.2d wiring). Per W3.1 prep-plan §3: `aap_annual_meeting` (AAP Annual Meeting) first, then `fdi_wdc` (FDI World Dental Congress). Scope mirrors W3.1: fixtures + robots + byte-stability prep, parser module, config entry, live smoke, done-confirmation. Generic fallback stays deferred until three curated sources prove or break the pattern.
+**W3.2e — Third curated source: `aap_annual_meeting`.** Lands on `main` independently of Track A timing. Once Track A completes, the third source runs autonomously via the Fly machine on the next wake. If Track A is still pending when Track B lands, the third source runs whenever an operator manually invokes `run --source aap_annual_meeting`.
+
+Per W3.1 prep-plan §3: `aap_annual_meeting` (American Academy of Periodontology Annual Meeting) first, then `fdi_wdc` (FDI World Dental Congress). Scope mirrors W3.1: fixtures + robots + byte-stability prep, parser module `parsers/aap.py`, config entry, live smoke, done-confirmation. Generic fallback stays deferred until three curated sources prove or break the pattern.
+
+**Next concrete action:** author the W3.2e sub-spec via `superpowers:brainstorming` + `superpowers:writing-plans`.
 
 ## Next
 
@@ -40,6 +48,7 @@ _Last updated: 2026-04-23 — W3.2c shipped; parser/pipeline boundary hardened. 
 
 ## Shipped on Main
 
+- [x] W3.2d repo artifacts — `services/ingest/Dockerfile` (multi-stage Python 3.12 + uv + non-root user, CMD = `medevents-ingest run --all`), `fly.toml` at repo root (scheduled-machine config, hourly wake, 256MB / shared CPU), `docs/runbooks/w3.2d-fly-scheduler-deploy.md` (operator deploy runbook with Fly PG + external PG strategies + rollback), `docs/runbooks/w3.2d-done-confirmation.md` (skeleton). Live deploy requires operator action; PR body + runbook explicit about the boundary.
 - [x] W3.2c drift observability + None-rule + raw_title provenance — detail-page zero-yield now fires `parser_failure` (symmetric with listing, carries `page_kind` in details_json); `_diff_event_fields` treats candidate None as "no contribution" (preserves existing non-null fields); GNYDM `raw_title` is now a real source excerpt (listing = year + meeting-dates; homepage = `h1.swiper-title` text). 4 new tests. See `docs/runbooks/w3.2c-done-confirmation.md`.
 - [x] W3.2b `run --all` + due-selection — CLI gains `medevents-ingest run --all`; iterates `is_active` + schedule-due sources via SQL-side CASE filter; continues on per-source failure; `--force` bypasses due check (but STILL respects `is_active=false`); `--source`/`--all` mutex validated; batch summary + per-source stdout + per-source stderr on failures. 8 new tests (4 DB-gated integration + 4 unit parametrized across all 4 `crawl_frequency` boundaries). See `docs/runbooks/w3.2b-done-confirmation.md`.
 - [x] W3.2a source-run bookkeeping + `--force` plumbing — pipeline now writes `last_crawled_at` / `last_success_at` on success and `last_crawled_at` / `last_error_at` / `last_error_message` on error (via a fresh session so writes survive rollback). Admin UI sources pages display real timestamps for the first time. See `docs/runbooks/w3.2a-done-confirmation.md`.

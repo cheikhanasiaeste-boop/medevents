@@ -1,6 +1,6 @@
 # MedEvents — Current State
 
-_Last updated: 2026-04-23 — W3.2c shipped; parser/pipeline boundary hardened (detail-drift signal, None-no-clobber rule, raw_title provenance). Fly scheduled machines (W3.2d) is next; third source follows as W3.2e per the swapped sequence in TODO.md._
+_Last updated: 2026-04-23 — W3.2d repo artifacts shipped (Dockerfile + fly.toml + deploy runbook); operator must run the runbook to complete deployment. Third source (W3.2e, `aap_annual_meeting`) is next in the autonomous-work queue._
 
 ## Status
 
@@ -155,13 +155,13 @@ Reference-only target-state spec:
 | W3.2a — source-run bookkeeping (`last_crawled_at`, `--force` wiring)          | ✅ Complete — 4 new tests (3 DB-gated + signature smoke), pipeline writes all four `sources` bookkeeping columns on success + error; see w3.2a-done-confirmation.md                                         |
 | W3.2b — `run --all` + due-selection (W1 spec §304 entry-point)                | ✅ Complete — 8 new tests (4 DB-gated + 4 is_due unit cases with parametrize expanding to 11); SQL-side due filter via CASE expression; continues-on-failure proven live; see w3.2b-done-confirmation.md    |
 | W3.2c — detail-page drift observability + `_diff_event_fields` `None`-rule    | ✅ Complete — detail-zero emits `parser_failure` with `page_kind` in details_json; candidate None no longer clobbers; GNYDM `raw_title` is true source excerpt; 4 new tests; see w3.2c-done-confirmation.md |
-| W3.2d — external scheduler (Fly.io scheduled machines per w1-foundation §324) | 🟡 Next — wires `medevents-ingest run --all` into an hourly Fly machine; order swapped (was W3.2e) so automation is in place before a third source lands                                                    |
-| W3.2e — third curated source (`aap_annual_meeting`)                           | ⏳ After 3.2d — proves three-source pattern runs autonomously post-scheduler wiring                                                                                                                         |
+| W3.2d — external scheduler (Fly.io scheduled machines per w1-foundation §324) | 🟡 Partial — repo artifacts shipped (Dockerfile + fly.toml + deploy runbook + done-confirmation skeleton); operator runs the runbook to deploy. Marks ✅ after the first autonomous run is captured.        |
+| W3.2e — third curated source (`aap_annual_meeting`)                           | 🟡 Next autonomous wave — parser + config + fixtures work. Lands on `main` independently of the Fly deployment; the already-deployed scheduler picks it up on next wake.                                    |
 | Intelligence-platform planning                                                | ❌ Deferred until justified                                                                                                                                                                                 |
 
 ## How to use this document
 
 - **Resuming work?** Read this file first, then `docs/TODO.md`, then `docs/runbooks/w3.1-done-confirmation.md` for the latest shipped wave.
-- **Continuing execution?** W0+W1, W2, W3.1, W3.2a, W3.2b, and W3.2c are closed. Next concrete action is authoring the W3.2d sub-spec (Fly.io scheduled machines wiring). Third source onboarding (W3.2e, `aap_annual_meeting`) comes after W3.2d.
+- **Continuing execution?** W3.2d repo artifacts are on `main`; operator must run `docs/runbooks/w3.2d-fly-scheduler-deploy.md` to complete deployment (not autonomously runnable). Autonomous work continues with W3.2e (third source — `aap_annual_meeting`) which lands on `main` independently of the Fly deploy timing.
 - **Planning future work?** Follow the automated directory MVP spec unless a new decision explicitly changes direction.
 - **Using the target-state spec?** Treat it as a later-phase reference, not an instruction to build all layers now.
