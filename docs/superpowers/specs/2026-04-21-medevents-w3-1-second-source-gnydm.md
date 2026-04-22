@@ -93,10 +93,11 @@ The Meeting-Dates line plus the `JACOB K. JAVITS CONVENTION CENTER` venue block 
 2. The parsed HTML contains at least one `h1.swiper-title` element (the homepage hero-carousel slide, absent from every other fixture).
 3. The Meeting-Dates line is present and parseable.
 4. The venue block is present.
+5. The current edition year is extractable from the homepage content itself. The parser must NOT fall back to the system clock; if the page carries no year signal, the classifier yields zero events rather than guessing. The specific signal is an implementation detail chosen in the plan and locked in by the parser's unit tests.
 
-When all four hold, extract the current edition's dates from the Meeting Dates line and yield exactly one `ParsedEvent` for that edition. If any condition fails, yield zero events.
+When all five hold, extract the current edition's dates from the Meeting Dates line and yield exactly one `ParsedEvent` for that edition. If any condition fails, yield zero events.
 
-Rationale: the URL anchor pins classification to the one page we intentionally seed as `detail`, and the `h1.swiper-title` check gives structural evidence that the page really is the homepage — so the `about-gnydm` unit-test canary in §8 reliably yields zero events even if it is accidentally routed through the detail code path in a future refactor.
+Rationale: the URL anchor pins classification to the one page we intentionally seed as `detail`, and the `h1.swiper-title` check gives structural evidence that the page really is the homepage — so the `about-gnydm` unit-test canary in §8 reliably yields zero events even if it is accidentally routed through the detail code path in a future refactor. The content-derived year requirement keeps parser output deterministic across calendar time: a correct parser today must still be a correct parser twelve months from now without any code change.
 
 ### Non-event handling
 
