@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from uuid import UUID
 
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -59,6 +60,55 @@ def upsert_source_seed(session: Session, seed: SourceSeed) -> Source:
         .one()
     )
     return Source.model_validate(dict(row))
+
+
+def update_source_run_status(
+    session: Session,
+    *,
+    source_id: UUID,
+    status: str,
+    error_message: str | None = None,
+) -> None:
+    """Write W1 §305 bookkeeping fields on `sources` for one completed run.
+
+    Always writes `last_crawled_at = clock_timestamp()` — see spec §4 D1 for
+    semantic. Depending on `status`:
+
+    - "success": also sets `last_success_at = clock_timestamp()`.
+                 Does NOT touch `last_error_at` or `last_error_message`
+                 (see spec §4 D4 — preserve error history).
+    - "error":   also sets `last_error_at = clock_timestamp()` and
+                 `last_error_message = :error_message`. Does NOT touch
+                 `last_success_at`.
+
+    `clock_timestamp()` over `now()` per the W2 convention — statement-time,
+    not transaction-time, so long-running pipelines don't silently backdate.
+    """
+    if status == "success":
+        session.execute(
+            text(
+                "UPDATE sources "
+                "SET last_crawled_at = clock_timestamp(), "
+                "    last_success_at = clock_timestamp() "
+                "WHERE id = :sid"
+            ),
+            {"sid": str(source_id)},
+        )
+    elif status == "error":
+        if error_message is None:
+            raise ValueError("update_source_run_status(status='error') requires error_message")
+        session.execute(
+            text(
+                "UPDATE sources "
+                "SET last_crawled_at = clock_timestamp(), "
+                "    last_error_at = clock_timestamp(), "
+                "    last_error_message = :msg "
+                "WHERE id = :sid"
+            ),
+            {"sid": str(source_id), "msg": error_message},
+        )
+    else:
+        raise ValueError(f"unknown status {status!r}; expected 'success' or 'error'")
 
 
 def get_source_by_code(session: Session, code: str) -> Source | None:
