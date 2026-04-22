@@ -8,12 +8,22 @@
 
 **Tech stack:** Python 3.12, BeautifulSoup 4 (lxml parser), SQLAlchemy 2 Core, pytest, existing httpx fetch machinery. No new deps.
 
-**Prerequisites (local execution only; CI skips DB-gated tests):** export the local-Postgres DSNs in your shell before running any Phase 3 / 4 / 5 command. The exact connection string is already documented in [`docs/runbooks/local-postgres-macos12.md`](../../runbooks/local-postgres-macos12.md). Use whatever form your local Postgres expects (user / password / host / port / database); the plan commands only ever reference the env-var names:
+**Prerequisites (local execution only; CI skips DB-gated tests):** export the local-Postgres DSNs in your shell before running any Phase 3 / 4 / 5 command. The exact connection strings are already documented in [`docs/runbooks/local-postgres-macos12.md`](../../runbooks/local-postgres-macos12.md). Use whatever form your local Postgres expects (user / password / host / port / database); the plan commands only ever reference the env-var names. **Two distinct databases are required:**
+
+- `medevents` — the long-lived dev database (carries the ADA live-smoke data from W2; per `docs/state.md` it is "safe to keep"). Used by Phase 4 seed + Phase 5 live smoke.
+- `medevents_test` — a dedicated, **disposable** database reserved for Phase 3 integration tests. Phase 3 truncates tables on every test; it must never point at the dev database. Create it once (empty) and run the same Alembic migrations against it as the dev DB.
 
 ```bash
-export DATABASE_URL="postgresql+psycopg://<user>:<pass>@localhost:5432/medevents"  # SQLAlchemy form for pytest / CLI
-export PGURL="postgresql://<user>:<pass>@localhost:5432/medevents"                 # psql form for SQL probes
+# Dev DB (Phase 4 + Phase 5)
+export DATABASE_URL="postgresql+psycopg://<user>:<pass>@localhost:5432/medevents"    # SQLAlchemy form for pytest / CLI
+export PGURL="postgresql://<user>:<pass>@localhost:5432/medevents"                   # psql form for SQL probes
+
+# Test DB (Phase 3 only — disposable)
+export TEST_DATABASE_URL="postgresql+psycopg://<user>:<pass>@localhost:5432/medevents_test"
 ```
+
+> ⚠ **DESTRUCTIVE — do not point the Phase 3 tests at your dev database.**
+> The `_clean_db` autouse fixture truncates `audit_log, event_sources, review_items, events, source_pages, sources` on every test. The test module is wired to read `TEST_DATABASE_URL`, not `DATABASE_URL`, for exactly this reason. If you accidentally export `TEST_DATABASE_URL` pointing at `medevents`, you will lose the ADA smoke data. Sanity-check with `echo $TEST_DATABASE_URL` before running pytest.
 
 **Spec:** [`docs/superpowers/specs/2026-04-21-medevents-w3-1-second-source-gnydm.md`](../specs/2026-04-21-medevents-w3-1-second-source-gnydm.md) — the §9 exit criteria are the authoritative done-gate. The `h1.swiper-title` anchor in the detail classifier is fixture-backed; markup drift is treated as normal parser-maintenance work (fixture refresh + classifier re-tune), not an incident.
 
@@ -351,6 +361,47 @@ def test_homepage_at_wrong_url_yields_zero_events() -> None:
     content = _fetched("homepage.html", "https://www.gnydm.com/some/other/path")
     events = list(parser.parse(content))
     assert events == []
+
+
+def test_homepage_year_extracted_from_logo_image() -> None:
+    """The edition year MUST derive from homepage content (the
+    `/images/logo-YYYY.png` asset), not from the system clock. This makes
+    parser output deterministic across calendar time. The current fixture
+    carries `logo-2026.png`, so the 2026 edition is what we expect.
+    Spec §4 detail classifier, condition 5."""
+    parser = _get_parser()
+    content = _fetched("homepage.html", HOMEPAGE_URL)
+    events = list(parser.parse(content))
+    assert len(events) == 1
+    assert events[0].starts_on == "2026-11-27"
+    assert events[0].title == "Greater New York Dental Meeting 2026"
+
+
+def test_homepage_without_logo_yields_zero_events() -> None:
+    """Fifth detail-classifier condition: if no `/images/logo-YYYY.png`
+    asset is present on the page, the year cannot be derived and the
+    parser must emit zero events rather than guessing from the clock."""
+    import re as _re
+
+    parser = _get_parser()
+    body = (FIXTURES / "homepage.html").read_bytes()
+    # Strip every logo-YYYY.png <img>; leaves the page otherwise intact,
+    # so h1.swiper-title + meeting-dates line + venue block still pass.
+    stripped = _re.sub(
+        rb'<img[^>]*src="[^"]*/images/logo-20\d{2}\.png"[^>]*>',
+        b"",
+        body,
+    )
+    content = FetchedContent(
+        url=HOMEPAGE_URL,
+        status_code=200,
+        content_type="text/html; charset=utf-8",
+        body=stripped,
+        fetched_at=datetime.now(UTC),
+        content_hash="fixture-hash-no-logo",
+    )
+    events = list(parser.parse(content))
+    assert events == []
 ```
 
 - [ ] **Step 2: Run the new test module to verify every test fails.**
@@ -384,6 +435,8 @@ The detail classifier requires ALL of:
   - `h1.swiper-title` element present (hero-carousel signal)
   - Meeting Dates line parseable
   - Venue block present
+  - Edition year extractable from a `/images/logo-YYYY.png` asset
+    (content-derived year; avoids clock-dependent fallback)
 
 See docs/superpowers/specs/2026-04-21-medevents-w3-1-second-source-gnydm.md §4.
 
@@ -593,18 +646,42 @@ Expected: both PASS.
 
 - Modify: `services/ingest/medevents_ingest/parsers/gnydm.py`
 
-- [ ] **Step 1: Replace the `_parse_homepage` stub body.** Find the `def _parse_homepage(...)` block and replace its body (`return None`) with the full implementation below:
+- [ ] **Step 1: Add the logo-year helper + replace the `_parse_homepage` stub body.** First, insert `_extract_year_from_logo` as a module-level function immediately above `_parse_homepage`. Then replace `_parse_homepage`'s body (`return None`) with the full implementation below:
 
 ```python
+def _extract_year_from_logo(soup: BeautifulSoup) -> int | None:
+    """Homepage carries the edition year in the logo asset's filename
+    (e.g. `/images/logo-2026.png`). Verified present on the current fixture
+    at lines 293, 679, 680, 685 of tests/fixtures/gnydm/homepage.html.
+
+    Content-derived and clock-independent. If the pattern ever disappears
+    this returns None -> zero events, which the canary / template-drift
+    tests will surface as parser maintenance rather than a silent mis-year.
+    """
+    for img in soup.find_all("img"):
+        if not isinstance(img, Tag):
+            continue
+        src = img.get("src") or ""
+        if not isinstance(src, str):
+            continue
+        m = re.search(r"/images/logo-(20\d{2})\.png", src)
+        if m:
+            return int(m.group(1))
+    return None
+
+
 def _parse_homepage(
     content: FetchedContent, soup: BeautifulSoup
 ) -> ParsedEvent | None:
     """Extract the current edition from the homepage Meeting-Dates line.
 
-    Preconditions already checked by the caller: content.url matches the
-    seeded homepage URL AND `h1.swiper-title` is present. This function
-    additionally checks the Meeting-Dates line and the venue block before
-    emitting — any missing signal returns None.
+    Preconditions already checked by the caller (`parse`): content.url
+    matches the seeded homepage URL AND `h1.swiper-title` is present. This
+    function additionally requires — all must hold — the Meeting-Dates line,
+    the venue block, and a content-derived year extracted from an
+    `<img src=".../images/logo-YYYY.png">` asset. If any signal is missing
+    the function returns None (emitting zero events). No wall-clock fallback:
+    the year comes from the page or not at all.
     """
     body_text = soup.get_text("\n", strip=True)
     meeting_line = next(
@@ -618,22 +695,14 @@ def _parse_homepage(
     if _VENUE_UPPER not in body_text.upper():
         return None
 
-    # Homepage does not carry an explicit year token next to the date, so
-    # infer from the starts_on we parse. Try current-year first, fall back
-    # to next year if the month+day alone resolve to a past date on a
-    # page that is logically for the upcoming edition.
-    from datetime import date as _date
+    year = _extract_year_from_logo(soup)
+    if year is None:
+        return None
 
-    current_year = _date.today().year
-    d = parse_date_range(raw_date, page_year=current_year)
+    d = parse_date_range(raw_date, page_year=year)
     if d is None:
         return None
-    if d.ends_on is not None and d.ends_on < _date.today():
-        d = parse_date_range(raw_date, page_year=current_year + 1)
-        if d is None:
-            return None
 
-    year = d.starts_on.year
     return ParsedEvent(
         title=f"{_ORGANIZER} {year}",
         summary=None,
@@ -655,7 +724,7 @@ def _parse_homepage(
     )
 ```
 
-- [ ] **Step 2: Run the homepage and canary tests to verify they pass.**
+- [ ] **Step 2: Run the homepage and canary tests (including the two new logo-year tests) to verify they pass.**
 
 ```bash
 cd services/ingest && uv run pytest \
@@ -663,10 +732,12 @@ cd services/ingest && uv run pytest \
   tests/test_gnydm_parser.py::test_about_gnydm_fixture_yields_zero_events_at_detail_url \
   tests/test_gnydm_parser.py::test_about_gnydm_fixture_yields_zero_events_at_about_url \
   tests/test_gnydm_parser.py::test_homepage_at_wrong_url_yields_zero_events \
+  tests/test_gnydm_parser.py::test_homepage_year_extracted_from_logo_image \
+  tests/test_gnydm_parser.py::test_homepage_without_logo_yields_zero_events \
   -v
 ```
 
-Expected: all four PASS.
+Expected: all six PASS.
 
 ### Task 8: Run the full gnydm parser module, lint, type-check, and commit Phase 2
 
@@ -698,6 +769,8 @@ Implements parser_name='gnydm_listing' against real GNYDM fixtures:
 - discover() yields listing before detail (precedence mechanism)
 - listing parse yields 3 editions with weekday-prefixed date ranges
 - detail parse gated by URL anchor + h1.swiper-title + date + venue
+  + content-derived year from /images/logo-YYYY.png (no wall-clock
+  fallback; missing logo -> zero events)
 - about-gnydm canary yields zero events at either URL
 
 See docs/superpowers/specs/2026-04-21-medevents-w3-1-second-source-gnydm.md §4."
@@ -741,6 +814,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
+from medevents_ingest import db as _db
 from medevents_ingest.db import session_scope
 from medevents_ingest.models import SourceSeed
 from medevents_ingest.parsers import parser_for, registered_parser_names
@@ -749,14 +823,38 @@ from medevents_ingest.pipeline import PipelineResult, run_source
 from medevents_ingest.repositories.sources import upsert_source_seed
 from sqlalchemy import text
 
+# Phase 3 tests TRUNCATE every ingest table on every test, so they MUST NOT
+# run against the dev DB. We gate on TEST_DATABASE_URL (a dedicated, disposable
+# medevents_test database — see Prerequisites), then alias it into DATABASE_URL
+# inside the test layer because `medevents_ingest.config.Settings` only reads
+# DATABASE_URL. Note: conftest.py's `_no_env_pollution` fixture also strips
+# DATABASE_URL per-test, so the alias below must be re-applied on every test.
 pytestmark = pytest.mark.skipif(
-    "DATABASE_URL" not in os.environ,
-    reason="DATABASE_URL not set; skipping integration tests",
+    "TEST_DATABASE_URL" not in os.environ,
+    reason="TEST_DATABASE_URL not set; skipping integration tests",
 )
 
 FIXTURES = Path(__file__).parent / "fixtures" / "gnydm"
 LISTING_URL = "https://www.gnydm.com/about/future-meetings/"
 HOMEPAGE_URL = "https://www.gnydm.com/"
+
+
+@pytest.fixture(autouse=True)
+def _alias_test_database_url(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Re-point DATABASE_URL at TEST_DATABASE_URL after conftest strips it.
+
+    conftest.py's `_no_env_pollution` (autouse, function-scoped) runs first
+    and scrubs DATABASE_URL. This fixture runs afterwards (module-level
+    autouse) and puts the disposable test-DB URL back so
+    `medevents_ingest.config.get_settings()` resolves to the test DB.
+
+    Also reset the cached `_engine` / `_SessionLocal` in `medevents_ingest.db`
+    so a fresh engine is created against TEST_DATABASE_URL rather than any
+    engine left over from a previous test module.
+    """
+    monkeypatch.setenv("DATABASE_URL", os.environ["TEST_DATABASE_URL"])
+    monkeypatch.setattr(_db, "_engine", None, raising=False)
+    monkeypatch.setattr(_db, "_SessionLocal", None, raising=False)
 
 
 @pytest.fixture(autouse=True)
@@ -964,10 +1062,10 @@ def test_controlled_disagreement_resolves_to_detail_candidate_value(
         )
 ```
 
-- [ ] **Step 2: Run the module against the local Postgres DB (DATABASE_URL must be set).**
+- [ ] **Step 2: Run the module against the disposable test DB (TEST_DATABASE_URL must be set and point at `medevents_test`, NOT the dev DB).**
 
 ```bash
-cd services/ingest && DATABASE_URL=$DATABASE_URL \
+cd services/ingest && TEST_DATABASE_URL=$TEST_DATABASE_URL \
   uv run pytest tests/test_gnydm_pipeline.py -v
 ```
 
@@ -977,12 +1075,15 @@ Expected: all four tests PASS. If any fail, fix the underlying pipeline behavior
 
 - [ ] **Step 1: Run the full pytest suite plus ruff + mypy.**
 
+Note: the ADA pipeline tests gate on `DATABASE_URL` (dev DB), while the new GNYDM pipeline tests gate on `TEST_DATABASE_URL` (disposable test DB). Both must be exported for the full integration suite to execute.
+
 ```bash
-cd services/ingest && DATABASE_URL=$DATABASE_URL \
+cd services/ingest && \
+  DATABASE_URL=$DATABASE_URL TEST_DATABASE_URL=$TEST_DATABASE_URL \
   uv run pytest -q && uv run ruff check . && uv run mypy .
 ```
 
-Expected: all tests pass (including ADA pipeline tests), ruff clean, mypy clean.
+Expected: all tests pass (including ADA pipeline tests against dev DB and new GNYDM pipeline tests against the disposable test DB), ruff clean, mypy clean.
 
 - [ ] **Step 2: Commit.**
 
@@ -1047,14 +1148,14 @@ Wait for CI green. **Note:** CI runs without `DATABASE_URL`, so the new tests ar
     docs/superpowers/specs/2026-04-21-medevents-w3-1-second-source-gnydm.md.
 ```
 
-- [ ] **Step 2: Run `seed-sources` locally and confirm the row landed.**
+- [ ] **Step 2: Run `seed-sources` locally and confirm the row landed.** The `--path` flag is required because the CLI's default (`Path("config/sources.yaml")`) resolves relative to the shell's cwd — running the command from `services/ingest/` would have it look for `services/ingest/config/sources.yaml`, which does not exist. Point it at the repo-root config explicitly:
 
 ```bash
 cd services/ingest && DATABASE_URL=$DATABASE_URL \
-  uv run medevents-ingest seed-sources
+  uv run medevents-ingest seed-sources --path ../../config/sources.yaml
 ```
 
-Expected: command exits 0 and logs an upsert for `code=gnydm`.
+Expected: command exits 0 and logs `upserted N source(s) from ../../config/sources.yaml` with the gnydm row included.
 
 - [ ] **Step 3: Verify the row with a SQL probe.**
 
@@ -1075,13 +1176,21 @@ cd services/ingest && uv run medevents-ingest run --help
 
 Expected: help text prints; no tracebacks.
 
-- [ ] **Step 2: Invoke the CLI against the seeded `gnydm` source, WITHOUT performing a full live run yet (the full live smoke is Phase 5).** Use `--dry-run` if available; otherwise skip to Phase 5.
+- [ ] **Step 2: Probe source resolution against the seeded `gnydm` row without performing a live fetch.** The CLI's `run --dry-run` exits 4 before opening a DB session (see `services/ingest/medevents_ingest/cli.py:53-55`), so it does not verify what this step actually needs to verify — that `get_source_by_code(session, "gnydm")` returns a non-None row with the expected `parser_name`. Run the probe inline instead:
 
 ```bash
-cd services/ingest && uv run medevents-ingest run --source gnydm --dry-run 2>&1 | head -20
+cd services/ingest && DATABASE_URL=$DATABASE_URL uv run python -c "
+from medevents_ingest.db import session_scope
+from medevents_ingest.repositories.sources import get_source_by_code
+with session_scope() as s:
+    src = get_source_by_code(s, 'gnydm')
+    assert src is not None, 'gnydm not seeded'
+    assert src.parser_name == 'gnydm_listing', f'unexpected parser_name={src.parser_name!r}'
+    print(f'OK: gnydm source_id={src.id} parser_name={src.parser_name}')
+"
 ```
 
-Expected: either (a) a clean exit-4 "dry-run not implemented" per the W2 TODO carryover, or (b) a dry-run summary. Either outcome is acceptable — this step is only to confirm the CLI resolves the `gnydm` source and doesn't 404 at the source-lookup step.
+Expected: prints `OK: gnydm source_id=... parser_name=gnydm_listing` and exits 0. A non-zero exit (or any `AssertionError`) means Task 11 did not land the row correctly — re-run Step 2 of Task 11 before proceeding to Phase 5.
 
 ### Task 13: Lint and commit Phase 4
 
@@ -1119,6 +1228,8 @@ Wait for CI green, squash-merge.
 ## Phase 5 — Live smoke + done-confirmation runbook
 
 **Goal of phase:** produce real-world evidence that §9 exit criteria are met and publish the done-confirmation runbook on `main`.
+
+**DSN note:** Phase 5 uses `DATABASE_URL` (the dev `medevents` DB) — NOT `TEST_DATABASE_URL`. The live smoke writes real rows alongside the ADA data already in the dev DB. `TEST_DATABASE_URL` is only for the Phase 3 integration tests.
 
 ### Task 14: Live smoke run (first run)
 
@@ -1287,7 +1398,7 @@ Wait for CI green, squash-merge. W3.1 is now complete.
   - §2 source choice / naming → Phase 4 (`sources.yaml`) + Phase 2 (parser module path).
   - §3 discovery model → Phase 2 Task 5 (`discover()` implementation).
   - §4 listing extraction → Phase 2 Task 6.
-  - §4 detail extraction + four-condition classifier → Phase 2 Task 7.
+  - §4 detail extraction + five-condition classifier (URL + h1.swiper-title + date line + venue + content-derived year) → Phase 2 Task 7.
   - §4 extraction output shape → Phase 2 Tasks 6 & 7 (ParsedEvent fields).
   - §5 normalize widening → Phase 1.
   - §6 intra-source dedupe + precedence → Phase 3 (tests) + Phase 2 Task 5 (discover order).
