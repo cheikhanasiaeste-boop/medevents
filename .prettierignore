@@ -33,3 +33,7 @@ test-results/
 
 # Docker volumes
 docker-data/
+
+# HTML fixtures are byte-identical captures of server responses;
+# prettier would change the bytes and break the content-hash gate.
+services/ingest/tests/fixtures/
