@@ -1,6 +1,6 @@
 # MedEvents TODO
 
-_Last updated: 2026-04-23 — W3.2f (`--dry-run`) + W3.2g (ADA silent-drop aggregate review_items) + testseed cleanup all shipped, and Playwright option D is now wired in repo workflows. The only required next step is W3.2d live Fly deploy (operator-gated); everything else is optional follow-up._
+_Last updated: 2026-04-23 — W3.2f (`--dry-run`) + W3.2g (ADA silent-drop aggregate review_items) + DB-test hygiene + Playwright option D are all landed repo-side. The only required next step is W3.2d live Fly deploy, and the concrete blocker is now known: Fly billing/payment setup._
 
 ## Now
 
@@ -17,6 +17,8 @@ Repo artifacts on `main`:
 
 **Operator action required** (not autonomously runnable — needs Fly.io account + billing + credentials):
 
+Attempted on 2026-04-23: `fly auth login` + `fly auth whoami` succeeded locally, but `fly apps create medevents-ingest` stopped at Fly's billing gate (`We need your payment information to continue!`).
+
 1. `fly apps create medevents-ingest` (or operator-chosen name).
 2. Provision / attach Postgres (Fly PG or external cloud PG).
 3. `fly secrets set DATABASE_URL=...`.
@@ -30,7 +32,6 @@ The autonomous queue is clear again. Optional waves that no longer block product
 
 - Fourth source `fdi_wdc` — operator discretion.
 - Generic fallback parser — operator discretion.
-- Migrate the remaining 6 DB-gated test files (`test_pipeline.py`, `test_repositories*.py`) to `TEST_DATABASE_URL` like `test_seed.py` was in PR #73 — operator discretion (nice hygiene but no active pain since they don't leak seed rows).
 
 ## Open decisions
 
@@ -42,19 +43,19 @@ _None._ On 2026-04-23 we chose **option D** and wired it into the repo:
 
 ## Next
 
-_No user-gated work remains. Further progress is either operator action (W3.2d Fly deploy) or optional hygiene/source-expansion work._
+_No user-gated work remains. Further progress is either operator action (enable Fly billing, then complete W3.2d deploy) or optional source-expansion work._
 
 ## Later
 
 - [ ] Generic fallback parser (W3.2+) — deferred until a third curated source either lands or proves infeasible.
 - [ ] Add broader regional sources only after the core dental lane is stable.
 - [ ] Revisit intelligence-platform layers only if the MVP surfaces concrete pain (search scale, parser maintenance, dedupe ambiguity, operator workflow, partner API).
-- [ ] Migrate the 6 remaining DB-gated test files (`test_pipeline.py`, `test_repositories*.py`) to `TEST_DATABASE_URL`. No recurring pain; pure hygiene. Pattern established by PR #73.
 
 ## Shipped on Main
 
 - [x] Playwright CI option D — admin-login spec now runs in CI on every PR/push via [`ci.yml`](../.github/workflows/ci.yml); full happy-path smoke moved to [`nightly-smoke.yml`](../.github/workflows/nightly-smoke.yml) (nightly + manual dispatch) with deterministic fixtures seeded by [`apps/web/scripts/seed-happy-path-smoke.mjs`](../apps/web/scripts/seed-happy-path-smoke.mjs). The happy-path spec now targets the ADA row explicitly instead of the first `Open` link.
-- [x] Testseed cleanup (PR #73, `99a9629`) — migrated `test_seed.py` to `TEST_DATABASE_URL` + `_alias_test_database_url` fixture; deleted leftover `testseed` row from dev DB. Dev sources now lists only three live sources (`aap_annual_meeting`, `ada`, `gnydm`). Six other DB-gated test files still TRUNCATE the dev DB but don't seed leftovers; migration queued in "Later" as hygiene.
+- [x] Remaining DB-gated ingest test hygiene — the six older pipeline/repository suites now gate on `TEST_DATABASE_URL` and use the same `_alias_test_database_url` fixture pattern as the newer DB-gated modules, so no ingest test suite TRUNCATEs the dev DB anymore. Verified with `cd services/ingest && DATABASE_URL=postgresql://…@localhost:5432/medevents TEST_DATABASE_URL=postgresql://…@localhost:5432/medevents_test uv run pytest -q` → 139 passed.
+- [x] Testseed cleanup (PR #73, `99a9629`) — migrated `test_seed.py` to `TEST_DATABASE_URL` + `_alias_test_database_url` fixture; deleted leftover `testseed` row from dev DB. Dev sources now lists only three live sources (`aap_annual_meeting`, `ada`, `gnydm`). The broader DB-gated suite migration was finished in the later hygiene wave above.
 - [x] W3.2g ADA silent-drop aggregate `parser_failure` (PR #72, `71193eb`) — closes W2 §7 drift-observability gap: ADA parser now emits `ParserReviewRequest(kind='parser_failure', details={rows_seen, rows_yielded, drops_by_reason})` at end-of-stream whenever `_row_to_event` returns None for one or more rows. Pipeline routes to `insert_review_item` (real) or preview line (dry-run). New `ParserReviewRequest` dataclass in `parsers/base.py`; `Parser.parse()` return widened to `Iterator[ParsedEvent | ParserReviewRequest]` — gnydm/aap source unchanged (covariant). `_row_to_event`'s five None guards kept byte-for-byte identical. Surfaced a pre-existing silent-drop in `fixtures/ada/continuing-education.html` (7 rows all fail `parse_date_range`). 1 focused test; 139 passing.
 - [x] W3.2f `--dry-run` implementation — `medevents-ingest run --dry-run` previews exactly what `run` would do (per-page status + per-candidate action + summary) with zero DB writes at any boundary. `dry_run=False` kwarg threaded through `run_source` / `run_all` / `_run_source_inner` / `_persist_event`; belt-and-braces `session.rollback()` in CLI for defense-in-depth. Added `get_last_content_hash_by_url(source_id, url)` so the dry-run content-hash gate stays read-only and still returns `would_skip_unchanged` on unchanged pages (spec §4 D5). 21 new tests (10 unit + 4 DB-gated + 4 CLI + 3 repo); full suite 138 passed, 0 xfails. Live-smoke on ADA + GNYDM + AAP confirmed zero writes, all preview lines emitted correctly. See `docs/runbooks/w3.2f-done-confirmation.md`.
 - [x] W3.2e third curated source: AAP Annual Meeting 2026 — parser module (`parsers/aap.py`) with `_normalize_body_for_hashing` addressing Cloudflare email-obfuscation rotation + homepage base64 data-dbsrc noise; 8 new tests (6 unit + 2 DB-gated); `config/sources.yaml` entry; live smoke on `am2026.perio.org` confirmed 1 events row + 2 event_sources rows; re-run idempotence verified. See `docs/runbooks/w3.2e-done-confirmation.md`.
