@@ -3,19 +3,50 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
+from medevents_ingest import db as _db
 from medevents_ingest.cli import app
 from medevents_ingest.db import session_scope
 from medevents_ingest.seed import load_source_seeds
 from sqlalchemy import text
 from typer.testing import CliRunner
 
+# DB-gated: TRUNCATE on every test. Never point TEST_DATABASE_URL at the dev DB.
+# Historically this suite used DATABASE_URL directly, which leaked a `testseed`
+# row into the dev DB whenever `test_seed_sources_command_upserts` ran locally
+# (surfaced by the W3.2f `run --all --force --dry-run` batch as a stale
+# UnknownParserError source). Aliased to TEST_DATABASE_URL now so the upsert +
+# TRUNCATE only touch the disposable test DB.
 pytestmark = pytest.mark.skipif(
-    "DATABASE_URL" not in os.environ,
-    reason="DATABASE_URL not set; skipping integration tests",
+    "TEST_DATABASE_URL" not in os.environ,
+    reason="TEST_DATABASE_URL not set; skipping integration tests",
 )
+
+
+@pytest.fixture(autouse=True)
+def _alias_test_database_url(
+    _no_env_pollution: None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> Iterator[None]:
+    """Re-point DATABASE_URL at TEST_DATABASE_URL after conftest strips it.
+
+    Mirrors the load-bearing pattern in `test_aap_pipeline.py` verbatim:
+    the `_no_env_pollution` parameter is a deliberate fixture ordering
+    dependency so the conftest scrubber runs BEFORE this alias, not after.
+    Engine-cache reset at both setup and teardown prevents a prior test's
+    dev-DB-bound engine from surviving into this suite or leaking out.
+    """
+    monkeypatch.setenv("DATABASE_URL", os.environ["TEST_DATABASE_URL"])
+    _db._engine = None
+    _db._SessionLocal = None
+    try:
+        yield
+    finally:
+        _db._engine = None
+        _db._SessionLocal = None
 
 
 @pytest.fixture(autouse=True)
