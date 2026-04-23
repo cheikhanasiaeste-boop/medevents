@@ -1,6 +1,6 @@
 # MedEvents — Current State
 
-_Last updated: 2026-04-23 — W3.2f (`--dry-run`) + W3.2g (ADA silent-drop review items) shipped end-to-end; `testseed` dev-DB leftover cleaned up. Main ingests three curated sources with operator-safe preview mode. W3.2d live deploy remains the only operator-gated blocker; Playwright CI wiring is the only open decision awaiting user input._
+_Last updated: 2026-04-23 — W3.2f (`--dry-run`) + W3.2g (ADA silent-drop review items) shipped end-to-end; `testseed` dev-DB leftover cleaned up; Playwright option D is wired in repo workflows. Main ingests three curated sources with operator-safe preview mode. W3.2d live deploy remains the only required operator-gated blocker._
 
 ## Status
 
@@ -54,29 +54,22 @@ Verification state:
 - Those three checks are now required on `main` (branch protection, `strict=true`, `enforce_admins=false`, 0 required reviewers — matches the solo-dev flow)
 - W1 done-criteria confirmed against spec §10: [`docs/runbooks/w1-done-confirmation.md`](runbooks/w1-done-confirmation.md)
 - Manual browser smoke of the operator happy path completed successfully against the local Homebrew Postgres setup; the three bugs it surfaced are fixed in PR `#28`
-- An opt-in Playwright happy-path smoke spec exists at `apps/web/tests/e2e/happy-path-smoke.spec.ts`; not part of CI. Plus a small 3-test `admin-login.spec.ts` covering login redirect, wrong-password error, and middleware guard — also not part of CI. Decision pending (see "Open decisions" below).
+- Playwright option D is wired: `apps/web/tests/e2e/admin-login.spec.ts` now runs in `CI` on every `pull_request`/`push`, while `apps/web/tests/e2e/happy-path-smoke.spec.ts` runs via `.github/workflows/nightly-smoke.yml` on nightly schedule plus manual dispatch using deterministic ADA/review/event fixtures from `apps/web/scripts/seed-happy-path-smoke.mjs`.
 - Live ADA smoke completed on 2026-04-21: first run created 6 events (Scientific Session + 5 CE rows); subsequent runs report skipped_unchanged=2 via the content_hash gate.
 - GNYDM byte-stability verified 2026-04-21 (3× back-to-back fetches, identical sha-256 per page). Plain raw-body hashing works for this source — no Sitecore-style normalization needed.
 - Live GNYDM smoke completed on 2026-04-22: first run `fetched=2 created=3 updated=1 review_items=0`; re-run `fetched=2 skipped_unchanged=2 created=0 updated=0`; the 2026 edition has exactly one events row with two event_sources rows (listing + detail) confirming intra-source dedupe + detail-over-listing precedence on real data.
 
 ## Open PRs awaiting review
 
-_None. This save-progress PR is the only one pending; once merged, `main` is caught up through W3.2g and the Playwright CI decision._
+_None recorded here._ The remaining required project-level action is the W3.2d operator deploy.
 
 ## Open decisions awaiting user input
 
-### Playwright CI wiring — options A/B/C/D
+_None._ On 2026-04-23 we chose **option D** and wired it in-repo:
 
-The existing Playwright specs (`admin-login.spec.ts` + `happy-path-smoke.spec.ts`) do not run in CI. Audit conducted 2026-04-23; four options with cost/value tradeoffs:
-
-| Option | Scope                                                    | Incremental CI time             | Flakiness risk                |
-| ------ | -------------------------------------------------------- | ------------------------------- | ----------------------------- |
-| A      | Keep opt-in local-only (status quo)                      | 0                               | n/a — zero signal             |
-| B      | admin-login in CI (PR-gate); happy-path stays opt-in     | ~2 min                          | Low                           |
-| C      | Both in CI (PR-gate)                                     | ~10-12 min                      | Medium                        |
-| D      | admin-login PR-gate + happy-path nightly/manual-dispatch | ~2 min per PR + nightly ~10 min | Low on PRs; medium on nightly |
-
-**Recommendation: D.** admin-login is cheap and catches common auth/middleware regressions; happy-path is high-signal but expensive and flaky (Next.js dev-mode compiles) so it belongs on nightly rather than per-PR. Implementation: ~20 lines in `ci.yml` + new `.github/workflows/nightly-smoke.yml`. Full audit + options preserved in [`docs/TODO.md`](TODO.md) "Open decisions" section.
+- `apps/web/tests/e2e/admin-login.spec.ts` runs in `.github/workflows/ci.yml` on every `pull_request`/`push`.
+- `apps/web/tests/e2e/happy-path-smoke.spec.ts` runs in `.github/workflows/nightly-smoke.yml` on a nightly schedule plus `workflow_dispatch`.
+- `apps/web/scripts/seed-happy-path-smoke.mjs` seeds the deterministic fixtures the happy-path workflow expects.
 
 Primary MVP spec:
 
@@ -161,7 +154,7 @@ Reference-only target-state spec:
 ## Restart Notes
 
 - This machine is using local Homebrew Postgres 16 for development because `qemu`/Colima failed on macOS 12 Intel. Do not assume Docker is the working local DB path. See [`docs/runbooks/local-postgres-macos12.md`](runbooks/local-postgres-macos12.md).
-- W3.1 through W3.2c shipped on 2026-04-22/23; W3.2e (third source AAP), W3.2f (`--dry-run`), W3.2g (ADA silent-drop review items), and `testseed` cleanup all shipped on 2026-04-23. W3.2d (Fly scheduled machines) has repo artifacts on `main` but live deploy is operator-gated. Three curated sources now running locally via `run --all` with operator-safe `--dry-run` preview. Next decision: Playwright CI wiring (options A/B/C/D above — recommendation D pending user input).
+- W3.1 through W3.2c shipped on 2026-04-22/23; W3.2e (third source AAP), W3.2f (`--dry-run`), W3.2g (ADA silent-drop review items), and `testseed` cleanup all shipped on 2026-04-23. W3.2d (Fly scheduled machines) has repo artifacts on `main` but live deploy is operator-gated. Three curated sources now running locally via `run --all` with operator-safe `--dry-run` preview. Playwright option D is now wired in repo workflows, so there is no remaining user-gated queue item.
 - Local dev DB now holds: 6 ADA events (W2 smoke) + 3 GNYDM editions (W3.1 smoke); the 2026 GNYDM edition has 2 event_sources rows. That state is safe to keep.
 - A disposable `medevents_test` Postgres database exists alongside the dev DB with the same migrations applied. It is used exclusively by `tests/test_gnydm_pipeline.py` (gated on `TEST_DATABASE_URL`); every test TRUNCATEs all ingest tables before running. Do NOT point `DATABASE_URL` at `medevents_test` or vice versa.
 - `docs/phase8-sync-pending` exists locally at `66c6ff3` from an older W0+W1 docs-sync attempt. Stale; reference only.
@@ -185,11 +178,12 @@ Reference-only target-state spec:
 | W3.2f — `--dry-run` preview mode (zero DB writes)                             | ✅ Complete — flag threaded through `run_source` / `run_all` / `_run_source_inner` / `_persist_event` with belt-and-braces CLI `session.rollback()`; added `get_last_content_hash_by_url` for read-only hash gate. 21 new tests (10 unit + 4 DB-gated + 4 CLI + 3 repo); 138 passed repo-wide. See w3.2f-done-confirmation.md. |
 | W3.2g — ADA silent-drop aggregate review_items (W2 §7 drift observability)    | ✅ Complete — new `ParserReviewRequest` dataclass; ADA emits one `parser_failure` with per-reason drop counts on silent drops; surfaced a pre-existing `continuing-education.html` 7-row date_parse_fail drop. 1 focused test; 139 passed repo-wide. PR #72.                                                                   |
 | Testseed leftover cleanup + `test_seed.py` → `TEST_DATABASE_URL`              | ✅ Complete — PR #73, `99a9629` on main. Six other DB-gated test files still TRUNCATE dev DB; follow-up chore available if recurring pain.                                                                                                                                                                                     |
+| Playwright CI wiring — option D                                               | ✅ Complete — `admin-login.spec.ts` runs in the main CI workflow on every PR/push; `happy-path-smoke.spec.ts` moved to nightly/manual dispatch with deterministic fixtures from `apps/web/scripts/seed-happy-path-smoke.mjs`; the smoke now targets the ADA row explicitly rather than the first `Open` link.                  |
 | Intelligence-platform planning                                                | ❌ Deferred until justified                                                                                                                                                                                                                                                                                                    |
 
 ## How to use this document
 
 - **Resuming work?** Read this file first, then `docs/TODO.md`, then `docs/runbooks/w3.1-done-confirmation.md` for the latest shipped wave.
-- **Continuing execution?** W3.2d repo artifacts are on `main`; operator must run `docs/runbooks/w3.2d-fly-scheduler-deploy.md` to complete live deployment (not autonomously runnable). The autonomous queue through 2026-04-23 is complete (W3.2f `--dry-run`, W3.2g ADA silent-drop, testseed cleanup all merged). The only non-operator-gated open item is the **Playwright CI decision** — see `docs/state.md` "Open decisions" and `docs/TODO.md` for options A/B/C/D and recommendation D. With three curated sources on `main`, expanding further (`fdi_wdc`, `eao_congress`) is gated on operator decision rather than technical necessity.
+- **Continuing execution?** W3.2d repo artifacts are on `main`; operator must run `docs/runbooks/w3.2d-fly-scheduler-deploy.md` to complete live deployment (not autonomously runnable). The autonomous queue through 2026-04-23 is complete again: W3.2f `--dry-run`, W3.2g ADA silent-drop, testseed cleanup, and the Playwright option D workflow split are all wired. With three curated sources on `main`, expanding further (`fdi_wdc`, `eao_congress`) or doing remaining DB-test hygiene is now operator-discretionary rather than product-critical.
 - **Planning future work?** Follow the automated directory MVP spec unless a new decision explicitly changes direction.
 - **Using the target-state spec?** Treat it as a later-phase reference, not an instruction to build all layers now.

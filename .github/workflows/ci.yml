@@ -28,6 +28,66 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
 
+  e2e-admin-login:
+    name: Playwright admin-login
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: medevents
+          POSTGRES_PASSWORD: medevents
+          POSTGRES_DB: medevents
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U medevents"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://medevents:medevents@localhost:5432/medevents
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Enable required extensions on test DB
+        run: |
+          psql "$DATABASE_URL" -c "CREATE EXTENSION IF NOT EXISTS pgcrypto;"
+          psql "$DATABASE_URL" -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+          psql "$DATABASE_URL" -c "CREATE EXTENSION IF NOT EXISTS unaccent;"
+          psql "$DATABASE_URL" -c "CREATE EXTENSION IF NOT EXISTS citext;"
+      - working-directory: services/ingest
+        run: uv sync
+      - working-directory: services/ingest
+        run: uv run alembic -c ../../db/migrations/alembic.ini upgrade head
+      - run: pnpm install --frozen-lockfile
+      - name: Install Chromium
+        working-directory: apps/web
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Run admin-login Playwright spec
+        working-directory: apps/web
+        run: pnpm exec playwright test tests/e2e/admin-login.spec.ts
+      - name: Upload Playwright artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-admin-login-artifacts
+          path: |
+            apps/web/playwright-report
+            apps/web/test-results
+          if-no-files-found: ignore
+
   python:
     name: Python (ruff + mypy + pytest)
     runs-on: ubuntu-latest
