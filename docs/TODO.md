@@ -1,6 +1,6 @@
 # MedEvents TODO
 
-_Last updated: 2026-04-23 — W3.2f (`--dry-run`) shipped end-to-end; `medevents-ingest run --dry-run` now previews real-run behavior with zero DB writes (21 new tests). W3.2d live Fly deploy remains the only operator-gated blocker._
+_Last updated: 2026-04-23 — W3.2f (`--dry-run`) + W3.2g (ADA silent-drop aggregate review_items) + testseed cleanup all shipped. Autonomous queue is clear. Two open items: W3.2d live Fly deploy (operator-gated) and the Playwright CI decision (awaiting user input — options preserved below)._
 
 ## Now
 
@@ -24,24 +24,56 @@ Repo artifacts on `main`:
 5. Verify first scheduled run via `fly logs`.
 6. Fill in `w3.2d-done-confirmation.md` and commit.
 
-### Track B (autonomous) — next wave
+### Track B (user-gated) — Playwright CI decision
 
-With W3.2f shipped, the next autonomous wave is the ADA silent-drop audit (see "Next" section below). A fourth source (`fdi_wdc`) or generic fallback are no longer blocking product value; both are operator-discretion.
+See "Open decisions" below. Four options audited on 2026-04-23; recommendation D. Waiting on user input before proceeding.
+
+### Track C (autonomous) — exhausted for now
+
+The autonomous queue through W3.2g + testseed cleanup is complete. Optional waves that no longer block product value:
+
+- Fourth source `fdi_wdc` — operator discretion.
+- Generic fallback parser — operator discretion.
+- Migrate the remaining 6 DB-gated test files (`test_pipeline.py`, `test_repositories*.py`) to `TEST_DATABASE_URL` like `test_seed.py` was in PR #73 — operator discretion (nice hygiene but no active pain since they don't leak seed rows).
+
+## Open decisions
+
+### Playwright CI wiring (audited 2026-04-23)
+
+Existing specs: [`apps/web/tests/e2e/admin-login.spec.ts`](../apps/web/tests/e2e/admin-login.spec.ts) (3 tests, no DB fixtures) and [`apps/web/tests/e2e/happy-path-smoke.spec.ts`](../apps/web/tests/e2e/happy-path-smoke.spec.ts) (opt-in via `RUN_FULL_SMOKE=1`, requires ADA/review_item/event fixtures). Neither runs in CI today — [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) has no `playwright` / `test:e2e` step.
+
+| Option | Scope                                                    | Incremental CI time             | Flakiness risk                                | Catch radius                            |
+| ------ | -------------------------------------------------------- | ------------------------------- | --------------------------------------------- | --------------------------------------- |
+| A      | Keep opt-in local-only (status quo)                      | 0                               | n/a                                           | None from UI layer                      |
+| B      | admin-login in CI (PR-gate); happy-path stays opt-in     | ~2 min                          | Low                                           | Middleware / auth / iron-session config |
+| C      | Both in CI (PR-gate)                                     | ~10-12 min                      | Medium (Next.js dev-mode compiles, long loop) | Full operator happy-path integration    |
+| D      | admin-login PR-gate + happy-path nightly/manual-dispatch | ~2 min per PR + nightly ~10 min | Low on PRs, medium nightly                    | auth on every PR; full-stack on nightly |
+
+**Recommendation: D.** admin-login is cheap and catches common auth/middleware regressions; happy-path is expensive and flaky for a PR gate. Implementation sketch: ~20 lines in `ci.yml` for a new `e2e-admin-login` job + a new `.github/workflows/nightly-smoke.yml` for the happy-path. Full writeup in [`docs/state.md`](state.md#open-decisions-awaiting-user-input).
+
+**Alternatives:**
+
+- B if CI minutes are precious but we still want a PR-gate signal.
+- A if the preference is minimum ongoing CI investment (we already run the specs manually anyway).
+- C only if we accept ~10 min slower PR latency in exchange for full-stack PR coverage.
+
+_Waiting on user._ No autonomous progress without a decision because implementation paths diverge significantly across A/B/C/D.
 
 ## Next
 
-- [ ] Audit the ADA schedule rows that returned `None` from `_row_to_event` — any should have landed in `review_items` per W2 spec §7? Currently silent-dropped. Not blocking W3.2.
-- [ ] Decide whether to wire the existing Playwright happy-path spec into CI, or keep it opt-in local-only.
-- [ ] Clean up `testseed` leftover row in dev DB (surfaced by `run --all --force --dry-run`). Small follow-up from W3.2f — document reseeding or ship a test-helper `--truncate-dev`.
+_Autonomous queue is empty. Any further work needs user input (Playwright) or operator action (W3.2d Fly deploy)._
 
 ## Later
 
 - [ ] Generic fallback parser (W3.2+) — deferred until a third curated source either lands or proves infeasible.
 - [ ] Add broader regional sources only after the core dental lane is stable.
 - [ ] Revisit intelligence-platform layers only if the MVP surfaces concrete pain (search scale, parser maintenance, dedupe ambiguity, operator workflow, partner API).
+- [ ] Migrate the 6 remaining DB-gated test files (`test_pipeline.py`, `test_repositories*.py`) to `TEST_DATABASE_URL`. No recurring pain; pure hygiene. Pattern established by PR #73.
 
 ## Shipped on Main
 
+- [x] Testseed cleanup (PR #73, `99a9629`) — migrated `test_seed.py` to `TEST_DATABASE_URL` + `_alias_test_database_url` fixture; deleted leftover `testseed` row from dev DB. Dev sources now lists only three live sources (`aap_annual_meeting`, `ada`, `gnydm`). Six other DB-gated test files still TRUNCATE the dev DB but don't seed leftovers; migration queued in "Later" as hygiene.
+- [x] W3.2g ADA silent-drop aggregate `parser_failure` (PR #72, `71193eb`) — closes W2 §7 drift-observability gap: ADA parser now emits `ParserReviewRequest(kind='parser_failure', details={rows_seen, rows_yielded, drops_by_reason})` at end-of-stream whenever `_row_to_event` returns None for one or more rows. Pipeline routes to `insert_review_item` (real) or preview line (dry-run). New `ParserReviewRequest` dataclass in `parsers/base.py`; `Parser.parse()` return widened to `Iterator[ParsedEvent | ParserReviewRequest]` — gnydm/aap source unchanged (covariant). `_row_to_event`'s five None guards kept byte-for-byte identical. Surfaced a pre-existing silent-drop in `fixtures/ada/continuing-education.html` (7 rows all fail `parse_date_range`). 1 focused test; 139 passing.
 - [x] W3.2f `--dry-run` implementation — `medevents-ingest run --dry-run` previews exactly what `run` would do (per-page status + per-candidate action + summary) with zero DB writes at any boundary. `dry_run=False` kwarg threaded through `run_source` / `run_all` / `_run_source_inner` / `_persist_event`; belt-and-braces `session.rollback()` in CLI for defense-in-depth. Added `get_last_content_hash_by_url(source_id, url)` so the dry-run content-hash gate stays read-only and still returns `would_skip_unchanged` on unchanged pages (spec §4 D5). 21 new tests (10 unit + 4 DB-gated + 4 CLI + 3 repo); full suite 138 passed, 0 xfails. Live-smoke on ADA + GNYDM + AAP confirmed zero writes, all preview lines emitted correctly. See `docs/runbooks/w3.2f-done-confirmation.md`.
 - [x] W3.2e third curated source: AAP Annual Meeting 2026 — parser module (`parsers/aap.py`) with `_normalize_body_for_hashing` addressing Cloudflare email-obfuscation rotation + homepage base64 data-dbsrc noise; 8 new tests (6 unit + 2 DB-gated); `config/sources.yaml` entry; live smoke on `am2026.perio.org` confirmed 1 events row + 2 event_sources rows; re-run idempotence verified. See `docs/runbooks/w3.2e-done-confirmation.md`.
 - [x] W3.2e prep — AAP fixtures + robots + byte-stability review (identified the cfemail rotation problem before implementation). See `docs/runbooks/aap-fixtures.md`.
