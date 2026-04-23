@@ -39,6 +39,7 @@ from .repositories.events import (
 from .repositories.review_items import insert_review_item
 from .repositories.source_pages import (
     get_last_content_hash,
+    get_last_content_hash_by_url,
     record_fetch,
     upsert_source_page,
 )
@@ -224,7 +225,17 @@ def _run_source_inner(
             continue
 
         pages_fetched += 1
-        previous_hash = get_last_content_hash(session, source_page_id)
+        # Spec §4 D5: under dry-run we lookup the previous hash by
+        # (source_id, url) because the dry-run branch synthesizes a
+        # zero-UUID `source_page_id` instead of upserting, so the by-id
+        # lookup would always miss. The real path keeps the by-id lookup
+        # since it has just upserted the row.
+        if dry_run:
+            previous_hash = get_last_content_hash_by_url(
+                session, source_id=source.id, url=discovered.url
+            )
+        else:
+            previous_hash = get_last_content_hash(session, source_page_id)
         if dry_run:
             status = (
                 "would_skip_unchanged"

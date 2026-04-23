@@ -84,3 +84,40 @@ def get_last_content_hash(session: Session, source_page_id: UUID) -> str | None:
         return None
     hash_ = row["content_hash"]
     return hash_ if hash_ is not None else None
+
+
+def get_last_content_hash_by_url(
+    session: Session,
+    *,
+    source_id: UUID,
+    url: str,
+) -> str | None:
+    """Read the most recent fetch's content_hash for (source_id, url).
+
+    Used by the dry-run content-hash gate (spec §4 D5): unlike
+    `get_last_content_hash`, which looks up by `source_pages.id`, this
+    variant does NOT require a source_pages row to have been upserted by
+    the current run, so dry-run can stay read-only at every DB boundary.
+
+    Returns None when no source_page exists for (source_id, url), or when
+    the row exists but no fetch has recorded a hash yet.
+
+    Note: the live schema stores `content_hash` directly on `source_pages`
+    (one row per (source_id, url), updated in place by `record_fetch`), so
+    the "most recent" hash is just the column value — no separate fetch
+    history table to join through.
+    """
+    row = (
+        session.execute(
+            text(
+                "SELECT content_hash FROM source_pages WHERE source_id = :source_id AND url = :url"
+            ),
+            {"source_id": str(source_id), "url": url},
+        )
+        .mappings()
+        .one_or_none()
+    )
+    if row is None:
+        return None
+    hash_ = row["content_hash"]
+    return hash_ if hash_ is not None else None

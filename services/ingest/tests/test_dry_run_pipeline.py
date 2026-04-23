@@ -356,23 +356,6 @@ def test_dry_run_after_real_run_yields_would_update_and_no_db_writes(
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.xfail(
-    reason=(
-        "Task 1 pipeline defect vs. spec D5: under dry_run=True, "
-        "_run_source_inner synthesizes source_page_id = ZERO-UUID and then "
-        "calls get_last_content_hash(session, source_page_id) — which looks "
-        "the row up by id, not by (source_id, url), so it always returns None "
-        "and the previous_hash == content.content_hash skip gate can NEVER "
-        "fire under dry-run. Spec §4 D5 says the gate should READ the "
-        "last-real-run hash to classify would_skip_unchanged; the current "
-        "impl can't because it never resolves the real source_page row. "
-        "Fix belongs in pipeline.py (out of scope for Task 3): add a "
-        "get_last_content_hash_by_url(source_id, url) lookup path and use it "
-        "under dry-run. The no-write invariant (before==after snapshot) is "
-        "still asserted below and DOES hold under the current impl."
-    ),
-    strict=False,
-)
 def test_dry_run_with_unchanged_content_yields_would_skip_and_no_db_writes(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -383,10 +366,11 @@ def test_dry_run_with_unchanged_content_yields_would_skip_and_no_db_writes(
       - report pages_skipped_unchanged > 0 (the hash gate fires BEFORE parse)
       - leave every DB row and bookkeeping field untouched
 
-    See the `xfail` reason above: the first assertion is blocked on a
-    pipeline.py fix that is out of scope for Task 3. The no-write invariant
-    (second assertion) is real and holds; keeping both in one test so the
-    contract is visible when the pipeline fix lands and the xfail flips.
+    Spec §4 D5: the dry-run content-hash gate reads the previously-stored
+    hash from the last real fetch via `get_last_content_hash_by_url`
+    (lookup by (source_id, url), not by a synthesized zero-UUID
+    source_page_id). Without that by-URL variant, the skip-unchanged
+    classification could never fire under dry-run.
     """
     parser = parser_for("ada_listing")
     monkeypatch.setattr(parser, "fetch", _ada_fixture_fetch, raising=False)
