@@ -50,10 +50,12 @@ cd apps/web && node scripts/hash-password.mjs
 ## Run the operator smoke locally
 
 ```bash
-cd apps/web && RUN_FULL_SMOKE=1 pnpm test:e2e
+make ingest CMD="seed-sources --path ../../config/sources.yaml"
+cd apps/web && node scripts/seed-happy-path-smoke.mjs
+cd apps/web && RUN_FULL_SMOKE=1 pnpm exec playwright test tests/e2e/happy-path-smoke.spec.ts
 ```
 
-The Playwright happy-path spec lives at [`apps/web/tests/e2e/happy-path-smoke.spec.ts`](../../apps/web/tests/e2e/happy-path-smoke.spec.ts). It is opt-in and not part of CI.
+The Playwright happy-path spec lives at [`apps/web/tests/e2e/happy-path-smoke.spec.ts`](../../apps/web/tests/e2e/happy-path-smoke.spec.ts). It remains opt-in for local runs; `admin-login.spec.ts` now runs on every PR/push, and the full happy-path also runs via the nightly/manual GitHub Actions workflow.
 
 ## Preview a run without writing (`--dry-run`)
 

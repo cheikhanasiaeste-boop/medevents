@@ -3,17 +3,17 @@ import { expect, test } from "@playwright/test";
 /**
  * Full operator happy-path smoke.
  *
- * Opt-in — only runs when `RUN_FULL_SMOKE=1`. Skipped in CI and in the default
- * local `playwright test` run because it requires specific local DB fixtures
- * and an `ADMIN_PASSWORD_HASH` matching the plaintext `test-password-123`.
+ * Opt-in locally — only runs when `RUN_FULL_SMOKE=1`. In CI, this is intended
+ * for nightly/manual dispatch only because it needs seeded DB fixtures plus a
+ * live ingest invocation during the source-detail step.
  *
  * Pre-requisites (set up manually before running):
  *   - Postgres running and migrated (`make up && make migrate`).
  *   - `apps/web/.env.local` contains a hash of `test-password-123`. Generate
  *     via `node apps/web/scripts/hash-password.mjs`.
- *   - At least one source in `sources` (ADA from `seed-sources`).
- *   - At least one open row in `review_items`.
- *   - At least one row in `events` with title matching `/Smoke Test Event/`.
+ *   - `make ingest CMD="seed-sources --path ../../config/sources.yaml"` ran.
+ *   - `node apps/web/scripts/seed-happy-path-smoke.mjs` seeded ADA plus the
+ *     smoke review/event fixtures this test expects.
  *
  * Covers one serial user loop:
  *   login -> dashboard -> sources list -> source detail
@@ -30,7 +30,7 @@ const ROUTE_TIMEOUT = 60_000;
 
 test.skip(
   process.env.RUN_FULL_SMOKE !== "1",
-  "opt-in smoke — set RUN_FULL_SMOKE=1 with local fixtures in place",
+  "opt-in smoke — set RUN_FULL_SMOKE=1 with seeded fixtures in place",
 );
 
 test("operator happy path", async ({ page }) => {
@@ -51,12 +51,15 @@ test("operator happy path", async ({ page }) => {
   // 3. Navigate to sources list — ADA row visible.
   await page.getByRole("link", { name: "Sources", exact: true }).click();
   await page.waitForURL("/admin/sources", { timeout: ROUTE_TIMEOUT });
-  await expect(page.getByText("American Dental Association")).toBeVisible({
+  const adaRow = page.locator("tr", {
+    hasText: "American Dental Association",
+  });
+  await expect(adaRow).toBeVisible({
     timeout: ROUTE_TIMEOUT,
   });
 
-  // 4. Open source detail via the row's "Open" link.
-  await page.getByRole("link", { name: "Open" }).first().click();
+  // 4. Open ADA source detail via the row's "Open" link.
+  await adaRow.getByRole("link", { name: "Open" }).click();
   await page.waitForURL(/\/admin\/sources\/[0-9a-f-]{36}/, {
     timeout: ROUTE_TIMEOUT,
   });
