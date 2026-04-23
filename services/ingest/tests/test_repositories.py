@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Iterator
 
 import pytest
+from medevents_ingest import db as _db
 from medevents_ingest.db import session_scope
 from medevents_ingest.models import AuditLogEntry, SourceSeed
 from medevents_ingest.repositories.audit import write_audit_entry
@@ -12,9 +14,25 @@ from medevents_ingest.repositories.sources import get_source_by_code, upsert_sou
 from sqlalchemy import text
 
 pytestmark = pytest.mark.skipif(
-    "DATABASE_URL" not in os.environ,
-    reason="DATABASE_URL not set; skipping integration tests",
+    "TEST_DATABASE_URL" not in os.environ,
+    reason="TEST_DATABASE_URL not set; skipping integration tests",
 )
+
+
+@pytest.fixture(autouse=True)
+def _alias_test_database_url(
+    _no_env_pollution: None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> Iterator[None]:
+    """Same ordering + cache-reset discipline as the newer DB-gated suites."""
+    monkeypatch.setenv("DATABASE_URL", os.environ["TEST_DATABASE_URL"])
+    _db._engine = None
+    _db._SessionLocal = None
+    try:
+        yield
+    finally:
+        _db._engine = None
+        _db._SessionLocal = None
 
 
 @pytest.fixture(autouse=True)
