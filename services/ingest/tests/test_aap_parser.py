@@ -20,7 +20,7 @@ from pathlib import Path
 
 import pytest
 from medevents_ingest.parsers._reset_for_tests import reset_registry
-from medevents_ingest.parsers.base import FetchedContent, Parser
+from medevents_ingest.parsers.base import FetchedContent, ParsedEvent, Parser
 
 FIXTURES = Path(__file__).parent / "fixtures" / "aap"
 HOMEPAGE_URL = "https://am2026.perio.org/"
@@ -64,7 +64,7 @@ def test_homepage_yields_one_event_with_identity_fields() -> None:
     the expected title, dates, city, country_iso, and a None venue_name."""
     parser = _get_parser()
     content = _fetched("homepage.html", HOMEPAGE_URL)
-    events = list(parser.parse(content))
+    events = [e for e in parser.parse(content) if isinstance(e, ParsedEvent)]
     assert len(events) == 1, f"expected 1 event from homepage, got {len(events)}"
     e = events[0]
     assert e.title == "AAP 2026 Annual Meeting"
@@ -91,7 +91,7 @@ def test_general_info_yields_event_with_venue() -> None:
     with the same identity fields AND venue_name populated."""
     parser = _get_parser()
     content = _fetched("general-information.html", GENERAL_INFO_URL)
-    events = list(parser.parse(content))
+    events = [e for e in parser.parse(content) if isinstance(e, ParsedEvent)]
     assert len(events) == 1, f"expected 1 event from general-information, got {len(events)}"
     e = events[0]
     assert e.title == "AAP 2026 Annual Meeting"
@@ -115,7 +115,7 @@ def test_housing_canary_yields_zero_events() -> None:
     parser = _get_parser()
     # Serve housing body at the homepage URL — simulates accidental same-template hit
     content = _fetched("housing.html", HOMEPAGE_URL)
-    events = list(parser.parse(content))
+    events = [e for e in parser.parse(content) if isinstance(e, ParsedEvent)]
     assert events == [], f"expected 0 events from housing canary, got {len(events)}"
 
 
@@ -131,7 +131,7 @@ def test_schedule_canary_yields_zero_events() -> None:
     vs 'American Academy of Periodontology - Annual Meeting 2026')."""
     parser = _get_parser()
     content = _fetched("schedule.html", HOMEPAGE_URL)
-    events = list(parser.parse(content))
+    events = [e for e in parser.parse(content) if isinstance(e, ParsedEvent)]
     assert events == [], f"expected 0 events from schedule canary, got {len(events)}"
 
 

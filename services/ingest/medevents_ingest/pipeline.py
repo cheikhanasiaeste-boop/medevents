@@ -28,7 +28,7 @@ from sqlalchemy.orm import Session
 
 from .models import Source
 from .parsers import parser_for
-from .parsers.base import ParsedEvent, SourcePageRef
+from .parsers.base import ParsedEvent, ParserReviewRequest, SourcePageRef
 from .repositories.event_sources import upsert_event_source
 from .repositories.events import (
     find_event_by_registration_url,
@@ -260,6 +260,31 @@ def _run_source_inner(
 
         any_event_emitted = False
         for candidate in parser.parse(content):
+            if isinstance(candidate, ParserReviewRequest):
+                # Parser-requested review_item (e.g., ADA silent-drop drift
+                # signal). Route to `insert_review_item` and move on —
+                # deliberately do NOT flip `any_event_emitted`: a page that
+                # yields ONLY a ParserReviewRequest (every row dropped) still
+                # trips the zero-events branch below, producing a second
+                # signal. Two review_items is fine; the admin UI separates
+                # them by details_json.reason.
+                if dry_run:
+                    print(
+                        f"dry_run source={source.code} page={discovered.url} "
+                        f"kind={discovered.page_kind} "
+                        f"status=would_file_review_item_{candidate.kind}"
+                    )
+                else:
+                    insert_review_item(
+                        session,
+                        kind=candidate.kind,
+                        source_id=source.id,
+                        source_page_id=source_page_id,
+                        event_id=None,
+                        details=candidate.details,
+                    )
+                review_items_created += 1
+                continue
             any_event_emitted = True
             created, updated = _persist_event(
                 session,
