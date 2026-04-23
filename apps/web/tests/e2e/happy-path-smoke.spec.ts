@@ -9,11 +9,13 @@ import { expect, test } from "@playwright/test";
  *
  * Pre-requisites (set up manually before running):
  *   - Postgres running and migrated (`make up && make migrate`).
- *   - `apps/web/.env.local` contains a hash of `test-password-123`. Generate
- *     via `node apps/web/scripts/hash-password.mjs`.
  *   - `make ingest CMD="seed-sources --path ../../config/sources.yaml"` ran.
  *   - `node apps/web/scripts/seed-happy-path-smoke.mjs` seeded ADA plus the
  *     smoke review/event fixtures this test expects.
+ *
+ * Uses the built-in Playwright test admin hash from `playwright.config.ts`, so
+ * no extra local password configuration is required unless you override
+ * `ADMIN_PASSWORD_HASH` yourself.
  *
  * Covers one serial user loop:
  *   login -> dashboard -> sources list -> source detail
@@ -27,6 +29,7 @@ import { expect, test } from "@playwright/test";
  */
 
 const ROUTE_TIMEOUT = 60_000;
+const ADMIN_PASSWORD = "test-admin-password-w1"; // pragma: allowlist secret
 
 test.skip(
   process.env.RUN_FULL_SMOKE !== "1",
@@ -41,7 +44,7 @@ test("operator happy path", async ({ page }) => {
   await page.waitForURL(/\/admin\/login/, { timeout: ROUTE_TIMEOUT });
 
   // 2. Submit correct password → dashboard.
-  await page.fill('input[name="password"]', "test-password-123"); // pragma: allowlist secret
+  await page.fill('input[name="password"]', ADMIN_PASSWORD);
   await page.getByRole("button", { name: /sign in/i }).click();
   await page.waitForURL("/admin", { timeout: ROUTE_TIMEOUT });
   await expect(page.getByRole("heading", { name: /dashboard/i })).toBeVisible({
