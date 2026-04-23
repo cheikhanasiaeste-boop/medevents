@@ -45,3 +45,24 @@
     GNYDM future-meetings listing (2026/2027/2028 editions) + homepage detail
     for the current (2026) edition. See
     docs/superpowers/specs/2026-04-21-medevents-w3-1-second-source-gnydm.md.
+
+- code: aap_annual_meeting
+  name: American Academy of Periodontology Annual Meeting
+  homepage_url: https://am2026.perio.org/
+  source_type: society
+  country_iso: US
+  is_active: true
+  parser_name: aap_annual_meeting
+  crawl_frequency: monthly
+  crawl_config:
+    seed_urls:
+      - https://am2026.perio.org/
+      - https://am2026.perio.org/general-information/
+    pagination: none
+    rate_limit_per_minute: 6
+  notes: |
+    AAP Annual Meeting 2026 microsite. Subdomain is edition-specific
+    (am2026 → am2027 → ... per edition). Operator must update the two
+    seed_urls + homepage_url when the 2027 microsite launches, and
+    similarly bump the year check in parsers/aap.py. See
+    docs/runbooks/aap-fixtures.md §6.1.

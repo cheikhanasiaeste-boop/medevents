@@ -1,6 +1,6 @@
 # MedEvents TODO
 
-_Last updated: 2026-04-23 — W3.2d repo artifacts shipped (Dockerfile + fly.toml + deploy runbook); operator runs the runbook to complete live deployment. Autonomous work continues with W3.2e (third source)._
+_Last updated: 2026-04-23 — W3.2e (third source AAP) shipped end-to-end; `main` now ingests three curated sources via `run --all`. W3.2d live deploy remains the only operator-gated blocker._
 
 ## Now
 
@@ -24,13 +24,9 @@ Repo artifacts on `main`:
 5. Verify first scheduled run via `fly logs`.
 6. Fill in `w3.2d-done-confirmation.md` and commit.
 
-### Track B (autonomous) — W3.2e third source
+### Track B (autonomous) — next wave
 
-**W3.2e — Third curated source: `aap_annual_meeting`.** Lands on `main` independently of Track A timing. Once Track A completes, the third source runs autonomously via the Fly machine on the next wake. If Track A is still pending when Track B lands, the third source runs whenever an operator manually invokes `run --source aap_annual_meeting`.
-
-Per W3.1 prep-plan §3: `aap_annual_meeting` (American Academy of Periodontology Annual Meeting) first, then `fdi_wdc` (FDI World Dental Congress). Scope mirrors W3.1: fixtures + robots + byte-stability prep, parser module `parsers/aap.py`, config entry, live smoke, done-confirmation. Generic fallback stays deferred until three curated sources prove or break the pattern.
-
-**Next concrete action:** author the W3.2e sub-spec via `superpowers:brainstorming` + `superpowers:writing-plans`.
+With W3.2e shipped, the next autonomous wave is `--dry-run` implementation (see "Next" section below). A fourth source (`fdi_wdc`) or generic fallback are no longer blocking product value; both are operator-discretion.
 
 ## Next
 
@@ -46,6 +42,8 @@ Per W3.1 prep-plan §3: `aap_annual_meeting` (American Academy of Periodontology
 
 ## Shipped on Main
 
+- [x] W3.2e third curated source: AAP Annual Meeting 2026 — parser module (`parsers/aap.py`) with `_normalize_body_for_hashing` addressing Cloudflare email-obfuscation rotation + homepage base64 data-dbsrc noise; 8 new tests (6 unit + 2 DB-gated); `config/sources.yaml` entry; live smoke on `am2026.perio.org` confirmed 1 events row + 2 event_sources rows; re-run idempotence verified. See `docs/runbooks/w3.2e-done-confirmation.md`.
+- [x] W3.2e prep — AAP fixtures + robots + byte-stability review (identified the cfemail rotation problem before implementation). See `docs/runbooks/aap-fixtures.md`.
 - [x] test-harness mypy cleanup — 27 pre-existing mypy errors across `test_ada_parser.py`, `test_gnydm_parser.py`, `test_gnydm_pipeline.py`, `test_drift_observability.py`, `test_pipeline.py`, `test_repositories_event_sources.py` resolved by typing `_get_parser() -> Parser`, `_seed_*(session: Session)`, `_fresh_event(...) -> UUID`, and narrowing a `BeautifulSoup.select_one()` result. `uv run mypy .` (repo-wide) now clean; CI unaffected (CI scope is `medevents_ingest` only).
 - [x] W3.2c `_diff_event_fields` None-as-clear fix addresses the partial-page precedence drift risk flagged in earlier TODO snapshots; item closed.
 - [x] W3.2d repo artifacts — `services/ingest/Dockerfile` (multi-stage Python 3.12 + uv + non-root user, CMD = `medevents-ingest run --all`), `fly.toml` at repo root (scheduled-machine config, hourly wake, 256MB / shared CPU), `docs/runbooks/w3.2d-fly-scheduler-deploy.md` (operator deploy runbook with Fly PG + external PG strategies + rollback), `docs/runbooks/w3.2d-done-confirmation.md` (skeleton). Live deploy requires operator action; PR body + runbook explicit about the boundary.

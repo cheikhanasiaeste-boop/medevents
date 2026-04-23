@@ -75,4 +75,4 @@ __all__ = [
 ]
 
 # Side-effect: registers the ADA and GNYDM parsers.
-from . import ada, gnydm  # noqa: E402,F401
+from . import aap, ada, gnydm  # noqa: E402,F401
