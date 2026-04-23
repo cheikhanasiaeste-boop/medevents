@@ -8,7 +8,14 @@ _Last updated: 2026-04-23 — W3.2e (third source AAP) shipped end-to-end. Main 
 
 Current mainline checkpoints:
 
-- W3.2c squash commit — pending (this PR's merge commit, will appear as the most recent `feat(w3.2c):` entry)
+- `1ba1e0f` — W3.2e: AAP Annual Meeting parser + config + tests + runbook (PR #69)
+- `8a3b639` — W3.2e sub-spec (PR #68)
+- `b51042b` — W3.2e prep: AAP fixtures + robots + byte-stability review (PR #67)
+- `0dc007a` — test-harness mypy cleanup — 27 pre-existing errors → 0 (PR #66)
+- `94c4b05` — W3.2d: Fly scheduled machine artifacts (repo-side only) (PR #65)
+- `fe20cf4` — W3.2d↔W3.2e sequence swap (PR #64)
+- `c05929a` — W3.2c: drift observability + None-rule + raw_title (PR #63)
+- `956813d` — W3.2c sub-spec (PR #62)
 - `67ae86f` — W3.2b: run --all + due-selection (PR #61)
 - `77b1367` — W3.2a: source-run bookkeeping + --force plumbing (PR #58)
 - `c63920b` — W3.1 Phase 4: wire gnydm into config/sources.yaml (PR #53)
