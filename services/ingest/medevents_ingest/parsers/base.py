@@ -72,6 +72,23 @@ class SourcePageRef(BaseModel):
     parser_name: str | None = None
 
 
+class ParserReviewRequest(BaseModel):
+    """Parser-requested review_item emission.
+
+    Yielded by a parser alongside `ParsedEvent`s when the parser wants the
+    pipeline to record a `review_items` row — typically for drift
+    observability (e.g., ADA schedule rows that silently dropped due to a
+    layout change). The pipeline routes this to `insert_review_item(...)`
+    instead of `_persist_event(...)` without disrupting the event-yield
+    contract.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    kind: str  # 'parser_failure', 'suspicious_data', etc.
+    details: dict[str, Any]
+
+
 @runtime_checkable
 class Parser(Protocol):
     """Per-source parser interface. Implementations live in services/ingest/medevents_ingest/parsers/{source_code}.py"""
@@ -84,9 +101,14 @@ class Parser(Protocol):
     def fetch(self, page: SourcePageRef) -> FetchedContent:
         """Fetch a single page. Default impl typically uses httpx; override for Playwright."""
 
-    def parse(self, content: FetchedContent) -> Iterator[ParsedEvent]:
+    def parse(self, content: FetchedContent) -> Iterator[ParsedEvent | ParserReviewRequest]:
         """Yield 0, 1, or N events extracted from the fetched content.
 
         Listing pages yield one event per schedule row. Detail pages typically yield
         one event. Non-event pages yield nothing.
+
+        Parsers MAY also yield `ParserReviewRequest` sentinels alongside
+        events — the pipeline routes those to `insert_review_item(...)`
+        instead of persisting them as events. Used for drift-observability
+        signals (e.g., silent row drops on a listing page).
         """

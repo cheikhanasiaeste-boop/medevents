@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 from medevents_ingest.parsers._reset_for_tests import reset_registry
-from medevents_ingest.parsers.base import FetchedContent, Parser
+from medevents_ingest.parsers.base import FetchedContent, ParsedEvent, Parser
 
 FIXTURES = Path(__file__).parent / "fixtures" / "gnydm"
 LISTING_URL = "https://www.gnydm.com/about/future-meetings/"
@@ -76,7 +76,7 @@ def test_discover_forces_listing_first_even_if_seed_order_reversed() -> None:
 def test_listing_yields_three_editions_with_correct_dates() -> None:
     parser = _get_parser()
     content = _fetched("future-meetings.html", LISTING_URL)
-    events = list(parser.parse(content))
+    events = [e for e in parser.parse(content) if isinstance(e, ParsedEvent)]
     assert len(events) == 3, f"expected 3 editions, got {len(events)}"
     by_year = {e.starts_on[:4]: e for e in events}
     assert by_year["2026"].starts_on == "2026-11-27"
@@ -90,7 +90,7 @@ def test_listing_yields_three_editions_with_correct_dates() -> None:
 def test_listing_events_have_required_fields_populated() -> None:
     parser = _get_parser()
     content = _fetched("future-meetings.html", LISTING_URL)
-    events = list(parser.parse(content))
+    events = [e for e in parser.parse(content) if isinstance(e, ParsedEvent)]
     for e in events:
         year = e.starts_on[:4]
         assert e.title == f"Greater New York Dental Meeting {year}"
@@ -110,7 +110,7 @@ def test_listing_events_have_required_fields_populated() -> None:
 def test_homepage_yields_one_event_for_current_edition() -> None:
     parser = _get_parser()
     content = _fetched("homepage.html", HOMEPAGE_URL)
-    events = list(parser.parse(content))
+    events = [e for e in parser.parse(content) if isinstance(e, ParsedEvent)]
     assert len(events) == 1
     e = events[0]
     assert e.title == "Greater New York Dental Meeting 2026"
@@ -125,7 +125,7 @@ def test_about_gnydm_fixture_yields_zero_events_at_detail_url() -> None:
     seeded homepage URL, because `h1.swiper-title` is absent."""
     parser = _get_parser()
     content = _fetched("about-gnydm.html", HOMEPAGE_URL)
-    events = list(parser.parse(content))
+    events = [e for e in parser.parse(content) if isinstance(e, ParsedEvent)]
     assert events == []
 
 
@@ -135,7 +135,7 @@ def test_about_gnydm_fixture_yields_zero_events_at_about_url() -> None:
     headers followed by Meeting Dates siblings)."""
     parser = _get_parser()
     content = _fetched("about-gnydm.html", ABOUT_URL)
-    events = list(parser.parse(content))
+    events = [e for e in parser.parse(content) if isinstance(e, ParsedEvent)]
     assert events == []
 
 
@@ -144,7 +144,7 @@ def test_homepage_at_wrong_url_yields_zero_events() -> None:
     not be classified as detail."""
     parser = _get_parser()
     content = _fetched("homepage.html", "https://www.gnydm.com/some/other/path")
-    events = list(parser.parse(content))
+    events = [e for e in parser.parse(content) if isinstance(e, ParsedEvent)]
     assert events == []
 
 
@@ -156,7 +156,7 @@ def test_homepage_year_extracted_from_logo_image() -> None:
     Spec §4 detail classifier, condition 5."""
     parser = _get_parser()
     content = _fetched("homepage.html", HOMEPAGE_URL)
-    events = list(parser.parse(content))
+    events = [e for e in parser.parse(content) if isinstance(e, ParsedEvent)]
     assert len(events) == 1
     assert events[0].starts_on == "2026-11-27"
     assert events[0].title == "Greater New York Dental Meeting 2026"
@@ -185,7 +185,7 @@ def test_homepage_without_logo_yields_zero_events() -> None:
         fetched_at=datetime.now(UTC),
         content_hash="fixture-hash-no-logo",
     )
-    events = list(parser.parse(content))
+    events = [e for e in parser.parse(content) if isinstance(e, ParsedEvent)]
     assert events == []
 
 
@@ -197,7 +197,7 @@ def test_listing_raw_title_is_source_excerpt() -> None:
     """
     parser = _get_parser()
     content = _fetched("future-meetings.html", LISTING_URL)
-    events = list(parser.parse(content))
+    events = [e for e in parser.parse(content) if isinstance(e, ParsedEvent)]
     assert events, "expected listing events from fixture"
     for e in events:
         year = e.starts_on[:4]
@@ -223,7 +223,7 @@ def test_homepage_raw_title_is_swiper_title_text() -> None:
 
     parser = _get_parser()
     content = _fetched("homepage.html", HOMEPAGE_URL)
-    events = list(parser.parse(content))
+    events = [e for e in parser.parse(content) if isinstance(e, ParsedEvent)]
     assert len(events) == 1, f"expected 1 homepage event, got {len(events)}"
     assert events[0].raw_title == expected, (
         f"raw_title {events[0].raw_title!r} != expected swiper-title text {expected!r}"

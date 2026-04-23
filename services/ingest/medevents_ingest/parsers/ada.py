@@ -21,7 +21,13 @@ from bs4 import BeautifulSoup, Tag
 
 from ..normalize import infer_event_kind, infer_format, parse_date_range, parse_location
 from . import register_parser
-from .base import DiscoveredPage, FetchedContent, ParsedEvent, SourcePageRef
+from .base import (
+    DiscoveredPage,
+    FetchedContent,
+    ParsedEvent,
+    ParserReviewRequest,
+    SourcePageRef,
+)
 
 _ADA_HOST = "www.ada.org"
 _ENGAGE_HOST = "engage.ada.org"
@@ -87,7 +93,7 @@ class AdaListingParser:
             content_hash=stable_hash,
         )
 
-    def parse(self, content: FetchedContent) -> Iterator[ParsedEvent]:
+    def parse(self, content: FetchedContent) -> Iterator[ParsedEvent | ParserReviewRequest]:
         soup = BeautifulSoup(content.body, "lxml")
 
         if self._is_scientific_session_landing(content.url, soup):
@@ -181,13 +187,24 @@ class AdaListingParser:
 
     def _parse_workshops_schedule(
         self, content: FetchedContent, soup: BeautifulSoup
-    ) -> Iterator[ParsedEvent]:
+    ) -> Iterator[ParsedEvent | ParserReviewRequest]:
         page_year = self._infer_page_year(soup)
+
+        rows_seen = 0
+        rows_yielded = 0
+        drops_by_reason: dict[str, int] = {
+            "anchor_missing": 0,
+            "empty_href": 0,
+            "empty_title": 0,
+            "unsupported_scheme": 0,
+            "date_parse_fail": 0,
+        }
 
         for left in soup.find_all("td", class_="cel22airwaves-left"):
             right = left.find_next_sibling("td", class_="cel22airwaves-right")
             if not isinstance(right, Tag):
                 continue
+            rows_seen += 1
             raw_date = left.get_text(" ", strip=True)
             ev = self._row_to_event(
                 raw_date=raw_date,
@@ -197,7 +214,56 @@ class AdaListingParser:
                 listing_url=content.url,
             )
             if ev is not None:
+                rows_yielded += 1
                 yield ev
+            else:
+                reason = self._classify_row_failure(
+                    right=right, raw_date=raw_date, page_year=page_year
+                )
+                drops_by_reason[reason] += 1
+
+        # Spec §7 drift observability: when `_row_to_event` silently drops
+        # any rows, emit an aggregate parser_failure so the admin UI can see
+        # the drift instead of the rows vanishing.
+        if rows_seen > rows_yielded:
+            yield ParserReviewRequest(
+                kind="parser_failure",
+                details={
+                    "page_url": content.url,
+                    "page_kind": "listing",
+                    "reason": "silent_drops_detected",
+                    "rows_seen": rows_seen,
+                    "rows_yielded": rows_yielded,
+                    "drops_by_reason": drops_by_reason,
+                },
+            )
+
+    @staticmethod
+    def _classify_row_failure(*, right: Tag, raw_date: str, page_year: int | None) -> str:
+        """Re-run the same None-checks as `_row_to_event` to classify why the
+        row was dropped. Kept parallel (not fused) so `_row_to_event` stays
+        byte-for-byte identical per the W3.2g brief.
+
+        Returns one of the five reason codes in the caller's
+        `drops_by_reason` dict. Only called when `_row_to_event` returned
+        None, so at least one branch is guaranteed to trip.
+        """
+        anchor = right.find("a")
+        if not isinstance(anchor, Tag):
+            return "anchor_missing"
+        href = str(anchor.get("href", "")).strip()
+        if not href:
+            return "empty_href"
+        title = anchor.get_text(" ", strip=True)
+        if not title:
+            return "empty_title"
+        d = parse_date_range(raw_date, page_year=page_year)
+        if d is None:
+            return "date_parse_fail"
+        # _row_to_event's only remaining None-return is the href-scheme
+        # fallthrough: not engage, not external http, not site-relative,
+        # not absolute ada.org — i.e. something like `mailto:` or `#frag`.
+        return "unsupported_scheme"
 
     @staticmethod
     def _infer_page_year(soup: BeautifulSoup) -> int | None:

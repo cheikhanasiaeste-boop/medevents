@@ -9,7 +9,12 @@ from pathlib import Path
 import pytest
 from medevents_ingest.parsers._reset_for_tests import reset_registry
 from medevents_ingest.parsers.ada import _normalize_body_for_hashing
-from medevents_ingest.parsers.base import FetchedContent, Parser
+from medevents_ingest.parsers.base import (
+    FetchedContent,
+    ParsedEvent,
+    Parser,
+    ParserReviewRequest,
+)
 
 FIXTURES = Path(__file__).parent / "fixtures" / "ada"
 
@@ -47,7 +52,7 @@ def test_parse_workshops_listing_yields_multiple_events() -> None:
         "ada-ce-live-workshops.html",
         "https://www.ada.org/education/continuing-education/ada-ce-live-workshops",
     )
-    events = list(parser.parse(content))
+    events = [e for e in parser.parse(content) if isinstance(e, ParsedEvent)]
     assert len(events) >= 3, f"expected >=3 rows, got {len(events)}"
     first = events[0]
     assert first.title
@@ -61,7 +66,7 @@ def test_parse_workshops_extracts_date_range_for_june_12_13() -> None:
         "ada-ce-live-workshops.html",
         "https://www.ada.org/education/continuing-education/ada-ce-live-workshops",
     )
-    events = list(parser.parse(content))
+    events = [e for e in parser.parse(content) if isinstance(e, ParsedEvent)]
     botox = next(
         (e for e in events if "Botulinum" in e.title and e.starts_on == "2026-06-12"), None
     )
@@ -79,7 +84,7 @@ def test_parse_workshops_extracts_external_registration_and_location() -> None:
         "ada-ce-live-workshops.html",
         "https://www.ada.org/education/continuing-education/ada-ce-live-workshops",
     )
-    events = list(parser.parse(content))
+    events = [e for e in parser.parse(content) if isinstance(e, ParsedEvent)]
     umbria = next(
         (e for e in events if "Travel Destination" in e.title and e.starts_on == "2026-09-08"),
         None,
@@ -99,7 +104,7 @@ def test_parse_scientific_session_landing_yields_single_conference_event() -> No
         "scientific-session-landing.html",
         "https://www.ada.org/education/scientific-session",
     )
-    events = list(parser.parse(content))
+    events = [e for e in parser.parse(content) if isinstance(e, ParsedEvent)]
     assert len(events) == 1
     ev = events[0]
     assert "Scientific Session" in ev.title
@@ -117,7 +122,13 @@ def test_parse_non_event_hub_yields_nothing() -> None:
         "continuing-education.html",
         "https://www.ada.org/education/continuing-education",
     )
-    events = list(parser.parse(content))
+    # The continuing-education hub page reuses the `cel22airwaves-left` table
+    # widget, so `_looks_like_workshops_schedule` admits it. The hub's rows
+    # don't carry a page-year inference anchor, so every row's date parse
+    # returns None and the parser yields zero ParsedEvents — plus (after
+    # W3.2g) a ParserReviewRequest surfacing the silent drops.
+    yielded = list(parser.parse(content))
+    events = [y for y in yielded if isinstance(y, ParsedEvent)]
     assert events == []
 
 
@@ -197,3 +208,61 @@ class TestNormalizeBodyForHashing:
         h_a = hashlib.sha256(_normalize_body_for_hashing(body_a)).hexdigest()
         h_b = hashlib.sha256(_normalize_body_for_hashing(body_b)).hexdigest()
         assert h_a != h_b
+
+
+def test_ada_parser_emits_parser_failure_when_row_drops_silently() -> None:
+    """Spec §7 drift-observability: when `_row_to_event` returns None for one
+    or more rows, the ADA parser yields a `ParserReviewRequest(kind=
+    'parser_failure')` at end-of-stream with per-reason counts so the
+    pipeline can record the drift as a review_item instead of letting it
+    pass silently.
+    """
+    parser = _get_parser()
+    # Two-row fixture: row 1 valid (yields 1 ParsedEvent), row 2 broken
+    # (empty href trips `_row_to_event`'s line-237 empty-href guard).
+    body = (
+        b"<html><head><title>ADA 2026 CE Workshops</title></head><body>"
+        b'<table class="cel22airwaves"><tbody>'
+        b"<tr>"
+        b'<td class="cel22airwaves-left">June 12&ndash;13</td>'
+        b'<td class="cel22airwaves-right">'
+        b'<a href="/education/continuing-education/ada-ce-live-workshops/botox">'
+        b"Botulinum Toxins Workshop</a>"
+        b"</td>"
+        b"</tr>"
+        b"<tr>"
+        b'<td class="cel22airwaves-left">Sept. 11&ndash;12</td>'
+        b'<td class="cel22airwaves-right">'
+        b'<a href="">Broken Row With Empty Href</a>'
+        b"</td>"
+        b"</tr>"
+        b"</tbody></table></body></html>"
+    )
+    content = FetchedContent(
+        url="https://www.ada.org/education/continuing-education/ada-ce-live-workshops",
+        status_code=200,
+        content_type="text/html; charset=utf-8",
+        body=body,
+        fetched_at=datetime.now(UTC),
+        content_hash="fixture-hash",
+    )
+
+    yielded = list(parser.parse(content))
+    events = [y for y in yielded if isinstance(y, ParsedEvent)]
+    reviews = [y for y in yielded if isinstance(y, ParserReviewRequest)]
+
+    assert len(events) == 1, f"expected 1 valid event, got {len(events)}: {yielded}"
+    assert events[0].starts_on == "2026-06-12"
+
+    assert len(reviews) == 1, f"expected 1 ParserReviewRequest, got {len(reviews)}"
+    rr = reviews[0]
+    assert rr.kind == "parser_failure"
+    assert rr.details["rows_seen"] == 2
+    assert rr.details["rows_yielded"] == 1
+    assert rr.details["reason"] == "silent_drops_detected"
+    assert rr.details["drops_by_reason"]["empty_href"] == 1
+    # Other reasons must be zero so the signal is unambiguous.
+    assert rr.details["drops_by_reason"]["anchor_missing"] == 0
+    assert rr.details["drops_by_reason"]["empty_title"] == 0
+    assert rr.details["drops_by_reason"]["unsupported_scheme"] == 0
+    assert rr.details["drops_by_reason"]["date_parse_fail"] == 0
