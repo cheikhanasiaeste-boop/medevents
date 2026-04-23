@@ -54,3 +54,22 @@ cd apps/web && RUN_FULL_SMOKE=1 pnpm test:e2e
 ```
 
 The Playwright happy-path spec lives at [`apps/web/tests/e2e/happy-path-smoke.spec.ts`](../../apps/web/tests/e2e/happy-path-smoke.spec.ts). It is opt-in and not part of CI.
+
+## Preview a run without writing (`--dry-run`)
+
+After editing `config/sources.yaml`, writing a new parser, or mid-debugging a
+production issue, preview what `run` would do without mutating any DB row:
+
+```bash
+make ingest CMD="run --source ada --dry-run"
+make ingest CMD="run --all --force --dry-run"
+```
+
+Output includes one line per discovered page
+(`status=would_fetch_and_parse | would_skip_unchanged | would_file_review_item_source_blocked | would_file_review_item_parser_failure`)
+and one line per candidate event (`action=would_create | would_update`). The
+summary line is prefixed with `dry_run=1 ` to distinguish it from real-run
+output. Zero writes hit the DB — safe to run against production.
+
+See [`w3.2f-done-confirmation.md`](w3.2f-done-confirmation.md) for the write-path
+bypass inventory and live-smoke examples.

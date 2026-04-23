@@ -10,6 +10,7 @@ from medevents_ingest.db import session_scope
 from medevents_ingest.models import SourceSeed
 from medevents_ingest.repositories.source_pages import (
     get_last_content_hash,
+    get_last_content_hash_by_url,
     record_fetch,
     upsert_source_page,
 )
@@ -111,3 +112,44 @@ def test_get_last_content_hash_returns_recorded_hash() -> None:
             fetch_status="ok",
         )
         assert get_last_content_hash(s, page_id) == "deadbeef"
+
+
+def test_get_last_content_hash_by_url_returns_recorded_hash() -> None:
+    """Spec §4 D5 (W3.2f): dry-run's by-URL lookup returns the stored hash
+    without needing the caller to hold a source_page_id."""
+    with session_scope() as s:
+        source = upsert_source_seed(s, _seed_ada())
+        url = "https://ex.test/by-url-hit"
+        page_id = upsert_source_page(s, source_id=source.id, url=url, page_kind="listing")
+        record_fetch(
+            s,
+            source_page_id=page_id,
+            content_hash="cafef00d",
+            fetched_at=datetime.now(UTC),
+            fetch_status="ok",
+        )
+        assert get_last_content_hash_by_url(s, source_id=source.id, url=url) == "cafef00d"
+
+
+def test_get_last_content_hash_by_url_returns_none_for_unknown_url() -> None:
+    """No source_page exists for (source_id, url) -> None (not an error)."""
+    with session_scope() as s:
+        source = upsert_source_seed(s, _seed_ada())
+        # Seed one page so we're exercising the "url doesn't match" branch,
+        # not the "source has zero pages" branch.
+        upsert_source_page(
+            s, source_id=source.id, url="https://ex.test/seeded", page_kind="listing"
+        )
+        missing = get_last_content_hash_by_url(
+            s, source_id=source.id, url="https://ex.test/never-crawled"
+        )
+        assert missing is None
+
+
+def test_get_last_content_hash_by_url_returns_none_when_page_unfetched() -> None:
+    """Row exists but `record_fetch` hasn't populated content_hash yet."""
+    with session_scope() as s:
+        source = upsert_source_seed(s, _seed_ada())
+        url = "https://ex.test/upserted-but-unfetched"
+        upsert_source_page(s, source_id=source.id, url=url, page_kind="detail")
+        assert get_last_content_hash_by_url(s, source_id=source.id, url=url) is None

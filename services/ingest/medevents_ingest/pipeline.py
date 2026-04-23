@@ -39,6 +39,7 @@ from .repositories.events import (
 from .repositories.review_items import insert_review_item
 from .repositories.source_pages import (
     get_last_content_hash,
+    get_last_content_hash_by_url,
     record_fetch,
     upsert_source_page,
 )
@@ -111,6 +112,7 @@ def run_source(
     *,
     source_code: str,
     force: bool = False,
+    dry_run: bool = False,
 ) -> PipelineResult:
     """Run ingest for a single source.
 
@@ -118,11 +120,20 @@ def run_source(
     the CLI so W3.2b's due-selection logic can honor it. No behavioral
     effect in this wave. Spec §4 D6 locks the keyword-only shape.
 
-    On completion, writes `sources.last_crawled_at / last_success_at` via
+    When `dry_run=True` (W3.2f), every DB write in this call tree is
+    skipped — success/error bookkeeping, source-page upsert, fetch
+    recording, event insert/update/link, and review-item creation — while
+    reads, discover/fetch/parse, and counters still run. The caller still
+    gets a populated PipelineResult and error paths still re-raise so the
+    batch-level summary behavior is unchanged.
+
+    On completion (real run only), writes
+    `sources.last_crawled_at / last_success_at` via
     `update_source_run_status("success")` on the caller's session (commits
-    with the main transaction). On error, writes `last_crawled_at /
-    last_error_at / last_error_message` via a fresh short-lived session so
-    the state survives the main transaction's rollback (spec §4 D3).
+    with the main transaction). On error (real run only), writes
+    `last_crawled_at / last_error_at / last_error_message` via a fresh
+    short-lived session so the state survives the main transaction's
+    rollback (spec §4 D3).
     """
     # Force is currently plumbing-only; silence the "unused argument" lint.
     _ = force
@@ -130,26 +141,34 @@ def run_source(
     source = get_source_by_code(session, source_code)
     if source is None:
         # Source-not-found is an error from the pipeline's perspective.
-        _record_error_bookkeeping_fresh_session(
-            source_code=source_code,
-            error_message=f"source '{source_code}' not found",
-        )
+        if not dry_run:
+            _record_error_bookkeeping_fresh_session(
+                source_code=source_code,
+                error_message=f"source '{source_code}' not found",
+            )
         raise ValueError(f"source '{source_code}' not found")
 
     try:
-        result = _run_source_inner(session, source=source)
+        result = _run_source_inner(session, source=source, dry_run=dry_run)
     except Exception as exc:
-        _record_error_bookkeeping_fresh_session(
-            source_id=source.id,
-            error_message=str(exc) or exc.__class__.__name__,
-        )
+        if not dry_run:
+            _record_error_bookkeeping_fresh_session(
+                source_id=source.id,
+                error_message=str(exc) or exc.__class__.__name__,
+            )
         raise
 
-    update_source_run_status(session, source_id=source.id, status="success")
+    if not dry_run:
+        update_source_run_status(session, source_id=source.id, status="success")
     return result
 
 
-def _run_source_inner(session: Session, *, source: Source) -> PipelineResult:
+def _run_source_inner(
+    session: Session,
+    *,
+    source: Source,
+    dry_run: bool = False,
+) -> PipelineResult:
     parser = parser_for(source.parser_name)
 
     pages_fetched = 0
@@ -159,13 +178,16 @@ def _run_source_inner(session: Session, *, source: Source) -> PipelineResult:
     review_items_created = 0
 
     for discovered in parser.discover(source):
-        source_page_id = upsert_source_page(
-            session,
-            source_id=source.id,
-            url=discovered.url,
-            page_kind=discovered.page_kind,
-            parser_name=parser.name,
-        )
+        if dry_run:
+            source_page_id = UUID("00000000-0000-0000-0000-000000000000")
+        else:
+            source_page_id = upsert_source_page(
+                session,
+                source_id=source.id,
+                url=discovered.url,
+                page_kind=discovered.page_kind,
+                parser_name=parser.name,
+            )
         page_ref = SourcePageRef(
             id=source_page_id,
             source_id=source.id,
@@ -177,33 +199,61 @@ def _run_source_inner(session: Session, *, source: Source) -> PipelineResult:
         try:
             content = parser.fetch(page_ref)
         except Exception as exc:  # all fetch failures become review items
-            insert_review_item(
-                session,
-                kind="source_blocked",
-                source_id=source.id,
-                source_page_id=source_page_id,
-                event_id=None,
-                details={"error": str(exc)},
-            )
-            record_fetch(
-                session,
-                source_page_id=source_page_id,
-                content_hash=None,
-                fetched_at=datetime.now(UTC),
-                fetch_status="error",
-            )
+            if dry_run:
+                print(
+                    f"dry_run source={source.code} page={discovered.url} "
+                    f"kind={discovered.page_kind} "
+                    f"status=would_file_review_item_source_blocked"
+                )
+            else:
+                insert_review_item(
+                    session,
+                    kind="source_blocked",
+                    source_id=source.id,
+                    source_page_id=source_page_id,
+                    event_id=None,
+                    details={"error": str(exc)},
+                )
+                record_fetch(
+                    session,
+                    source_page_id=source_page_id,
+                    content_hash=None,
+                    fetched_at=datetime.now(UTC),
+                    fetch_status="error",
+                )
             review_items_created += 1
             continue
 
         pages_fetched += 1
-        previous_hash = get_last_content_hash(session, source_page_id)
-        record_fetch(
-            session,
-            source_page_id=source_page_id,
-            content_hash=content.content_hash,
-            fetched_at=content.fetched_at,
-            fetch_status="ok",
-        )
+        # Spec §4 D5: under dry-run we lookup the previous hash by
+        # (source_id, url) because the dry-run branch synthesizes a
+        # zero-UUID `source_page_id` instead of upserting, so the by-id
+        # lookup would always miss. The real path keeps the by-id lookup
+        # since it has just upserted the row.
+        if dry_run:
+            previous_hash = get_last_content_hash_by_url(
+                session, source_id=source.id, url=discovered.url
+            )
+        else:
+            previous_hash = get_last_content_hash(session, source_page_id)
+        if dry_run:
+            status = (
+                "would_skip_unchanged"
+                if previous_hash == content.content_hash
+                else "would_fetch_and_parse"
+            )
+            print(
+                f"dry_run source={source.code} page={discovered.url} "
+                f"kind={discovered.page_kind} status={status}"
+            )
+        else:
+            record_fetch(
+                session,
+                source_page_id=source_page_id,
+                content_hash=content.content_hash,
+                fetched_at=content.fetched_at,
+                fetch_status="ok",
+            )
         if previous_hash == content.content_hash:
             pages_skipped_unchanged += 1
             continue
@@ -216,37 +266,51 @@ def _run_source_inner(session: Session, *, source: Source) -> PipelineResult:
                 source_id=source.id,
                 source_page_id=source_page_id,
                 candidate=candidate,
+                source_code=source.code,
+                dry_run=dry_run,
             )
             events_created += created
             events_updated += updated
 
         if not any_event_emitted and discovered.page_kind == "listing":
-            insert_review_item(
-                session,
-                kind="parser_failure",
-                source_id=source.id,
-                source_page_id=source_page_id,
-                event_id=None,
-                details={
-                    "page_url": discovered.url,
-                    "page_kind": "listing",
-                    "reason": "zero_events",
-                },
-            )
+            if dry_run:
+                print(
+                    f"dry_run source={source.code} page={discovered.url} "
+                    f"kind=listing status=would_file_review_item_parser_failure"
+                )
+            else:
+                insert_review_item(
+                    session,
+                    kind="parser_failure",
+                    source_id=source.id,
+                    source_page_id=source_page_id,
+                    event_id=None,
+                    details={
+                        "page_url": discovered.url,
+                        "page_kind": "listing",
+                        "reason": "zero_events",
+                    },
+                )
             review_items_created += 1
         elif not any_event_emitted and discovered.page_kind == "detail":
-            insert_review_item(
-                session,
-                kind="parser_failure",
-                source_id=source.id,
-                source_page_id=source_page_id,
-                event_id=None,
-                details={
-                    "page_url": discovered.url,
-                    "page_kind": "detail",
-                    "reason": "zero_events",
-                },
-            )
+            if dry_run:
+                print(
+                    f"dry_run source={source.code} page={discovered.url} "
+                    f"kind=detail status=would_file_review_item_parser_failure"
+                )
+            else:
+                insert_review_item(
+                    session,
+                    kind="parser_failure",
+                    source_id=source.id,
+                    source_page_id=source_page_id,
+                    event_id=None,
+                    details={
+                        "page_url": discovered.url,
+                        "page_kind": "detail",
+                        "reason": "zero_events",
+                    },
+                )
             review_items_created += 1
 
     return PipelineResult(
@@ -298,8 +362,19 @@ def _persist_event(
     source_id: UUID,
     source_page_id: UUID,
     candidate: ParsedEvent,
+    source_code: str,
+    dry_run: bool = False,
 ) -> tuple[int, int]:
-    """Find or insert the event, link via event_sources. Returns (created, updated) counts."""
+    """Find or insert the event, link via event_sources. Returns (created, updated) counts.
+
+    Under `dry_run=True`, the find-or-match classification still runs (reads
+    only), then we emit a single `dry_run source=... action=would_{create,update} ...`
+    preview line and return the same (created, updated) tuple the real path
+    would have returned. `insert_event`, `update_event_fields`, and
+    `upsert_event_source` are all skipped. `source_code` is passed in
+    unconditionally so the preview line is meaningful; it's ignored on the
+    real path.
+    """
     normalized_title = _normalize_title(candidate.title)
     starts_on = date.fromisoformat(candidate.starts_on)
 
@@ -324,6 +399,16 @@ def _persist_event(
             )
             if row["starts_on"] == starts_on:
                 match_id = url_match_id
+
+    if dry_run:
+        action = "would_create" if match_id is None else "would_update"
+        venue = candidate.venue_name or ""
+        print(
+            f"dry_run source={source_code} action={action} "
+            f'title="{candidate.title}" starts_on={candidate.starts_on} '
+            f'city={candidate.city} venue="{venue}"'
+        )
+        return (1, 0) if match_id is None else (0, 1)
 
     if match_id is None:
         event_id = insert_event(
@@ -450,7 +535,13 @@ class BatchResult:
     skipped_not_due: int
 
 
-def run_all(session: Session, *, force: bool, now: datetime) -> BatchResult:
+def run_all(
+    session: Session,
+    *,
+    force: bool,
+    now: datetime,
+    dry_run: bool = False,
+) -> BatchResult:
     """Run every active source that is due (or every active source if `force`).
 
     Per-source failures are caught and logged to stderr; the batch continues
@@ -463,7 +554,10 @@ def run_all(session: Session, *, force: bool, now: datetime) -> BatchResult:
 
     Bookkeeping: each source goes through `run_source()` which already writes
     `last_crawled_at` / `last_success_at` / `last_error_*` via the W3.2a
-    fresh-session helper on the error path.
+    fresh-session helper on the error path. Under `dry_run=True` that
+    bookkeeping is skipped and the per-source + batch summary lines are
+    prefixed with `dry_run=1 ` so operators can spot-check which line came
+    from which mode.
     """
     import sys  # local import to keep module-top imports focused
 
@@ -487,13 +581,19 @@ def run_all(session: Session, *, force: bool, now: datetime) -> BatchResult:
                     f"(last_crawled_at={s.last_crawled_at}, next_due={next_due})"
                 )
 
+    prefix = "dry_run=1 " if dry_run else ""
     succeeded = 0
     failed = 0
     for src in selected:
         try:
-            result = run_source(session, source_code=src.code, force=force)
+            result = run_source(
+                session,
+                source_code=src.code,
+                force=force,
+                dry_run=dry_run,
+            )
             print(
-                f"source={result.source_code} "
+                f"{prefix}source={result.source_code} "
                 f"fetched={result.pages_fetched} "
                 f"skipped_unchanged={result.pages_skipped_unchanged} "
                 f"created={result.events_created} "
@@ -505,14 +605,14 @@ def run_all(session: Session, *, force: bool, now: datetime) -> BatchResult:
             # `run_source`'s error path already wrote bookkeeping via a fresh
             # session; we just need to log and continue.
             print(
-                f"source={src.code} error={exc.__class__.__name__}: {exc}",
+                f"{prefix}source={src.code} error={exc.__class__.__name__}: {exc}",
                 file=sys.stderr,
             )
             session.rollback()
             failed += 1
 
     print(
-        f"batch=run-all sources={len(selected)} "
+        f"{prefix}batch=run-all sources={len(selected)} "
         f"succeeded={succeeded} failed={failed} "
         f"skipped_not_due={skipped_not_due}"
     )

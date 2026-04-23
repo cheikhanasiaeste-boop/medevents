@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from pathlib import Path
 
 import typer
 
 from .db import session_scope
 from .parsers import UnknownParserError, parser_for
+from .pipeline import run_all, run_source
 from .repositories.sources import get_source_by_code
 from .seed import load_source_seeds, upsert_all
 
@@ -62,10 +64,6 @@ def run(
     dry_run: bool = typer.Option(False, "--dry-run", help="Parse without writing."),
 ) -> None:
     """Run ingest for one source OR every active, due source."""
-    from datetime import UTC, datetime
-
-    from .pipeline import run_all, run_source
-
     if source is None and not run_all_flag:
         typer.echo("ERROR: must pass either --source CODE or --all", err=True)
         raise typer.Exit(code=2)
@@ -73,13 +71,16 @@ def run(
         typer.echo("ERROR: --source and --all are mutually exclusive", err=True)
         raise typer.Exit(code=2)
 
-    if dry_run:
-        typer.echo("ERROR: --dry-run is not yet implemented (W3.2+).", err=True)
-        raise typer.Exit(code=4)
-
     if run_all_flag:
         with session_scope() as s:
-            batch = run_all(s, force=force, now=datetime.now(UTC))
+            try:
+                batch = run_all(s, force=force, now=datetime.now(UTC), dry_run=dry_run)
+            finally:
+                # Belt-and-braces: guarantee no write survives the session scope
+                # under --dry-run even if a bypass branch were missed in the
+                # future. `session_scope` would otherwise commit on normal exit.
+                if dry_run:
+                    s.rollback()
         # Exit 0 if at least one source succeeded OR every source was skipped-not-due.
         # Exit non-zero only if at least one source was selected AND every selected source failed.
         if batch.sources_selected > 0 and batch.succeeded == 0:
@@ -104,10 +105,16 @@ def run(
             typer.echo(f"ERROR: {exc}", err=True)
             raise typer.Exit(code=3) from exc
 
-        result = run_source(s, source_code=source, force=force)
+        try:
+            result = run_source(s, source_code=source, force=force, dry_run=dry_run)
+        finally:
+            # Belt-and-braces rollback (see run_all branch above).
+            if dry_run:
+                s.rollback()
 
+    prefix = "dry_run=1 " if dry_run else ""
     typer.echo(
-        f"source={result.source_code} "
+        f"{prefix}source={result.source_code} "
         f"fetched={result.pages_fetched} "
         f"skipped_unchanged={result.pages_skipped_unchanged} "
         f"created={result.events_created} "

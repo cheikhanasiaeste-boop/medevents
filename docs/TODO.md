@@ -1,6 +1,6 @@
 # MedEvents TODO
 
-_Last updated: 2026-04-23 — W3.2e (third source AAP) shipped end-to-end; `main` now ingests three curated sources via `run --all`. W3.2d live deploy remains the only operator-gated blocker._
+_Last updated: 2026-04-23 — W3.2f (`--dry-run`) shipped end-to-end; `medevents-ingest run --dry-run` now previews real-run behavior with zero DB writes (21 new tests). W3.2d live Fly deploy remains the only operator-gated blocker._
 
 ## Now
 
@@ -26,13 +26,13 @@ Repo artifacts on `main`:
 
 ### Track B (autonomous) — next wave
 
-With W3.2e shipped, the next autonomous wave is `--dry-run` implementation (see "Next" section below). A fourth source (`fdi_wdc`) or generic fallback are no longer blocking product value; both are operator-discretion.
+With W3.2f shipped, the next autonomous wave is the ADA silent-drop audit (see "Next" section below). A fourth source (`fdi_wdc`) or generic fallback are no longer blocking product value; both are operator-discretion.
 
 ## Next
 
-- [ ] Decide whether to wire the existing Playwright happy-path spec into CI, or keep it opt-in local-only.
-- [ ] Implement `--dry-run` (currently exits 4 per `cli.py:53-55`). Candidate for late-W3 if operators need preview runs for risky source config changes.
 - [ ] Audit the ADA schedule rows that returned `None` from `_row_to_event` — any should have landed in `review_items` per W2 spec §7? Currently silent-dropped. Not blocking W3.2.
+- [ ] Decide whether to wire the existing Playwright happy-path spec into CI, or keep it opt-in local-only.
+- [ ] Clean up `testseed` leftover row in dev DB (surfaced by `run --all --force --dry-run`). Small follow-up from W3.2f — document reseeding or ship a test-helper `--truncate-dev`.
 
 ## Later
 
@@ -42,6 +42,7 @@ With W3.2e shipped, the next autonomous wave is `--dry-run` implementation (see 
 
 ## Shipped on Main
 
+- [x] W3.2f `--dry-run` implementation — `medevents-ingest run --dry-run` previews exactly what `run` would do (per-page status + per-candidate action + summary) with zero DB writes at any boundary. `dry_run=False` kwarg threaded through `run_source` / `run_all` / `_run_source_inner` / `_persist_event`; belt-and-braces `session.rollback()` in CLI for defense-in-depth. Added `get_last_content_hash_by_url(source_id, url)` so the dry-run content-hash gate stays read-only and still returns `would_skip_unchanged` on unchanged pages (spec §4 D5). 21 new tests (10 unit + 4 DB-gated + 4 CLI + 3 repo); full suite 138 passed, 0 xfails. Live-smoke on ADA + GNYDM + AAP confirmed zero writes, all preview lines emitted correctly. See `docs/runbooks/w3.2f-done-confirmation.md`.
 - [x] W3.2e third curated source: AAP Annual Meeting 2026 — parser module (`parsers/aap.py`) with `_normalize_body_for_hashing` addressing Cloudflare email-obfuscation rotation + homepage base64 data-dbsrc noise; 8 new tests (6 unit + 2 DB-gated); `config/sources.yaml` entry; live smoke on `am2026.perio.org` confirmed 1 events row + 2 event_sources rows; re-run idempotence verified. See `docs/runbooks/w3.2e-done-confirmation.md`.
 - [x] W3.2e prep — AAP fixtures + robots + byte-stability review (identified the cfemail rotation problem before implementation). See `docs/runbooks/aap-fixtures.md`.
 - [x] test-harness mypy cleanup — 27 pre-existing mypy errors across `test_ada_parser.py`, `test_gnydm_parser.py`, `test_gnydm_pipeline.py`, `test_drift_observability.py`, `test_pipeline.py`, `test_repositories_event_sources.py` resolved by typing `_get_parser() -> Parser`, `_seed_*(session: Session)`, `_fresh_event(...) -> UUID`, and narrowing a `BeautifulSoup.select_one()` result. `uv run mypy .` (repo-wide) now clean; CI unaffected (CI scope is `medevents_ingest` only).
