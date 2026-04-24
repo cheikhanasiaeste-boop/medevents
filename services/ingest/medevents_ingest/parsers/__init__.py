@@ -75,4 +75,4 @@ __all__ = [
 ]
 
 # Side-effect: registers the curated-source parsers.
-from . import aap, ada, eao, fdi, gnydm  # noqa: E402,F401
+from . import aap, ada, cds, eao, fdi, gnydm  # noqa: E402,F401

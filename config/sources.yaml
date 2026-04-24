@@ -107,3 +107,23 @@
     edition-specific microsite adds a second detail signal for the 2026 row.
     Operator should update the microsite seed_url if the current congress moves
     from the Lisbon 2026 site to a later edition.
+
+- code: cds_midwinter
+  name: Chicago Dental Society Midwinter Meeting
+  homepage_url: https://www.cds.org/event/2026-midwinter-meeting/
+  source_type: society
+  country_iso: US
+  is_active: true
+  parser_name: cds_midwinter
+  crawl_frequency: monthly
+  crawl_config:
+    seed_urls:
+      - https://www.cds.org/event/2026-midwinter-meeting/
+      - https://www.cds.org/wp-json/tribe/events/v1/events/387532
+    pagination: none
+    rate_limit_per_minute: 6
+  notes: |
+    Chicago Dental Society Midwinter Meeting 2026 onboarding. The public event
+    page is paired with the public Tribe Events JSON endpoint for stable venue
+    + timezone enrichment. Operator must update both seed_urls and the year/API
+    id gate in parsers/cds.py when the source rolls to the next edition.
