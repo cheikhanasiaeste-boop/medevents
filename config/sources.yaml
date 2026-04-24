@@ -7,7 +7,8 @@
 #   - short shared-calendar parsers: organization abbreviation only
 #     (ada, gnydm)
 #   - single-flagship meetings: abbreviation + event slug, snake_case
-#     (aap_annual_meeting, fdi_wdc, eao_congress, cds_midwinter, dentex_algeria)
+#     (aap_annual_meeting, fdi_wdc, eao_congress, cds_midwinter, dentex_algeria,
+#      morocco_dental_expo)
 
 - code: ada
   name: American Dental Association
@@ -147,4 +148,26 @@
     public English visit page so the 2026 event survives minor landing-page
     reshuffles while still deduping to one canonical row. Operator should
     update the title/date gate and seed URLs in parsers/dentex.py when the
+    source rolls to the 2027 edition.
+
+- code: morocco_dental_expo
+  name: Morocco Dental Expo
+  homepage_url: https://www.mdentalexpo.ma/lang/en
+  source_type: other
+  country_iso: MA
+  is_active: true
+  parser_name: morocco_dental_expo
+  crawl_frequency: monthly
+  crawl_config:
+    seed_urls:
+      - https://www.mdentalexpo.ma/lang/en
+      - https://www.mdentalexpo.ma/ExhibitorList
+    pagination: none
+    rate_limit_per_minute: 6
+  notes: |
+    Morocco Dental Expo 2026 onboarding. The English homepage carries the
+    public visitor-registration CTA, while the public ExhibitorList page adds
+    the correct 2026 date range + venue signals without relying on the stale
+    English practical-information page. Operator should update the 2026
+    title/date gate and seed URLs in parsers/morocco_dental_expo.py when the
     source rolls to the 2027 edition.
