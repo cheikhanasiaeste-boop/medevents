@@ -1,0 +1,13 @@
+# Termly scanner
+User-agent: TermlyBot
+Allow: /
+
+User-agent: *
+Disallow: /wp/wp-admin/
+Allow: /wp/wp-admin/admin-ajax.php
+
+# Rate-limiting crawlers
+User-agent: *
+Crawl-delay: 10
+
+Sitemap: https://dentex-algeria.easyfairs.network/fr//sitemaps.xml

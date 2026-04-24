@@ -7,7 +7,7 @@
 #   - short shared-calendar parsers: organization abbreviation only
 #     (ada, gnydm)
 #   - single-flagship meetings: abbreviation + event slug, snake_case
-#     (aap_annual_meeting, fdi_wdc, eao_congress, cds_midwinter)
+#     (aap_annual_meeting, fdi_wdc, eao_congress, cds_midwinter, dentex_algeria)
 
 - code: ada
   name: American Dental Association
@@ -127,3 +127,24 @@
     page is paired with the public Tribe Events JSON endpoint for stable venue
     + timezone enrichment. Operator must update both seed_urls and the year/API
     id gate in parsers/cds.py when the source rolls to the next edition.
+
+- code: dentex_algeria
+  name: Dentex Algeria
+  homepage_url: https://www.dentex.dz/en/
+  source_type: other
+  country_iso: DZ
+  is_active: true
+  parser_name: dentex_algeria
+  crawl_frequency: monthly
+  crawl_config:
+    seed_urls:
+      - https://www.dentex.dz/en/
+      - https://www.dentex.dz/en/visit/
+    pagination: none
+    rate_limit_per_minute: 6
+  notes: |
+    Dentex Algeria 2026 onboarding. The English homepage is paired with the
+    public English visit page so the 2026 event survives minor landing-page
+    reshuffles while still deduping to one canonical row. Operator should
+    update the title/date gate and seed URLs in parsers/dentex.py when the
+    source rolls to the 2027 edition.
