@@ -74,5 +74,5 @@ __all__ = [
     "registered_parser_names",
 ]
 
-# Side-effect: registers the ADA and GNYDM parsers.
-from . import aap, ada, gnydm  # noqa: E402,F401
+# Side-effect: registers the curated-source parsers.
+from . import aap, ada, fdi, gnydm  # noqa: E402,F401
