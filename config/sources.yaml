@@ -86,3 +86,24 @@
     year-specific 2026 detail page. Operator must update the detail seed_url
     and the year gate in parsers/fdi.py when the 2027 congress page replaces
     the 2026 edition.
+
+- code: eao_congress
+  name: EAO Congress
+  homepage_url: https://eao.org/congress/
+  source_type: society
+  country_iso: FR
+  is_active: true
+  parser_name: eao_congress
+  crawl_frequency: monthly
+  crawl_config:
+    seed_urls:
+      - https://eao.org/congress/
+      - https://congress.eao.org/en/
+    pagination: none
+    rate_limit_per_minute: 6
+  notes: |
+    EAO association congress hub + the 2026 Lisbon microsite homepage.
+    The hub currently surfaces the 2026/2027/2028 congress cards, while the
+    edition-specific microsite adds a second detail signal for the 2026 row.
+    Operator should update the microsite seed_url if the current congress moves
+    from the Lisbon 2026 site to a later edition.
