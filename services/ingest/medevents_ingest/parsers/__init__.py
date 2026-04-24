@@ -78,6 +78,7 @@ __all__ = [
 from . import (  # noqa: E402,F401
     aap,
     ada,
+    amied,
     cds,
     dentex,
     eao,
