@@ -1,0 +1,4 @@
+Sitemap: https://www.efp.org/sitemap.xml
+
+User-agent: *
+Disallow: /uploads/efp_forum_committee/
