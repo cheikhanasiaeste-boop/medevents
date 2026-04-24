@@ -1,10 +1,10 @@
 # MedEvents — Current State
 
-_Last updated: 2026-04-23 — W3.2f (`--dry-run`) + W3.2g (ADA silent-drop review items) shipped end-to-end; remaining DB-gated ingest suites now use `TEST_DATABASE_URL`; Playwright option D is wired in repo workflows. Main ingests three curated sources with operator-safe preview mode. W3.2d live deploy remains the only required operator-gated blocker, and the concrete stop is Fly billing setup._
+_Last updated: 2026-04-24 — W3.2h (`fdi_wdc`) shipped end-to-end; Playwright option D is wired in repo workflows; DB-gated ingest suites use `TEST_DATABASE_URL`. Main ingests four curated sources with operator-safe preview mode. W3.2d live deploy remains the only required operator-gated blocker, and the concrete stop is still Fly billing setup._
 
 ## Status
 
-**W0+W1 foundation + W2 ADA + W3.1 GNYDM + W3.2a bookkeeping + W3.2b scheduler-primitive CLI + W3.2c drift observability + provenance + W3.2e third source (AAP Annual Meeting) + W3.2f preview mode + W3.2g ADA silent-drop aggregate review items are all complete.** Ingest exposes `medevents-ingest run --all [--force] [--dry-run]` with belt-and-braces read-only safety; operator can preview any real run against production with zero DB writes. The ADA parser now emits a drift signal (`ParserReviewRequest` → `parser_failure` review_item) if any schedule row silently drops — closing the W2 spec §7 observability gap. Admin UI shows real timestamps from W3.2a. See [`docs/runbooks/w3.2f-done-confirmation.md`](runbooks/w3.2f-done-confirmation.md) and predecessors for evidence maps.
+**W0+W1 foundation + W2 ADA + W3.1 GNYDM + W3.2a bookkeeping + W3.2b scheduler-primitive CLI + W3.2c drift observability + provenance + W3.2e third source (AAP Annual Meeting) + W3.2f preview mode + W3.2g ADA silent-drop aggregate review items + W3.2h fourth source (`fdi_wdc`) are all complete.** Ingest exposes `medevents-ingest run --all [--force] [--dry-run]` with belt-and-braces read-only safety; operator can preview any real run against production with zero DB writes. The ADA parser now emits a drift signal (`ParserReviewRequest` → `parser_failure` review_item) if any schedule row silently drops — closing the W2 spec §7 observability gap. Admin UI shows real timestamps from W3.2a. See [`docs/runbooks/w3.2h-done-confirmation.md`](runbooks/w3.2h-done-confirmation.md) and predecessors for evidence maps.
 
 Current mainline checkpoints:
 
@@ -58,6 +58,7 @@ Verification state:
 - Live ADA smoke completed on 2026-04-21: first run created 6 events (Scientific Session + 5 CE rows); subsequent runs report skipped_unchanged=2 via the content_hash gate.
 - GNYDM byte-stability verified 2026-04-21 (3× back-to-back fetches, identical sha-256 per page). Plain raw-body hashing works for this source — no Sitecore-style normalization needed.
 - Live GNYDM smoke completed on 2026-04-22: first run `fetched=2 created=3 updated=1 review_items=0`; re-run `fetched=2 skipped_unchanged=2 created=0 updated=0`; the 2026 edition has exactly one events row with two event_sources rows (listing + detail) confirming intra-source dedupe + detail-over-listing precedence on real data.
+- Live FDI smoke completed on 2026-04-24: first run `source=fdi_wdc fetched=2 skipped_unchanged=0 created=1 updated=1 review_items=0`; re-run `fetched=2 skipped_unchanged=2 created=0 updated=0`; dev DB holds one `FDI World Dental Congress 2026` row with two `event_sources` rows and populated source bookkeeping. Full ingest suite now at `147 passed`.
 
 ## Open PRs awaiting review
 
@@ -85,6 +86,7 @@ _None. Next wave to be chosen in `docs/TODO.md`._
 
 Historical wave sub-specs:
 
+- W3.2h: [`docs/superpowers/specs/2026-04-24-medevents-w3-2h-fdi-world-dental-congress.md`](superpowers/specs/2026-04-24-medevents-w3-2h-fdi-world-dental-congress.md) — shipped (see [`docs/runbooks/w3.2h-done-confirmation.md`](runbooks/w3.2h-done-confirmation.md))
 - W3.1: [`docs/superpowers/specs/2026-04-21-medevents-w3-1-second-source-gnydm.md`](superpowers/specs/2026-04-21-medevents-w3-1-second-source-gnydm.md) — shipped (see [`docs/runbooks/w3.1-done-confirmation.md`](runbooks/w3.1-done-confirmation.md))
 - W2: [`docs/superpowers/specs/2026-04-20-medevents-w2-first-source-ingestion.md`](superpowers/specs/2026-04-20-medevents-w2-first-source-ingestion.md) — shipped
 - W1: [`docs/superpowers/specs/2026-04-20-medevents-w1-foundation.md`](superpowers/specs/2026-04-20-medevents-w1-foundation.md) — shipped
@@ -93,6 +95,7 @@ Source runbooks:
 
 - [`docs/runbooks/ada-fixtures.md`](runbooks/ada-fixtures.md) — ADA fixtures + source-code naming convention
 - [`docs/runbooks/gnydm-fixtures.md`](runbooks/gnydm-fixtures.md) — GNYDM fixtures + robots + byte-stability protocol
+- [`docs/runbooks/fdi-fixtures.md`](runbooks/fdi-fixtures.md) — FDI fixtures + robots + byte-stability protocol
 
 Project TODO:
 
@@ -154,7 +157,7 @@ Reference-only target-state spec:
 ## Restart Notes
 
 - This machine is using local Homebrew Postgres 16 for development because `qemu`/Colima failed on macOS 12 Intel. Do not assume Docker is the working local DB path. See [`docs/runbooks/local-postgres-macos12.md`](runbooks/local-postgres-macos12.md).
-- W3.1 through W3.2c shipped on 2026-04-22/23; W3.2e (third source AAP), W3.2f (`--dry-run`), W3.2g (ADA silent-drop review items), DB-test hygiene, and the Playwright option D workflow split all shipped on 2026-04-23. W3.2d (Fly scheduled machines) has repo artifacts on `main`, and a live deploy attempt on 2026-04-23 confirmed the remaining blocker is Fly billing/payment setup: `fly auth login` works, but `fly apps create medevents-ingest` stops at Fly's payment gate. Three curated sources now running locally via `run --all` with operator-safe `--dry-run` preview. There is no remaining user-gated queue item.
+- W3.1 through W3.2c shipped on 2026-04-22/23; W3.2e (third source AAP), W3.2f (`--dry-run`), W3.2g (ADA silent-drop review items), DB-test hygiene, Playwright option D, and W3.2h (`fdi_wdc`) all shipped by 2026-04-24. W3.2d (Fly scheduled machines) has repo artifacts on `main`, and live deploy attempts on 2026-04-23 and 2026-04-24 confirmed the remaining blocker is Fly billing/payment setup: `fly auth login` works, but `fly apps create medevents-ingest` stops at Fly's payment gate. Four curated sources now run locally via `run --all` with operator-safe `--dry-run` preview. There is no remaining user-gated queue item.
 - Local dev DB now holds: 6 ADA events (W2 smoke) + 3 GNYDM editions (W3.1 smoke); the 2026 GNYDM edition has 2 event_sources rows. That state is safe to keep.
 - A disposable `medevents_test` Postgres database exists alongside the dev DB with the same migrations applied. It is used exclusively by the DB-gated ingest suites (all gated on `TEST_DATABASE_URL`); those tests TRUNCATE all ingest tables before running. Do NOT point `DATABASE_URL` at `medevents_test` or vice versa.
 - `docs/phase8-sync-pending` exists locally at `66c6ff3` from an older W0+W1 docs-sync attempt. Stale; reference only.
@@ -177,6 +180,7 @@ Reference-only target-state spec:
 | W3.2e — third curated source (`aap_annual_meeting`)                                              | ✅ Complete — parser + 8 tests (6 unit + 2 DB-gated), config seeded, live smoke verified on real site (1 events row + 2 event_sources for the 2026 edition; re-run = skipped_unchanged=2 via cfemail normalization). See w3.2e-done-confirmation.md.                                                                                     |
 | W3.2f — `--dry-run` preview mode (zero DB writes)                                                | ✅ Complete — flag threaded through `run_source` / `run_all` / `_run_source_inner` / `_persist_event` with belt-and-braces CLI `session.rollback()`; added `get_last_content_hash_by_url` for read-only hash gate. 21 new tests (10 unit + 4 DB-gated + 4 CLI + 3 repo); 138 passed repo-wide. See w3.2f-done-confirmation.md.           |
 | W3.2g — ADA silent-drop aggregate review_items (W2 §7 drift observability)                       | ✅ Complete — new `ParserReviewRequest` dataclass; ADA emits one `parser_failure` with per-reason drop counts on silent drops; surfaced a pre-existing `continuing-education.html` 7-row date_parse_fail drop. 1 focused test; 139 passed repo-wide. PR #72.                                                                             |
+| W3.2h — fourth curated source (`fdi_wdc`)                                                        | ✅ Complete — parser + 8 tests (6 unit + 2 DB-gated), config seeded, live smoke verified on the official FDI site (1 events row + 2 event_sources for the 2026 edition; re-run = skipped_unchanged=2 with raw-body hashing). Full ingest suite at 147 passed. See w3.2h-done-confirmation.md.                                            |
 | DB-gated ingest test hygiene (`test_seed.py` + pipeline/repository suites → `TEST_DATABASE_URL`) | ✅ Complete — all DB-gated ingest suites now alias `TEST_DATABASE_URL` back into `DATABASE_URL` with cache reset, so TRUNCATE-heavy tests stay on the disposable `medevents_test` database instead of the dev DB. Verified locally with `DATABASE_URL=.../medevents TEST_DATABASE_URL=.../medevents_test uv run pytest -q` → 139 passed. |
 | Playwright CI wiring — option D                                                                  | ✅ Complete — `admin-login.spec.ts` runs in the main CI workflow on every PR/push; `happy-path-smoke.spec.ts` moved to nightly/manual dispatch with deterministic fixtures from `apps/web/scripts/seed-happy-path-smoke.mjs`; the smoke now targets the ADA row explicitly rather than the first `Open` link.                            |
 | Intelligence-platform planning                                                                   | ❌ Deferred until justified                                                                                                                                                                                                                                                                                                              |
@@ -184,6 +188,6 @@ Reference-only target-state spec:
 ## How to use this document
 
 - **Resuming work?** Read this file first, then `docs/TODO.md`, then `docs/runbooks/w3.1-done-confirmation.md` for the latest shipped wave.
-- **Continuing execution?** W3.2d repo artifacts are on `main`; operator must enable Fly billing and then run `docs/runbooks/w3.2d-fly-scheduler-deploy.md` to complete live deployment (not autonomously runnable). The autonomous queue through 2026-04-23 is complete again: W3.2f `--dry-run`, W3.2g ADA silent-drop, DB-test hygiene, and the Playwright option D workflow split are all wired. With three curated sources on `main`, expanding further (`fdi_wdc`, `eao_congress`) is now operator-discretionary rather than product-critical.
+- **Continuing execution?** W3.2d repo artifacts are on `main`; operator must enable Fly billing and then run `docs/runbooks/w3.2d-fly-scheduler-deploy.md` to complete live deployment (not autonomously runnable). The autonomous queue through 2026-04-24 is complete again: W3.2f `--dry-run`, W3.2g ADA silent-drop, DB-test hygiene, Playwright option D, and W3.2h `fdi_wdc` are all wired. With four curated sources on `main`, expanding further (`eao_congress`) is now operator-discretionary rather than product-critical.
 - **Planning future work?** Follow the automated directory MVP spec unless a new decision explicitly changes direction.
 - **Using the target-state spec?** Treat it as a later-phase reference, not an instruction to build all layers now.

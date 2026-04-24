@@ -66,3 +66,23 @@
     seed_urls + homepage_url when the 2027 microsite launches, and
     similarly bump the year check in parsers/aap.py. See
     docs/runbooks/aap-fixtures.md §6.1.
+
+- code: fdi_wdc
+  name: FDI World Dental Congress
+  homepage_url: https://www.fdiworlddental.org/fdi-world-dental-congress
+  source_type: society
+  country_iso: CH
+  is_active: true
+  parser_name: fdi_wdc
+  crawl_frequency: monthly
+  crawl_config:
+    seed_urls:
+      - https://www.fdiworlddental.org/fdi-world-dental-congress
+      - https://www.fdiworlddental.org/fdi-world-dental-congress-2026
+    pagination: none
+    rate_limit_per_minute: 6
+  notes: |
+    FDI World Dental Congress 2026 onboarding. Stable federation hub page +
+    year-specific 2026 detail page. Operator must update the detail seed_url
+    and the year gate in parsers/fdi.py when the 2027 congress page replaces
+    the 2026 edition.

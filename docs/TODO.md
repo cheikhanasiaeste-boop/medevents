@@ -1,6 +1,6 @@
 # MedEvents TODO
 
-_Last updated: 2026-04-23 — W3.2f (`--dry-run`) + W3.2g (ADA silent-drop aggregate review_items) + DB-test hygiene + Playwright option D are all landed repo-side. The only required next step is W3.2d live Fly deploy, and the concrete blocker is now known: Fly billing/payment setup._
+_Last updated: 2026-04-24 — W3.2h (`fdi_wdc`) shipped end-to-end; mainline now has four curated sources, Playwright option D, and clean DB-test hygiene. The only required next step is still W3.2d live Fly deploy, and the blocker remains Fly billing/payment setup._
 
 ## Now
 
@@ -17,7 +17,7 @@ Repo artifacts on `main`:
 
 **Operator action required** (not autonomously runnable — needs Fly.io account + billing + credentials):
 
-Attempted on 2026-04-23: `fly auth login` + `fly auth whoami` succeeded locally, but `fly apps create medevents-ingest` stopped at Fly's billing gate (`We need your payment information to continue!`).
+Attempted on 2026-04-23 and re-checked on 2026-04-24: `fly auth login` + `fly auth whoami` succeed locally, but `fly apps create medevents-ingest` still stops at Fly's billing gate (`We need your payment information to continue!`).
 
 1. `fly apps create medevents-ingest` (or operator-chosen name).
 2. Provision / attach Postgres (Fly PG or external cloud PG).
@@ -30,7 +30,7 @@ Attempted on 2026-04-23: `fly auth login` + `fly auth whoami` succeeded locally,
 
 The autonomous queue is clear again. Optional waves that no longer block product value:
 
-- Fourth source `fdi_wdc` — operator discretion.
+- European specialty/source expansion (`eao_congress`) — operator discretion.
 - Generic fallback parser — operator discretion.
 
 ## Open decisions
@@ -53,6 +53,7 @@ _No user-gated work remains. Further progress is either operator action (enable 
 
 ## Shipped on Main
 
+- [x] W3.2h fourth curated source: FDI World Dental Congress (`fdi_wdc`) — new source-specific parser in [`parsers/fdi.py`](../services/ingest/medevents_ingest/parsers/fdi.py), config seed in [`sources.yaml`](../config/sources.yaml), 8 new tests (6 parser + 2 DB-gated pipeline), fixture/prep docs in [`fdi-fixtures.md`](runbooks/fdi-fixtures.md), and live smoke against the official site. First run: `source=fdi_wdc fetched=2 skipped_unchanged=0 created=1 updated=1 review_items=0`; re-run: `skipped_unchanged=2 created=0 updated=0`. Repo-wide ingest suite now at 147 passed. See [`w3.2h-done-confirmation.md`](runbooks/w3.2h-done-confirmation.md).
 - [x] Playwright CI option D — admin-login spec now runs in CI on every PR/push via [`ci.yml`](../.github/workflows/ci.yml); full happy-path smoke moved to [`nightly-smoke.yml`](../.github/workflows/nightly-smoke.yml) (nightly + manual dispatch) with deterministic fixtures seeded by [`apps/web/scripts/seed-happy-path-smoke.mjs`](../apps/web/scripts/seed-happy-path-smoke.mjs). The happy-path spec now targets the ADA row explicitly instead of the first `Open` link.
 - [x] Remaining DB-gated ingest test hygiene — the six older pipeline/repository suites now gate on `TEST_DATABASE_URL` and use the same `_alias_test_database_url` fixture pattern as the newer DB-gated modules, so no ingest test suite TRUNCATEs the dev DB anymore. Verified with `cd services/ingest && DATABASE_URL=postgresql://…@localhost:5432/medevents TEST_DATABASE_URL=postgresql://…@localhost:5432/medevents_test uv run pytest -q` → 139 passed.
 - [x] Testseed cleanup (PR #73, `99a9629`) — migrated `test_seed.py` to `TEST_DATABASE_URL` + `_alias_test_database_url` fixture; deleted leftover `testseed` row from dev DB. Dev sources now lists only three live sources (`aap_annual_meeting`, `ada`, `gnydm`). The broader DB-gated suite migration was finished in the later hygiene wave above.
