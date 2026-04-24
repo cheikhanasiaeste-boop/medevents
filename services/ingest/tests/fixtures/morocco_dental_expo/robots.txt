@@ -1,0 +1,18 @@
+Sitemap: https://www.mdentalexpo.ma/sitemap.xml
+Sitemap: https://www.mdentalexpo.ma/sitemap.xml?lang=en
+Sitemap: https://www.mdentalexpo.ma/sheets-sitemap.xml
+User-agent:  *
+Disallow: /Controls/
+Disallow: /Countries/
+Disallow: /CSS/
+Disallow: /Documents/
+Disallow: /Video/
+Disallow: /editeur/
+Disallow: /Images/Icons/
+Disallow: /Images/ComboBox/
+Disallow: /Images/Maps/
+Disallow: /JavaScript/
+Disallow: /js/
+Disallow: /PayPal/
+Disallow: /Scripts/
+

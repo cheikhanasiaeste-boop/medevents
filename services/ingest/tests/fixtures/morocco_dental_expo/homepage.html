@@ -1,0 +1,360 @@
+
+
+
+<!DOCTYPE html>
+<html id="Html" lang="en" dir="ltr">
+
+<head id="Head1">
+    <script src="/Scripts/jquery-3.7.1.min.js" type="text/javascript"></script>
+    <script>
+        $(function () {
+            if (localStorage.getItem('cb-youtube') === 'accepted') {
+                document.querySelectorAll("iframe[data-src*='youtube']").forEach(function (rd) {
+                    let mysrc = rd.getAttribute("data-src");
+                    rd.removeAttribute("data-src");
+                    rd.setAttribute("src", mysrc);
+                    rd.style.display = "block";
+                    return;
+                })
+            }
+            else {
+                document.querySelectorAll("iframe[src*='youtube']").forEach(function (rd) {
+                    let mysrc = rd.getAttribute("src");
+                    rd.removeAttribute("src");
+                    rd.setAttribute("data-src", mysrc);
+                    rd.style.display = "none";
+                    let a = document.createElement("a");
+                    a.href = '/cookies';
+                    a.innerHTML ="Modifier";
+                    rd.after(a);
+                    rd.after(' Cette vidéo Youtube ne peut pas s\'afficher à cause de vos paramètres de confidentialité. ');
+                   return;
+                })
+            }
+        });
+    </script>
+    <link rel="stylesheet" href="/Content/styles/w3.css" /><link id="cssPublic" rel="Stylesheet" href="/Content/public.css" type="text/css" /><link rel="stylesheet" type="text/css" href="/Content/styles/font-awesome-4.7.0/css/font-awesome.min.css" /><link id="canonical" rel="canonical" href="https://www.mdentalexpo.ma" /><link href="/Content/fa/css/fontawesome.min.css" rel="stylesheet" /><link href="/Content/fa/css/brands.min.css" rel="stylesheet" /><link href="/Content/fa/css/solid.min.css" rel="stylesheet" /><link href="/Content/fa/css/regular.min.css" rel="stylesheet" /><meta http-equiv="Content-Type" content="text/html;&#32;charset=utf-8" /><meta name="theme-color" class="w3-theme" /><link id="linkColorTheme" rel="stylesheet" href="../Content/styles/w3-theme-blue.css" /><meta name="viewport" content="width=device-width, initial-scale=1" /><style>
+body {
+width:100vw;
+height:100vh;
+background-image:url(/DisplayPicture.aspx?imgid=30395);
+background-repeat: no-repeat;
+background-size: cover;
+background-position: center;
+background-attachment: fixed;
+}</style><link id="chatcss" rel="stylesheet" /><link href="/PublicStyleSheet.aspx?sid=429" rel="stylesheet" type="text/css" /><title>
+	Dental Expo  - Home Page - DENTAL EXPO 2026
+</title><link rel="shortcut icon" href="/favicon.ico?v=21772" /><link id="cssAos" rel="Stylesheet" href="/Content/aos.css" type="text/css" /><meta name="description" lang="en" content="The&#32;Mohammed&#32;VI&#32;Exhibition&#32;Centre&#32;in&#32;El&#32;Jadida&#32;hosts&#32;the&#32;2026&#32;Edition&#32;of&#32;the&#32;DENTAL&#32;EXPO&#32;exhibition&#32;organized&#32;by&#32;the&#32;Atelier&#32;Vita&#32;event&#32;agency,&#32;under&#32;the&#32;aegis&#32;of&#32;the&#32;Ministry&#32;of&#32;Health." /><meta name="keywords" content="dentaire,&#32;medical,&#32;Dental,&#32;Teeth,&#32;Bucco&#32;dentaire,&#32;bee-worx&#32;event&#32;manager" /></head>
+
+<body id="PageBody" class="w3-margin-0&#32;w3-theme-light&#32;HomePage&#32;LanguageEN">
+
+    <span id="scriptCookieBar"></span>
+
+    <form method="POST" action="./en" id="form1">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="fixture-viewstate" />
+
+
+<script type="text/javascript">
+//<![CDATA[
+var __cultureInfo = {"name":"fr-FR","numberFormat":{"CurrencyDecimalDigits":2,"CurrencyDecimalSeparator":",","IsReadOnly":true,"CurrencyGroupSizes":[3],"NumberGroupSizes":[3],"PercentGroupSizes":[3],"CurrencyGroupSeparator":" ","CurrencySymbol":"€","NaNSymbol":"NaN","CurrencyNegativePattern":8,"NumberNegativePattern":1,"PercentPositivePattern":0,"PercentNegativePattern":0,"NegativeInfinitySymbol":"-∞","NegativeSign":"-","NumberDecimalDigits":2,"NumberDecimalSeparator":",","NumberGroupSeparator":" ","CurrencyPositivePattern":3,"PositiveInfinitySymbol":"∞","PositiveSign":"+","PercentDecimalDigits":2,"PercentDecimalSeparator":",","PercentGroupSeparator":" ","PercentSymbol":"%","PerMilleSymbol":"‰","NativeDigits":["0","1","2","3","4","5","6","7","8","9"],"DigitSubstitution":1},"dateTimeFormat":{"AMDesignator":"","Calendar":{"MinSupportedDateTime":"\/Date(-62135596800000)\/","MaxSupportedDateTime":"\/Date(253402297199999)\/","AlgorithmType":1,"CalendarType":1,"Eras":[1],"TwoDigitYearMax":2029,"IsReadOnly":true},"DateSeparator":"/","FirstDayOfWeek":1,"CalendarWeekRule":2,"FullDateTimePattern":"dddd d MMMM yyyy HH:mm:ss","LongDatePattern":"dddd d MMMM yyyy","LongTimePattern":"HH:mm:ss","MonthDayPattern":"d MMMM","PMDesignator":"","RFC1123Pattern":"ddd, dd MMM yyyy HH\u0027:\u0027mm\u0027:\u0027ss \u0027GMT\u0027","ShortDatePattern":"dd/MM/yyyy","ShortTimePattern":"HH:mm","SortableDateTimePattern":"yyyy\u0027-\u0027MM\u0027-\u0027dd\u0027T\u0027HH\u0027:\u0027mm\u0027:\u0027ss","TimeSeparator":":","UniversalSortableDateTimePattern":"yyyy\u0027-\u0027MM\u0027-\u0027dd HH\u0027:\u0027mm\u0027:\u0027ss\u0027Z\u0027","YearMonthPattern":"MMMM yyyy","AbbreviatedDayNames":["dim.","lun.","mar.","mer.","jeu.","ven.","sam."],"ShortestDayNames":["di","lu","ma","me","je","ve","sa"],"DayNames":["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"],"AbbreviatedMonthNames":["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc.",""],"MonthNames":["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre",""],"IsReadOnly":true,"NativeCalendarName":"calendrier grégorien","AbbreviatedMonthGenitiveNames":["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc.",""],"MonthGenitiveNames":["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre",""]},"eras":[1,"ap. J.-C.",null,0]};//]]>
+</script>
+
+<script src="/ScriptResource.axd?d=tEBF3gvMMyF_fPoFT42TFNkz8XgXef2hJd5sl1ki-M3x-Lyglz18y310QZIw7BU1b1UPx2PW_xVfvTvh-DwsWdZArAtX04YmETCs_wpITkzinM7GXGJSFHqAjIzGW099YqR8h8jHNgysr1hDfyN3DWu3cDgtvbfiBFsIQfSI3o41&amp;t=5c0e0825" type="text/javascript"></script>
+<script src="../Scripts/public.js" type="text/javascript"></script>
+<script src="../Scripts/modernizr-2.8.3.js" type="text/javascript"></script>
+<script src="../Scripts/jquery-ui.min.js" type="text/javascript"></script>
+<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="CA0B0334" />
+<input type="hidden" name="__VIEWSTATEENCRYPTED" id="__VIEWSTATEENCRYPTED" value="" />
+<input type="hidden" name="__PREVIOUSPAGE" id="__PREVIOUSPAGE" value="fixture-previous-page" />
+<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="fixture-eventvalidation" />
+        
+        
+        <div id="WebSiteMainTemplate" style="max-width:1500px;align:center;vertical-align:middle;margin:&#32;0&#32;auto;">
+            <div id="PageMenu" class="w3-row&#32;w3-theme-d2&#32;w3-margin-0">
+                
+
+<script type="text/javascript">
+    function myFunction() {
+        document.getElementsByClassName("level1")[0].classList.toggle("responsive");
+    }
+</script>
+
+
+<ul id="navbar-desktop" class="w3-navbar w3-large w3-card-2 w3-theme-l2" ><li Class="w3-hide-large w3-opennav w3-right w3-large"><a href="javascript:void(0);" onclick="getSubMenu('bw-navbar')"><i class="fa-solid fa-bars-staggered w3-large"></i></a></li><li class="w3-left-align MenuItem"><a  title="Dental Expo  - Home Page" href = "https://www.mdentalexpo.ma"><i class="fa-solid fa-house-chimney w3-xlarge"></i></a></li><li class="w3-hide-small w3-hide-medium MenuItem"><a  title="" href = "https://www.mdentalexpo.ma/Page/5586/exhibition">EXHIBITION </a></li><li class="w3-dropdown-hover w3-hide-small w3-hide-medium MenuItem"><a  title="" href = "https://www.mdentalexpo.ma/Page/5588/visitor" > VISITOR <i Class="fa-solid fa-caret-down"></i></a><div Class="w3-dropdown-content w3-white w3-card-4"><a class="MenuSubItem" title="" href = "https://www.mdentalexpo.ma/Page/5602/why-visit">WHY VISIT</a><a class="MenuSubItem" title="" href = "https://www.mdentalexpo.ma/Page/5603/request-for-accreditation">REQUEST FOR ACCREDITATION</a><a class="MenuSubItem" title="" href = "https://www.mdentalexpo.ma/Page/5601/practical-information">PRACTICAL INFORMATION</a></div></li><li class="w3-dropdown-hover w3-hide-small w3-hide-medium MenuItem"><a  title="EXHIBITOR" href = "https://www.mdentalexpo.ma/Page/5589/exhibitor" > EXHIBITOR  <i Class="fa-solid fa-caret-down"></i></a><div Class="w3-dropdown-content w3-white w3-card-4"><a class="MenuSubItem" title="" href = "https://www.mdentalexpo.ma/Page/5593/why-exhibit">WHY EXHIBIT</a><a class="MenuSubItem" title="" href = "https://www.mdentalexpo.ma/Page/8737/list-of-exhibitors-2025">LIST OF EXHIBITORS 2025</a><a class="MenuSubItem" title="" href = "https://www.mdentalexpo.ma/Page/5597/book-your-booth">BOOK YOUR BOOTH</a><a class="MenuSubItem" title="" href = "https://www.mdentalexpo.ma/Page/5598/download-area">DOWNLOAD AREA</a><a class="MenuSubItem" title="" href = "https://www.mdentalexpo.ma/Page/5600/practical-information">PRACTICAL INFORMATION</a></div></li><li class="w3-dropdown-hover w3-hide-small w3-hide-medium MenuItem"><a  title="" href = "https://www.mdentalexpo.ma/Page/5585/dental-tribune-2026" > DENTAL TRIBUNE 2026 <i Class="fa-solid fa-caret-down"></i></a><div Class="w3-dropdown-content w3-white w3-card-4"><a class="MenuSubItem" title="DENTAL TRIBUNE 2026 IN SUMMARY" href = "https://www.mdentalexpo.ma/Page/5605/dental-tribune-2026-in-summary">DENTAL TRIBUNE 2026 IN SUMMARY</a><a class="MenuSubItem" title="" href = "https://www.mdentalexpo.ma/Page/5587/program-scientific-2026">PROGRAM SCIENTIFIC 2026</a></div></li><li class="w3-dropdown-hover w3-hide-small w3-hide-medium MenuItem"><a  title="" href = "https://www.mdentalexpo.ma/Page/5590/gallery" > GALLERY <i Class="fa-solid fa-caret-down"></i></a><div Class="w3-dropdown-content w3-white w3-card-4"><a class="MenuSubItem" title="" href = "https://www.mdentalexpo.ma/Page/5606/photo-gallery">PHOTO GALLERY</a><a class="MenuSubItem" title="" href = "https://www.mdentalexpo.ma/Page/5607/video-gallery">VIDEO GALLERY</a></div></li><li class="w3-hide-small w3-hide-medium MenuItem"><a  title="" href = "https://www.mdentalexpo.ma/Page/5599/download-area">DOWNLOAD AREA</a></li><li class="w3-hide-small w3-hide-medium MenuItem"><a  title="" href = "https://www.mdentalexpo.ma/Page/5591/contact">CONTACT</a></li><li class="w3-hide-small w3-hide-medium MenuItem"><a  title="" href = "https://www.mdentalexpo.ma/Page/5592/registration">REGISTRATION</a></li></ul>
+<div id="bw-navbar" class="w3-hide w3-hide-large">
+<ul id="navbar-mobile" class="w3-navbar w3-left-align w3-large w3-card-2 w3-theme-l2" ><li class="w3-hide-small w3-hide-medium"><a title="Dental Expo  - Home Page" href = "https://www.mdentalexpo.ma">HOME PAGE</a></li><li><a title="" href = "https://www.mdentalexpo.ma/Page/5586/exhibition">EXHIBITION </a></li><li Class="w3-dropdown-click" onclick="getSubMenu('Sub5588')"><a title="" href = "https://www.mdentalexpo.ma/Page/5588/visitor" > VISITOR <i Class="fa-solid fa-caret-down"></i></a><div id="Sub5588" Class="w3-dropdown-content w3-white w3-card-4 w3-show"><a title="" href = "https://www.mdentalexpo.ma/Page/5602/why-visit">WHY VISIT</a><a title="" href = "https://www.mdentalexpo.ma/Page/5603/request-for-accreditation">REQUEST FOR ACCREDITATION</a><a title="" href = "https://www.mdentalexpo.ma/Page/5601/practical-information">PRACTICAL INFORMATION</a></div></li><li Class="w3-dropdown-click" onclick="getSubMenu('Sub5589')"><a title="EXHIBITOR" href = "https://www.mdentalexpo.ma/Page/5589/exhibitor" > EXHIBITOR  <i Class="fa-solid fa-caret-down"></i></a><div id="Sub5589" Class="w3-dropdown-content w3-white w3-card-4 w3-show"><a title="" href = "https://www.mdentalexpo.ma/Page/5593/why-exhibit">WHY EXHIBIT</a><a title="" href = "https://www.mdentalexpo.ma/Page/8737/list-of-exhibitors-2025">LIST OF EXHIBITORS 2025</a><a title="" href = "https://www.mdentalexpo.ma/Page/5597/book-your-booth">BOOK YOUR BOOTH</a><a title="" href = "https://www.mdentalexpo.ma/Page/5598/download-area">DOWNLOAD AREA</a><a title="" href = "https://www.mdentalexpo.ma/Page/5600/practical-information">PRACTICAL INFORMATION</a></div></li><li Class="w3-dropdown-click" onclick="getSubMenu('Sub5585')"><a title="" href = "https://www.mdentalexpo.ma/Page/5585/dental-tribune-2026" > DENTAL TRIBUNE 2026 <i Class="fa-solid fa-caret-down"></i></a><div id="Sub5585" Class="w3-dropdown-content w3-white w3-card-4 w3-show"><a title="DENTAL TRIBUNE 2026 IN SUMMARY" href = "https://www.mdentalexpo.ma/Page/5605/dental-tribune-2026-in-summary">DENTAL TRIBUNE 2026 IN SUMMARY</a><a title="" href = "https://www.mdentalexpo.ma/Page/5587/program-scientific-2026">PROGRAM SCIENTIFIC 2026</a></div></li><li Class="w3-dropdown-click" onclick="getSubMenu('Sub5590')"><a title="" href = "https://www.mdentalexpo.ma/Page/5590/gallery" > GALLERY <i Class="fa-solid fa-caret-down"></i></a><div id="Sub5590" Class="w3-dropdown-content w3-white w3-card-4 w3-show"><a title="" href = "https://www.mdentalexpo.ma/Page/5606/photo-gallery">PHOTO GALLERY</a><a title="" href = "https://www.mdentalexpo.ma/Page/5607/video-gallery">VIDEO GALLERY</a></div></li><li><a title="" href = "https://www.mdentalexpo.ma/Page/5599/download-area">DOWNLOAD AREA</a></li><li><a title="" href = "https://www.mdentalexpo.ma/Page/5591/contact">CONTACT</a></li><li><a title="" href = "https://www.mdentalexpo.ma/Page/5592/registration">REGISTRATION</a></li></ul>
+</div>
+
+
+<script>
+function getSubMenu(mynavbar) {
+var x = document.getElementById(mynavbar);
+if (x.className.indexOf('w3-show') == -1) {
+x.className += ' w3-show';
+} else {
+x.className = x.className.replace(' w3-show', '');
+}
+}
+</script>
+
+            </div>
+            <header id="PageHeader" class="w3-row&#32;w3-margin-0&#32;w3-left-align&#32;w3-theme">
+                <div class="w3-right"><a style="margin: 4px; text-decoration: none;" class="w3-tag w3-round w3-indigo" href="/Default.aspx?language=en">EN</a>&nbsp;<a style="margin: 4px; text-decoration: none;" class="w3-tag w3-red w3-round" href="/Default.aspx?language=fr">FR</a></div><div><img src="https://www.mdentalexpo.ma/DisplayPicture.aspx?imgid=36382" width="100%" height="" alt="" style="float: left;" /></div>
+            </header>
+            <div id="SearchBox" class="w3-row" style="padding:&#32;8px">
+                <div class="w3-twothird LoginWidgetTop">
+                    
+
+        <div id="PanelLogin2" class="w3-container">
+	
+            <input name="ctl00$LogFormTop$Login2" type="text" maxlength="150" id="Login2" class="bwx-logmail&#32;w3-input&#32;w3-border&#32;w3-show-inline-block&#32;w3-tiny" placeholder="Adresse&#32;Email" />
+            <input name="ctl00$LogFormTop$Pass2" type="password" maxlength="30" id="Pass2" title="Votre&#32;mot&#32;de&#32;passe&#32;(celui&#32;que&#32;vous&#32;avez&#32;reçu&#32;par&#32;Email&#32;lors&#32;de&#32;votre&#32;inscription)" class="bwx-logpass&#32;w3-input&#32;w3-border&#32;w3-show-inline-block&#32;w3-tiny" autocomplete="off" placeholder="Mot&#32;de&#32;passe" />
+            <div style="display: inline-block">
+
+                <input type="submit" name="ctl00$LogFormTop$Submit2" value="Se&#32;connecter" id="Submit2" title="Cliquez&#32;pour&#32;accéder&#32;à&#32;votre&#32;compte" class="bwx-logbutton&#32;w3-btn&#32;w3-theme-dark&#32;w3-tiny&#32;w3-padding" />
+                <a id="lbPassRecovery2" class="bwx-passrecoverylink&#32;w3-show-inline-block&#32;w3-tiny" href="javascript:WebForm_DoPostBackWithOptions(new&#32;WebForm_PostBackOptions(&quot;ctl00$LogFormTop$lbPassRecovery2&quot;,&#32;&quot;&quot;,&#32;false,&#32;&quot;&quot;,&#32;&quot;../PassRecovery.aspx&quot;,&#32;false,&#32;true))">J'ai oublié</a>
+            </div>
+        
+</div>
+    
+<input type="hidden" name="ctl00$LogFormTop$hfac" id="hfac" value="fixture-hfac" />
+&nbsp;
+                </div>
+                <div class="w3-third SearchWidget">
+                    
+        <div class="bwx-search w3-right">
+            <input name="ctl00$Search1$tbSearchString" type="text" id="tbSearchString" class="bwx-searchtextbox&#32;w3-border&#32;w3-show-inline-block&#32;w3-tiny" autocomplete="on" placeholder="Mot-Clé" />&nbsp;
+            <a id="ibSearch" 
+                class="bwx-searchbutton cssButton w3-show-inline-block w3-small" style="cursor: pointer;" validationgroup="vgSearch">
+                <i class="fa-solid fa-magnifying-glass w3-medium"></i>
+            </a>
+            <script>
+                $(function () { $("#tbSearchString").focus(); });
+                $(document).keypress(function (e) {
+                    if ($("#tbSearchString").is(':focus')) {
+                        var str = $("#tbSearchString").val();
+                        if (str !== '') {
+                            if (e.keyCode === 13) {
+                                e.preventDefault();
+                                $(location).attr('href', "../../SearchResult.aspx?str=" + str);
+                            }
+                        }
+                    }
+                });
+                $("#ibSearch").click(function () {
+                        var str = $("#tbSearchString").val();
+                        if (str !== '') {
+                                $(location).attr('href', "../../SearchResult.aspx?str=" + str);
+                        }
+                });
+
+            </script>
+        </div>
+                </div>
+            </div>
+            <article id="PageMiddle" class="w3-container&#32;w3-margin-0&#32;w3-theme-l5">
+                
+                <div id="PageCenter" class="&#32;w3-show-block&#32;w3-margin-0&#32;w3-padding-0">
+                    
+                    <div id="PageContent" class="PageContent&#32;w3-container&#32;w3-left-align&#32;w3-margin-0">
+
+                        
+    
+<div style="max-width: 100%; position: relative; overflow: hidden;"><div class="dday w3-tag w3-theme-light w3-text-theme w3-xxlarge w3-round w3-card-16 w3-opacity" id="dday"></div><div id="slides" class="slidecube" style="overflow: hidden;"><img loading="eager" style="width: 100%;" src="https://www.mmedicalexpo.ma//Images/AV/Dental/slide-edental.jpg" alt="Image slider" /> <img loading="eager" class="" style="width: 100%;" src="/Images/AV/Dental/slide-bleaching.jpg" alt="Image slider" /> <img loading="eager" class="" style="width: 100%;" src="/Images/AV/Dental/slide-edental.jpg" alt="Image slider" /></div>&nbsp;<div class=" w3-button w3-text-theme w3-padding bwx-nav-left" onclick="plusDivs(-1);return false">❮</div><div class="w3-button w3-text-theme w3-padding bwx-nav-right" onclick="plusDivs(1);return false">❯</div></div><div class="slidecube" style="overflow: hidden;"><iframe width="560" height="314" src="https://www.youtube.com/embed/blNM3qZKy0c" allowfullscreen="allowfullscreen"></iframe><div class="w3-half w3-padding w3-theme-light"><h3><strong>PROFESSIONAL EXHIBITION AND SCIENTIFIC FORUM</strong></h3><p>Casablanca hosts the 7<sup>th</sup> edition of the International Exhibition of Dental Health <strong>DENTAL EXPO 2026</strong>, and this, from <strong>&nbsp;07 to 10 May 2026&nbsp;</strong>organized by the agency ATELIER VITA.</p><p>DENTAL EXPO is the largest African event that regroups all oral health professionals not only at national but also at international level. The number of visits received during the previous editions, shows that the exhibition has become the largest African platform of the oral health sector recognized at the international level.</p><p><a class="w3-btn w3-round w3-blue" href="https://www.mdentalexpo.ma/Page/5586/exhibition">Read more</a></p></div></div><div class="SponsorWall"><table border="0" style="height: 147px; width: 100%; border-collapse: collapse;"><tbody><tr style="height: 147px;"><td style="width: 609.656px; height: 147px;"><a href="https://www.mdentalexpo.ma/form/2749?cat=VISITOR"> <img loading="lazy" src="https://www.mmedicalexpo.ma/DisplayPicture.aspx?imgid=23191" width="330" height="144" alt="" style="float: right;" /></a></td><td style="width: 609.656px; height: 147px; text-align: center;"><a href="https://www.mdentalexpo.ma/form/2751?cat=EXHIBITOR"> <img loading="lazy" src="https://www.mmedicalexpo.ma/DisplayPicture.aspx?imgid=23190" width="330" height="144" alt="" /></a></td><td style="width: 609.688px; height: 147px;"><a href="https://drive.google.com/file/d/155zlZtHEkrB0_VgPWm4i8Vn4GqMSO_jm/view?usp=drive_link"> <img loading="lazy" src="https://www.mmedicalexpo.ma/DisplayPicture.aspx?imgid=25789" width="330" height="144" alt="" /></a></td></tr></tbody></table><h3></h3><h3 style="text-align: center;"><strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Partners :</strong></h3><p><img src="https://www.ateliervita.net/DisplayPicture.aspx?imgid=37372" alt="" style="display: block; margin-left: auto; margin-right: auto;" width="1600" height="289" /></p><p></p><h3 style="text-align: center;"><strong>&nbsp; &nbsp; &nbsp; &nbsp; Event partners&nbsp; :</strong></h3><p><img src="https://www.ateliervita.net/DisplayPicture.aspx?imgid=37367" alt="" style="display: block; margin-left: auto; margin-right: auto;" /></p><p><img src="https://www.mdentalexpo.ma/doc/D-1381XI3657275368-Bannie%CC%80re%202%20IDEX%20EGYPT%202026.png?open=y" alt="" style="display: block; margin-left: auto; margin-right: auto;" width="1930" height="497" /></p><p></p><p><img src="https://www.ateliervita.net/DisplayPicture.aspx?imgid=37373" alt="" style="display: block; margin-left: auto; margin-right: auto;" width="1600" height="505" /><img src="https://www.ateliervita.net/DisplayPicture.aspx?imgid=37374" alt="" style="display: block; margin-left: auto; margin-right: auto;" width="1600" height="247" /></p><p><strong><img src="https://www.mdentalexpo.ma/DisplayPicture.aspx?imgid=34997" alt="" height="" width="90%" style="display: block; margin-left: auto; margin-right: auto;" /></strong></p></div>
+                        
+                        
+                    </div>
+
+                    
+
+
+
+                </div>
+
+                
+            </article>
+            <footer id="PageBottom" class="w3-row&#32;w3-theme&#32;w3-margin-left-0&#32;w3-margin-right-0&#32;w3-small&#32;w3-padding">
+                <div class="w3-center"><span style="font-size: 20pt;">&nbsp;<a href="https://web.facebook.com/dentalexpomaroc"><span class="fa-brands fa-facebook-f"></span></a>&nbsp;&nbsp;<a href="https://www.linkedin.com/events/moroccodentalexpo20236991411634896338944/comments/"><span class="fa-brands fa-linkedin-in"></span></a>&nbsp;&nbsp;&nbsp;<a href="https://www.instagram.com/moroccodentalexpo/"><span class="fa-brands fa-instagram"></span></a>&nbsp;</span></div><div class="w3-center">&copy;&nbsp;Copyright ATELIER VITA | Powered by bee-worx event manager 2021</div>
+            </footer>
+        </div>
+
+        
+        <div id="storage">
+        </div>
+        
+    </form>
+    
+
+</body>
+</html>
+        <script>
+
+
+            $(document).ready(function () {
+                $(document).on("mousedown", ".w3-btn, .w3-tag, .w3-ul li, #PageMenu .MenuItem a, .WizardNavigation, .ripple-effect", function (e) {
+
+                    e.preventDefault();
+
+                    // Remove existing ripples before adding a new one
+                    $(this).find(".ripple").remove();
+                    let ripple = document.createElement('div');
+                    ripple.classList.add('ripple');
+                    this.appendChild(ripple);
+
+                    let rect = this.getBoundingClientRect();
+
+                    let x = e.clientX - rect.left - (ripple.offsetWidth / 2); // Centering correction
+                    let y = e.clientY - rect.top - (ripple.offsetHeight / 2); // Centering correction
+
+                    ripple.style.position = `absolute`;
+                    ripple.style.left = `${x}px`;
+                    ripple.style.top = `${y}px`;
+
+                    setTimeout(() => {
+                        ripple.style.opacity = "0";
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+
+
+            $(document).ready(function () {
+                $(document).on("click", ".download-btn", function () {
+                    //e.preventDefault();
+
+                    // Create document icon
+                    const docIcon = document.createElement('div');
+                    docIcon.className = 'document-icon';
+
+                    // Position it at the button location
+                    const rect = this.getBoundingClientRect();
+                    docIcon.style.left = `${rect.left + rect.width / 2 - 20}px`;
+                    docIcon.style.top = `${rect.top + rect.height / 2 - 20}px`;
+
+                    document.body.appendChild(docIcon);
+
+                    // Trigger animation
+                    setTimeout(() => {
+                        docIcon.style.animation = 'flyToCorner 1s forwards';
+                    }, 10);
+
+                    // Remove element after animation
+                    setTimeout(() => {
+                        docIcon.remove();
+                    }, 1100);
+                });
+            });
+
+            $(document).ready(function () {
+                $(document).on("click", ".send", function () {
+                    //e.preventDefault();
+
+                    // Create document icon
+                    const docIcon = document.createElement('div');
+                    docIcon.className = 'paper-plane-icon';
+
+                    // Position it at the button location
+                    const rect = this.getBoundingClientRect();
+                    docIcon.style.left = `${rect.left + rect.width / 2 - 20}px`;
+                    docIcon.style.top = `${rect.top + rect.height / 2 - 20}px`;
+
+                    document.body.appendChild(docIcon);
+
+                    // Trigger animation
+                    setTimeout(() => {
+                        docIcon.style.animation = 'flyToCorner 1s forwards';
+                    }, 10);
+
+                    // Remove element after animation
+                    setTimeout(() => {
+                        docIcon.remove();
+                    }, 1100);
+                });
+            });
+
+            //document.querySelectorAll('.w3-btn').forEach(button => {
+            //    button.addEventListener('mousedown', function (e) {
+            //        let ripple = document.createElement('div');
+            //        ripple.classList.add('ripple');
+            //        this.appendChild(ripple);
+
+            //        let rect = this.getBoundingClientRect();
+            //        let x = e.clientX - rect.left;
+            //        let y = e.clientY - rect.top;
+            //        ripple.style.left = `${x}px`;
+            //        ripple.style.top = `${y}px`;
+
+            //        setTimeout(() => {
+            //            ripple.remove();
+            //        }, 600);
+            //    });
+            //});
+            //document.querySelectorAll('.w3-tag').forEach(button => {
+            //    button.addEventListener('mousedown', function (e) {
+            //        let ripple = document.createElement('div');
+            //        ripple.classList.add('ripple');
+            //        this.appendChild(ripple);
+
+            //        let rect = this.getBoundingClientRect();
+            //        let x = e.clientX - rect.left;
+            //        let y = e.clientY - rect.top;
+            //        ripple.style.left = `${x}px`;
+            //        ripple.style.top = `${y}px`;
+
+            //        setTimeout(() => {
+            //            ripple.remove();
+            //        }, 600);
+            //    });
+            //});
+            //document.querySelectorAll('a').forEach(link => {
+            //    link.addEventListener('mousedown', function (e) {
+            //        let ripple = document.createElement('div');
+            //        ripple.classList.add('ripple');
+            //        this.appendChild(ripple);
+
+            //        let rect = this.getBoundingClientRect();
+            //        let x = e.clientX - rect.left;
+            //        let y = e.clientY - rect.top;
+            //        ripple.style.left = `${x}px`;
+            //        ripple.style.top = `${y}px`;
+
+            //        setTimeout(() => {
+            //            ripple.remove();
+            //        }, 600);
+            //    });
+            //});
+
+            //document.querySelectorAll('.download-btn').forEach(link => {
+            //    link.addEventListener('click', function (e) {
+            //        //e.preventDefault();
+
+            //        // Create document icon
+            //        const docIcon = document.createElement('div');
+            //        docIcon.className = 'document-icon';
+
+            //        // Position it at the button location
+            //        const rect = this.getBoundingClientRect();
+            //        docIcon.style.left = `${rect.left + rect.width / 2 - 20}px`;
+            //        docIcon.style.top = `${rect.top + rect.height / 2 - 20}px`;
+
+            //        document.body.appendChild(docIcon);
+
+            //        // Trigger animation
+            //        setTimeout(() => {
+            //            docIcon.style.animation = 'flyToCorner 1s forwards';
+            //        }, 10);
+
+            //        // Remove element after animation
+            //        setTimeout(() => {
+            //            docIcon.remove();
+            //        }, 1100);
+
+            //        // Your actual download logic here
+            //        console.log('Download initiated');
+            //    });
+            //});
+
+        </script>
+
+
+
