@@ -8,7 +8,7 @@
 #     (ada, gnydm)
 #   - single-flagship meetings: abbreviation + event slug, snake_case
 #     (aap_annual_meeting, fdi_wdc, eao_congress, cds_midwinter, dentex_algeria,
-#      morocco_dental_expo, europerio, amied_congress)
+#      morocco_dental_expo, europerio, amied_congress, forum_officine_tn)
 
 - code: ada
   name: American Dental Association
@@ -213,3 +213,27 @@
     deduping to one canonical event row with a live public registration form.
     Operator should update the title/date gate and seed URLs in
     parsers/amied.py when the source rolls to the next edition.
+
+- code: forum_officine_tn
+  name: Forum de l'Officine
+  homepage_url: https://www.forumdelofficine.tn/l_officine/accueil-forum-officine.php
+  source_type: other
+  country_iso: TN
+  is_active: true
+  parser_name: forum_officine_tn
+  crawl_frequency: monthly
+  crawl_config:
+    seed_urls:
+      - https://www.forumdelofficine.tn/l_officine/accueil-forum-officine.php
+      - https://www.forumdelofficine.tn/l_officine/infos-pratiques-forum-officine.php
+    pagination: none
+    rate_limit_per_minute: 6
+  notes: |
+    Forum de l'Officine 2026 onboarding. The public homepage is paired with
+    the practical-information page so the source stays stable while still
+    deduping to one canonical event row with a live public registration URL.
+    Both chosen pages embed a stale assistant-widget blob with May 1-2 session
+    data; the parser intentionally ignores that blob and trusts page-level
+    metadata + Schema.org event JSON-LD instead. Operator should update the
+    title/date gate and seed URLs in parsers/forum_officine.py when the source
+    rolls to the next edition.

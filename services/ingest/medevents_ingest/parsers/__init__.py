@@ -84,6 +84,7 @@ from . import (  # noqa: E402,F401
     eao,
     europerio,
     fdi,
+    forum_officine,
     gnydm,
     morocco_dental_expo,
 )

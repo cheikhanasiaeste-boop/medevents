@@ -1,0 +1,1716 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- SEO -->
+  <title>Forum de l'Officine 2026 — Événement Pharmaceutique Tunisie | 15-16 Mai Tunis</title>
+  <meta name="description" content="Le Forum de l'Officine 2026 est l'événement incontournable de la pharmacie en Tunisie. Programme, exposants, workshops — 15 et 16 Mai 2026 au Palais des Congrès de Tunis.">
+  <meta name="keywords" content="forum officine, pharmacie tunisie, événement pharmaceutique, congrès pharmacie, officine 2026, pharmacien tunisie">
+  <meta name="author" content="Forum de l'Officine">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://www.forumdelofficine.tn/accueil-forum-officine.php">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Forum de l'Officine 2026 — Événement Pharmaceutique Tunisie">
+  <meta property="og:description" content="L'événement incontournable de la pharmacie en Tunisie. 15-16 Mai 2026 au Palais des Congrès de Tunis.">
+  <meta property="og:image" content="https://www.forumdelofficine.tn/imgs/logo.png">
+  <meta property="og:url" content="https://www.forumdelofficine.tn">
+  <meta property="og:locale" content="fr_TN">
+  <meta property="og:site_name" content="Forum de l'Officine">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Forum de l'Officine 2026">
+  <meta name="twitter:description" content="L'événement incontournable de la pharmacie en Tunisie. 15-16 Mai 2026.">
+  <meta name="twitter:image" content="https://www.forumdelofficine.tn/imgs/logo.png">
+
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    "name": "Forum de l'Officine 2026",
+    "description": "L'événement incontournable de la pharmacie en Tunisie",
+    "startDate": "2026-05-15",
+    "endDate": "2026-05-16",
+    "location": {
+      "@type": "Place",
+      "name": "Palais des Congrès de Tunis",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Avenue Mohamed V",
+        "addressLocality": "Tunis",
+        "addressCountry": "TN"
+      }
+    },
+    "organizer": {
+      "@type": "Organization",
+      "name": "Forum de l'Officine",
+      "url": "https://www.forumdelofficine.tn"
+    },
+    "url": "https://www.forumdelofficine.tn",
+    "image": "https://www.forumdelofficine.tn/imgs/logo.png"
+  }
+  </script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue:    #4579A1;
+      --yellow:  #CFD730;
+      --dark:    #1A1819;
+      --cream:   #FDFBF7;
+      --footer:  #EBEAEA;
+      --card-bg: #CFD230;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Alexandria', sans-serif;
+      font-weight: 400;
+      color: var(--dark);
+      background: var(--cream);
+      overflow-x: hidden;
+    }
+
+    /* ═══════════════════════════════════════
+       HEADER
+    ═══════════════════════════════════════ */
+    .header-wrapper {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      display: flex; justify-content: center;
+      padding: 14px 48px;
+      z-index: 999;
+    }
+    header {
+      width: 100%; max-width: 1760px; height: 58px;
+      background: var(--cream);
+      border-radius: 136px;
+      padding: 0 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 2px 20px rgba(0,0,0,.09), 0 1px 3px rgba(0,0,0,.05);
+      animation: slideDown .6s cubic-bezier(.22,1,.36,1) both;
+    }
+    @keyframes slideDown {
+      from { opacity:0; transform:translateY(-30px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .logo { display:flex; align-items:center; gap:8px; text-decoration:none; flex-shrink:0; }
+    
+    nav { display:flex; align-items:center; gap:2px; }
+    nav a {
+      position:relative; text-decoration:none; font-size:.8rem; font-weight:500;
+      color:var(--dark); padding:6px 14px; border-radius:50px;
+      transition:color .25s, background .25s; white-space:nowrap; overflow:hidden;
+    }
+    nav a::before {
+      content:''; position:absolute; inset:0; border-radius:50px;
+      background:var(--blue); opacity:0; transform:scale(.7);
+      transition:opacity .25s, transform .3s cubic-bezier(.22,1,.36,1);
+    }
+    nav a:hover::before { opacity:.10; transform:scale(1); }
+    nav a.active { font-weight:700; }
+    nav a.active::after {
+      content:''; position:absolute;
+      bottom:4px; left:50%; transform:translateX(-50%);
+      width:18px; height:2.5px; border-radius:2px; background:var(--blue);
+      animation:growLine .4s .6s cubic-bezier(.22,1,.36,1) both;
+    }
+    @keyframes growLine { from{width:0;opacity:0} to{width:18px;opacity:1} }
+    .header-cta {
+      text-decoration:none; background:var(--blue); color:#fff;
+      font-family:'Alexandria',sans-serif; font-size:.8rem; font-weight:700;
+      letter-spacing:.04em; padding:8px 22px; border-radius:50px;
+      white-space:nowrap; flex-shrink:0; position:relative; overflow:hidden;
+      transition:box-shadow .3s, transform .2s;
+    }
+    .header-cta::after {
+      content:''; position:absolute; top:0; left:-75%;
+      width:50%; height:100%;
+      background:linear-gradient(120deg,transparent,rgba(255,255,255,.35),transparent);
+      transform:skewX(-20deg); transition:left .45s ease;
+    }
+    .header-cta:hover::after { left:140%; }
+    .header-cta:hover { box-shadow:0 6px 20px rgba(69,121,161,.45); transform:translateY(-2px); }
+    .hamburger {
+      display:none; flex-direction:column; gap:5px;
+      cursor:pointer; padding:6px; border:none; background:none;
+    }
+    .hamburger span {
+      display:block; width:24px; height:2.5px;
+      background:var(--dark); border-radius:2px;
+      transition:transform .3s, opacity .3s;
+    }
+
+    /* ═══════════════════════════════════════
+       HERO SLIDER
+    ═══════════════════════════════════════ */
+    .hero {
+      position:relative; width:100%; height:100vh; overflow:hidden;
+    }
+    .slide {
+      position:absolute; inset:0;
+      opacity:0; transition:opacity .6s ease, transform .8s ease;
+      transform:translateX(60px);
+    }
+    .slide.active { opacity:1; transform:translateX(0); z-index:1; }
+    .slide.exit   { opacity:0; transform:translateX(-60px); z-index:0; }
+    .slide-ph {
+      width:100%; height:100%;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .slide-img { width:100%; height:100%; object-fit:cover; display:block; }
+    .slide-ph-1 { background:linear-gradient(135deg,#2a5240,#3d7a55,#6b9b72); }
+    .slide-ph-2 { background:linear-gradient(135deg,#1a3a5c,#4579A1,#6ea3c8); }
+    .slide-ph-3 { background:linear-gradient(135deg,#3d3010,#8a7020,#cfb840); }
+    .hero-overlay {
+      position:absolute; inset:0; z-index:2;
+      background:linear-gradient(to right,rgba(0,0,0,.60) 0%,rgba(0,0,0,.25) 55%,transparent 100%);
+    }
+    .hero-content {
+      position:absolute; z-index:3;
+      top:50%; left:7%; transform:translateY(-50%);
+      color:#fff; max-width:540px;
+    }
+    .hero-content h1 {
+      font-size:clamp(2rem,3.5vw,3.2rem); font-weight:500; line-height:1.2;
+      margin-bottom:14px; animation:heroFade .8s .3s both;
+    }
+    .hero-date {
+      font-size:1rem; font-weight:400; margin-bottom:6px; opacity:.9;
+      animation:heroFade .8s .45s both;
+    }
+    .hero-location {
+      font-size:.9rem; opacity:.75; display:flex; align-items:center; gap:5px;
+      margin-bottom:28px; animation:heroFade .8s .55s both;
+    }
+    .hero-location svg { width:14px; height:14px; flex-shrink:0; }
+    @keyframes heroFade {
+      from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)}
+    }
+    .countdown {
+      display:flex; gap:12px; margin-bottom:30px;
+      animation:heroFade .8s .65s both;
+    }
+    .cd-block {
+      width:62px; height:62px; background:var(--blue); border-radius:50%;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      font-weight:700;
+    }
+    .cd-num { font-size:1.3rem; line-height:1; }
+    .cd-label { font-size:.48rem; letter-spacing:.08em; text-transform:uppercase; opacity:.8; }
+    .hero-btn {
+      display:inline-flex; align-items:center; gap:10px;
+      background:var(--yellow); color:var(--dark);
+      text-decoration:none; font-weight:700; font-size:1rem;
+      height:52px; padding:0 32px; border-radius:50px;
+      transition:transform .2s, box-shadow .2s;
+      animation:heroFade .8s .75s both;
+    }
+    .hero-btn:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(207,215,48,.45); }
+    .hero-btn svg { width:18px; height:18px; }
+    .edition-badge {
+      position:absolute; z-index:3;
+      top:50%; right:7%; transform:translateY(-50%);
+      height:clamp(140px, 22vw, 220px);
+      width:auto; object-fit:contain;
+      animation:heroFade .8s .5s both;
+    }
+    .slider-dots {
+      position:absolute; bottom:28px; left:50%; transform:translateX(-50%);
+      display:flex; gap:8px; z-index:4;
+    }
+    .dot {
+      width:8px; height:8px; border-radius:50%;
+      background:rgba(255,255,255,.4); cursor:pointer;
+      transition:background .3s, transform .3s;
+    }
+    .dot.active { background:#fff; transform:scale(1.3); }
+
+    /* ═══════════════════════════════════════
+       PARTENAIRES
+    ═══════════════════════════════════════ */
+    .partners-overlay {
+      position:absolute; bottom:0; left:0; right:0; z-index:4;
+      background:rgba(255,255,255,0.45);
+      padding:18px 0; overflow:hidden;
+    }
+    .partners-track {
+      display:flex; gap:80px; align-items:center;
+      width:max-content;
+      animation:scrollX 70s linear infinite;
+    }
+    .partners-track:hover { animation-play-state:paused; }
+    @keyframes scrollX {
+      from { transform:translateX(0); }
+      to   { transform:translateX(-50%); }
+    }
+    .partner-logo { font-size:1rem; font-weight:700; color:rgba(255,255,255,.8); white-space:nowrap; letter-spacing:.06em; display:flex; align-items:center; justify-content:center; }
+    .partner-logo img { width:90px; height:40px; object-fit:contain; }
+
+    /* ═══════════════════════════════════════
+       CHIFFRES CLÉS
+    ═══════════════════════════════════════ */
+    .stats {
+      padding:80px 7%; background:var(--cream);
+      display:flex; justify-content:center;
+    }
+    .stats-layout {
+      display:flex; align-items:stretch; gap:0;
+      width:100%; max-width:1100px;
+    }
+    .stats-left {
+      flex-shrink:0;
+      display:flex; flex-direction:column; justify-content:space-between;
+      padding-right:50px;
+      border-right:1.5px solid rgba(26,24,25,.13);
+    }
+    .stats-title h2 {
+      font-size:60px; font-weight:500; line-height:1.05;
+    }
+    .stats-title h2 .blue-dash {
+      display:inline-block; width:44px; height:3px;
+      background:var(--blue); border-radius:2px;
+      margin-left:10px; vertical-align:middle; position:relative; top:-4px;
+    }
+    .stats-right {
+      flex:1; padding-left:50px;
+      display:grid; grid-template-columns:1fr auto 1fr;
+      gap:0; align-items:center;
+    }
+    .stats-divider {
+      width:1.5px; background:rgba(26,24,25,.13);
+      margin:0 48px; align-self:stretch;
+    }
+    .stats-col { display:flex; flex-direction:column; gap:40px; justify-content:center; }
+    .stat-item {
+      display:flex; align-items:center; gap:16px;
+      transition:transform .4s, box-shadow .3s, background .3s;
+      padding:10px 12px; border-radius:14px; cursor:default;
+    }
+    .stat-item:hover {
+      transform:translateY(-6px) scale(1.04);
+      box-shadow:0 14px 36px rgba(69,121,161,.14);
+      background:rgba(69,121,161,.05);
+    }
+    .stat-icon { width:45px; height:45px; flex-shrink:0; color:var(--blue); margin-right:50px; margin-bottom:30px; }
+    .stat-icon svg { width:64px; height:64px; }
+    .stat-icon img { width:64px; height:64px; object-fit:contain; }
+    .stat-num { font-size:45px; font-weight:700; color:var(--blue); line-height:1; }
+    .stat-label {
+      font-size:13px; font-weight:600; letter-spacing:.07em;
+      text-transform:uppercase; color:rgba(26,24,25,.5); margin-top:5px; line-height:1.3;
+    }
+
+    /* ═══════════════════════════════════════
+       THÈME SECTION
+    ═══════════════════════════════════════ */
+    .theme-section { display:grid; grid-template-columns:2fr 3fr; height:600px; }
+    .theme-card {
+      background:var(--card-bg);
+      padding:20px 8% 60px 12%;
+      display:flex; flex-direction:column; justify-content:center;
+    }
+    .theme-card p { font-size:20px; font-weight:400; color:var(--dark); line-height:1.7; margin-bottom:28px; text-align:justify; }
+    .theme-card p strong { font-weight:600; font-size:23px; }
+    .theme-btn {
+      display:inline-flex; align-items:center; text-decoration:none;
+      background:var(--blue); color:#fff;
+      font-weight:700; font-size:1rem;
+      height:52px; padding:0 32px; border-radius:50px; width:fit-content;
+      transition:box-shadow .25s, transform .2s;
+    }
+    .theme-btn:hover { transform:translateY(-2px); box-shadow:0 6px 18px rgba(69,121,161,.4); }
+    .theme-btns { display:flex; flex-direction:column; gap:12px; align-items:flex-start; }
+    .store-btn {
+      display:inline-flex; align-items:center; gap:14px;
+      background:#1A1819; color:#fff;
+      text-decoration:none; font-family:'Alexandria',sans-serif;
+      padding:14px 28px; border-radius:16px; width:fit-content;
+      transition:box-shadow .25s, transform .2s;
+    }
+    .store-btn:hover { transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,0,0,.35); }
+    .store-btn svg { width:28px; height:28px; flex-shrink:0; }
+    .store-btn-text { display:flex; flex-direction:column; line-height:1.3; }
+    .store-btn-sub { font-size:.72rem; font-weight:400; opacity:.7; letter-spacing:.03em; }
+    .store-btn-name { font-size:1rem; font-weight:700; }
+    .theme-photo { position:relative; overflow:hidden; }
+    .theme-photo-ph { width:900px; height:100%; min-height:80px; background:linear-gradient(135deg,#2a5240,#6b9b72); }
+    .theme-photo img { width:100%; height:100%; object-fit:cover; display:block; }
+    .theme-photo-caption {
+      position:absolute; bottom:0; left:0; right:0;
+      padding:32px 36px;
+      background:linear-gradient(transparent,rgba(0,0,0,.7));
+      color:var(--cream); font-size:35px; font-weight:500;
+      line-height:1.2; letter-spacing:.01em; text-transform:uppercase;
+    }
+
+    /* ═══════════════════════════════════════
+       PROGRAMME
+    ═══════════════════════════════════════ */
+    .programme { padding:80px 7%; background:var(--cream); }
+    .programme-title {
+      font-size:clamp(2.5rem,5vw,4rem); font-weight:500; line-height:1; margin-bottom:40px;
+    }
+    .programme-title .title-dash {
+      display:inline-block; width:48px; height:3px;
+      background:var(--blue); border-radius:2px; margin-left:12px; vertical-align:middle;
+    }
+    .cards-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:40px; }
+    .prog-card { position:relative; height:280px; border-radius:16px; overflow:hidden; perspective:1200px; }
+    .card-inner { width:100%; height:100%; transform-style:preserve-3d; transition:transform .7s cubic-bezier(.4,0,.2,1); }
+    .prog-card.flipped .card-inner { transform:rotateY(180deg); }
+    .card-front, .card-back {
+      position:absolute; inset:0; backface-visibility:hidden;
+      -webkit-backface-visibility:hidden;
+      padding:22px 22px 24px 22px;
+      display:flex; flex-direction:column; justify-content:space-between;
+    }
+    .card-front { background:var(--card-bg); }
+    .card-back { background:var(--dark); transform:rotateY(180deg); color:var(--cream); }
+    .card-picto { width:110px; height:110px; }
+    .card-picto img { width:110px; height:110px; object-fit:contain; }
+    .card-bottom { display:flex; flex-direction:column; gap:4px; }
+    .card-number { font-size:25px; font-weight:600; color:var(--dark); line-height:1; }
+    .card-name { font-size:22px; font-weight:500; color:var(--dark); line-height:1.2; }
+    .card-flip-btn {
+      position:absolute; top:14px; right:20px; z-index:10;
+      width:46px; height:46px;
+      background:var(--dark); color:#fff;
+      border:none; border-radius:50%; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      transition:transform .2s; font-size:1.2rem; font-weight:700; line-height:1;
+    }
+    .card-flip-btn:hover { transform:scale(1.1); }
+    .card-back-name { font-size:1.2rem; font-weight:700; color:var(--yellow); }
+    .card-back-text { font-size:.92rem; font-weight:400; line-height:1.75; color:rgba(253,251,247,.9); flex:1; overflow:auto; margin:14px 0; }
+    .prog-cta-wrap { text-align:center; margin-top:8px; }
+    .prog-cta {
+      display:inline-flex; align-items:center; text-decoration:none;
+      background:var(--blue); color:#fff;
+      font-weight:700; font-size:1rem;
+      height:52px; padding:0 40px; border-radius:50px;
+      transition:transform .2s, box-shadow .2s;
+    }
+    .prog-cta:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(69,121,161,.4); }
+
+    /* ═══════════════════════════════════════
+       VIDEO
+    ═══════════════════════════════════════ */
+    .video-section { background:var(--blue); padding:50px 7%; }
+    .video-wrapper {
+      width:100%; max-height:600px; aspect-ratio:16/9;
+      background:rgba(0,0,0,.35); border-radius:16px; overflow:hidden;
+      position:relative; box-shadow:0 20px 60px rgba(0,0,0,.3);
+    }
+    .video-ph {
+      position:absolute; top:0; left:0; width:100%; height:100%;
+      background:linear-gradient(135deg,rgba(26,24,25,.8),rgba(69,121,161,.4));
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      color:rgba(255,255,255,.7); z-index:10; transition:opacity 0.3s ease;
+    }
+    .video-ph.hidden { opacity:0; pointer-events:none; }
+    .play-btn {
+      width:64px; height:64px; background:rgba(255,255,255,.92);
+      border-radius:50%; display:flex; align-items:center; justify-content:center;
+      cursor:pointer; border:none; transition:transform .2s, box-shadow .2s;
+    }
+    .play-btn:hover { transform:scale(1.1); box-shadow:0 8px 24px rgba(0,0,0,.3); }
+    .play-btn svg { width:24px; height:24px; margin-left:4px; color:var(--dark); }
+
+    /* ═══════════════════════════════════════
+       ÉDITIONS PRÉCÉDENTES
+    ═══════════════════════════════════════ */
+    .editions { padding:70px 0 60px; background:var(--cream); }
+    .editions-title {
+      font-size:clamp(2rem,4vw,3.5rem); font-weight:500; line-height:1;
+      margin-bottom:48px; text-align:center; text-transform:uppercase; color:var(--dark);
+    }
+    .editions-track-wrap { overflow:hidden; width:100%; }
+    .editions-track {
+      display:flex; gap:12px; align-items:center;
+      width:max-content; animation:edScroll 30s linear infinite;
+    }
+    .editions-track:hover { animation-play-state:paused; }
+    @keyframes edScroll {
+      from { transform:translateX(0); }
+      to   { transform:translateX(-50%); }
+    }
+    .edition-item { flex-shrink:0; border-radius:16px; overflow:hidden; cursor:pointer; transition:transform .4s, box-shadow .3s; }
+    .edition-item:hover { transform:scale(1.04); box-shadow:0 12px 32px rgba(0,0,0,.22); }
+    .edition-item:nth-child(odd)  { width:260px; height:340px; }
+    .edition-item:nth-child(even) { width:260px; height:340px; }
+    .edition-item:nth-child(3n)   { width:280px; height:340px; }
+
+    /* ═══════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════ */
+    footer { background:var(--footer); padding:48px 7%; }
+    .footer-grid { display:grid; grid-template-columns:1fr 1.2fr 1.2fr 1fr; gap:40px; align-items:start; }
+    .footer-copy { font-size:.75rem; color:rgba(26,24,25,.5); line-height:1.6; margin-top:10px; }
+    .footer-col h4 { font-size:.88rem; font-weight:600; color:var(--blue); margin-bottom:14px; letter-spacing:.02em; }
+    .footer-col ul { list-style:none; }
+    .footer-col ul li { margin-bottom:8px; }
+    .footer-col ul li a { text-decoration:none; font-size:.82rem; color:var(--dark); font-weight:400; transition:color .2s; }
+    .footer-col ul li a:hover { color:var(--blue); }
+    .footer-contact-item { display:flex; align-items:center; gap:8px; font-size:.82rem; color:var(--dark); margin-bottom:10px; }
+    .footer-contact-item svg { width:15px; height:15px; color:var(--blue); flex-shrink:0; }
+    .footer-social { display:flex; gap:10px; margin-top:14px; }
+    .social-icon {
+      width:38px; height:38px; border-radius:50%;
+      background:var(--blue); display:flex; align-items:center; justify-content:center;
+      color:#fff; text-decoration:none; transition:transform .2s, box-shadow .2s;
+    }
+    .social-icon:hover { transform:translateY(-3px); box-shadow:0 6px 16px rgba(69,121,161,.4); }
+    .social-icon svg { width:18px; height:18px; }
+    .footer-social-text { font-size:.78rem; color:rgba(26,24,25,.6); margin-top:8px; }
+    .stats-col-visitors { display:none; }
+
+    /* ═══════════════════════════════════════
+       MOBILE NAV
+    ═══════════════════════════════════════ */
+    .mobile-nav {
+      display:none; position:fixed;
+      top:88px; left:12px; right:12px;
+      background:var(--cream); border-radius:24px;
+      padding:16px; box-shadow:0 8px 40px rgba(0,0,0,.15);
+      flex-direction:column; gap:4px; z-index:998;
+      animation:dropIn .35s cubic-bezier(.22,1,.36,1);
+    }
+    @keyframes dropIn { from{opacity:0;transform:translateY(-12px)} to{opacity:1;transform:translateY(0)} }
+    .mobile-nav.open { display:flex; }
+    .mobile-nav a { text-decoration:none; font-size:.9rem; font-weight:500; color:var(--dark); padding:10px 16px; border-radius:12px; transition:background .2s; }
+    .mobile-nav a:hover { background:#e8f0f7; }
+    .mobile-nav a.active { font-weight:700; background:#e8f0f7; }
+    .mobile-nav .m-cta { margin-top:6px; background:var(--blue); color:#fff; text-align:center; border-radius:50px; font-weight:700; }
+
+    /* ═══════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════ */
+   /* ═══ RESPONSIVE TABLETTE ≤ 1024px ═══ */
+    @media (max-width:1024px) {
+      /* Hero */
+      .hero-content h1 { font-size:clamp(1.6rem,3vw,2.5rem); }
+      .edition-badge { display:none; }
+
+      /* Programme : 2 colonnes */
+      .cards-grid { grid-template-columns:repeat(2,1fr); }
+
+      /* Theme */
+      .theme-section { grid-template-columns:1fr; height:auto; }
+      .theme-card { padding:40px 6%; }
+      .theme-photo-ph { width:100%; height:300px; }
+      .theme-card p { font-size:16px; }
+
+      /* Footer */
+      .footer-grid { grid-template-columns:1fr 1fr; gap:32px; }
+
+      /* Programme cards slider horizontal */
+      .cards-grid {
+        display:flex;
+        flex-direction:row;
+        gap:12px;
+        overflow-x:auto;
+        scroll-snap-type:x mandatory;
+        scroll-behavior:smooth;
+        -webkit-overflow-scrolling:touch;
+        padding:0 5% 12px;
+        margin-bottom:28px;
+      }
+      .cards-grid::-webkit-scrollbar { display:none; }
+      .prog-card {
+        flex:0 0 72vw;
+        max-width:280px;
+        height:280px;
+        scroll-snap-align:start;
+      }
+      .card-picto { width:100px; height:100px; }
+      .card-picto img { width:100px; height:100px; }
+      .card-number { font-size:26px; }
+      .card-name { font-size:22px; }
+      .prog-cta-wrap { padding:0 5%; }
+      .programme { padding:50px 0; }
+      .programme-title { padding-left:5%; }
+      .stats-left { border-right:none; border-bottom:2px solid rgba(26,24,25,.12); padding-right:0; padding-bottom:40px; }
+      .stats-right { padding-left:0; padding-top:40px; }
+    }
+   @media (max-width:1024px) {
+      .stats-layout { flex-direction:column; }
+      .stats-left { border-right:none; border-bottom:2px solid rgba(26,24,25,.12); padding-right:0; padding-bottom:40px; }
+      .stats-right { padding-left:0; padding-top:40px; }
+    }
+    @media (max-width:1000px) {
+      .cards-grid { grid-template-columns:repeat(2,1fr); }
+      .footer-grid { grid-template-columns:1fr 1fr; }
+    }
+    @media (max-width:800px) {
+      .theme-section { grid-template-columns:1fr; }
+      .theme-card { padding:40px 6%; }
+      .theme-photo-ph { width:100%; max-width:100%; }
+      .edition-badge { display:none; }
+      .stats-right { grid-template-columns:1fr; }
+    }
+    @media (max-width:600px) {
+      nav, .header-cta { display:none; }
+      .hamburger { display:flex; }
+      header { padding:0 24px; height:54px; }
+      .header-wrapper { padding:10px 16px; }
+      .theme-section { height:auto; min-height:400px; }
+      .theme-photo-ph { width:100%; height:300px; }
+      .footer-grid { grid-template-columns:1fr; }
+
+      /* Titres : même taille qu'ÉDITIONS PRÉCÉDENTES, alignés à gauche */
+      .programme-title,
+      .editions-title,
+      .stats-title h2 {
+        font-size:clamp(2rem,8vw,2.8rem);
+        text-align:left;
+        padding-left:5%;
+      }
+      .editions-title { padding-left:5%; }
+      .programme { padding:50px 0 50px; }
+      .programme-title { padding-left:5%; margin-bottom:28px; }
+      .prog-cta-wrap { padding:0 5%; }
+
+      /* Chiffres clés : slider horizontal */
+      .stats { padding:40px 0; }
+      .stats-layout { flex-direction:column; gap:0; }
+      .stats-left { border-right:none; border-bottom:none; padding:0 5% 0; }
+      .stats-left .stat-item { display:none; }
+      .stats-col-visitors { display:none; }
+      .stats-title h2 { padding-left:0; margin-bottom:20px; }
+      .stats-right {
+        display:flex;
+        flex-direction:row;
+        overflow-x:auto;
+        scroll-snap-type:x mandatory;
+        scroll-behavior:smooth;
+        -webkit-overflow-scrolling:touch;
+        padding:0 5% 12px;
+        gap:12px;
+        grid-template-columns:unset;
+      }
+      .stats-right::-webkit-scrollbar { display:none; }
+      .stats-divider { display:none; }
+      .stats-col-visitors { display:flex; }
+      .stats-col-visitors .stat-item {
+        flex:0 0 52vw;
+        max-width:180px;
+        flex-direction:column;
+        align-items:flex-start;
+        scroll-snap-align:start;
+        background:rgba(69,121,161,.06);
+        border-radius:14px;
+        padding:14px;
+        gap:8px;
+        margin-top:0 !important;
+        padding-left:14px !important;
+      }
+      .stats-col-visitors .stat-icon { margin-right:0 !important; margin-bottom:0 !important; width:36px; height:36px; }
+      .stats-col-visitors .stat-icon img { width:36px; height:36px; }
+      .stats-col-visitors .stat-num { font-size:28px; }
+      .stats-col-visitors .stat-label { font-size:10px; }
+      .stats-col {
+        display:flex;
+        flex-direction:row;
+        gap:12px;
+        flex-shrink:0;
+      }
+      .stat-item {
+        flex:0 0 52vw;
+        max-width:180px;
+        flex-direction:column;
+        align-items:flex-start;
+        scroll-snap-align:start;
+        background:rgba(69,121,161,.06);
+        border-radius:14px;
+        padding:14px;
+        gap:8px;
+      }
+      .stat-icon { margin-right:0; margin-bottom:0; width:36px; height:36px; }
+      .stat-icon img { width:36px; height:36px; }
+      .stat-num { font-size:28px; }
+      .stat-label { font-size:10px; }
+      .cards-grid {
+        display:flex;
+        flex-direction:row;
+        gap:12px;
+        overflow-x:auto;
+        scroll-snap-type:x mandatory;
+        scroll-behavior:smooth;
+        -webkit-overflow-scrolling:touch;
+        padding:0 5% 12px;
+        margin-bottom:28px;
+      }
+      .cards-grid::-webkit-scrollbar { display:none; }
+      .prog-card {
+        flex:0 0 72vw;
+        max-width:260px;
+        height:260px;
+        scroll-snap-align:start;
+      }
+      .card-picto { width:90px; height:90px; }
+      .card-picto img { width:90px; height:90px; }
+      .card-number { font-size:22px; }
+      .card-name { font-size:18px; }
+      .card-flip-btn { width:36px; height:36px; font-size:1rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Favicon -->
+<link rel="icon" type="image/png" href="/l_officine/imgs/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link rel="shortcut icon" type="image/png" href="/l_officine/imgs/logo.png">
+<link rel="apple-touch-icon" href="/l_officine/imgs/logo.png">
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-41G1XFY0Z2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-41G1XFY0Z2');
+</script>
+<style>
+  :root {
+    --blue:    #4579A1;
+    --yellow:  #CFD730;
+    --dark:    #1A1819;
+    --cream:   #FDFBF7;
+    --footer:  #EBEAEA;
+    --card-bg: #CFD230;
+  }
+
+  .header-wrapper {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    display: flex; justify-content: center;
+    padding: 14px 48px;
+    z-index: 999;
+  }
+  header {
+    width: 100%; max-width: 1760px; height: 58px;
+    background: var(--cream);
+    border-radius: 136px;
+    padding: 0 48px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 2px 20px rgba(0,0,0,.09), 0 1px 3px rgba(0,0,0,.05);
+    animation: slideDown .6s cubic-bezier(.22,1,.36,1) both;
+  }
+  @keyframes slideDown {
+    from { opacity:0; transform:translateY(-30px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  .logo { display:flex; align-items:center; gap:8px; text-decoration:none; flex-shrink:0; }
+  
+  nav { display:flex; align-items:center; gap:2px; }
+  nav a {
+    position:relative; text-decoration:none; font-size:.8rem; font-weight:500;
+    color:var(--dark); padding:6px 14px; border-radius:50px;
+    transition:color .25s, background .25s; white-space:nowrap; overflow:hidden;
+  }
+  nav a::before {
+    content:''; position:absolute; inset:0; border-radius:50px;
+    background:var(--blue); opacity:0; transform:scale(.7);
+    transition:opacity .25s, transform .3s cubic-bezier(.22,1,.36,1);
+  }
+  nav a:hover::before { opacity:.10; transform:scale(1); }
+  nav a.active { font-weight:700; }
+  nav a.active::after {
+    content:''; position:absolute;
+    bottom:4px; left:50%; transform:translateX(-50%);
+    width:18px; height:2.5px; border-radius:2px; background:var(--blue);
+    animation:growLine .4s .6s cubic-bezier(.22,1,.36,1) both;
+  }
+  @keyframes growLine { from{width:0;opacity:0} to{width:18px;opacity:1} }
+
+  .header-cta {
+    text-decoration:none; background:var(--blue); color:#fff;
+    font-family:'Alexandria',sans-serif; font-size:.95rem; font-weight:700;
+    letter-spacing:.04em; padding:12px 32px; border-radius:50px;
+    white-space:nowrap; flex-shrink:0; position:relative; overflow:hidden;
+    transition:box-shadow .3s, transform .2s;
+  }
+  .header-cta::after {
+    content:''; position:absolute; top:0; left:-75%;
+    width:50%; height:100%;
+    background:linear-gradient(120deg,transparent,rgba(255,255,255,.35),transparent);
+    transform:skewX(-20deg); transition:left .45s ease;
+  }
+  .header-cta:hover::after { left:140%; }
+  .header-cta:hover { box-shadow:0 6px 20px rgba(69,121,161,.45); transform:translateY(-2px); }
+
+  .hamburger {
+    display:none; flex-direction:column; gap:5px;
+    cursor:pointer; padding:6px; border:none; background:none;
+  }
+  .hamburger span {
+    display:block; width:24px; height:2.5px;
+    background:var(--dark); border-radius:2px;
+    transition:transform .3s, opacity .3s;
+  }
+  /* Hamburger animation quand ouvert */
+  .hamburger.open span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .hamburger.open span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
+
+  .mobile-nav {
+    display:none; position:fixed;
+    top:88px; left:12px; right:12px;
+    background:var(--cream); border-radius:24px;
+    padding:16px; box-shadow:0 8px 40px rgba(0,0,0,.15);
+    flex-direction:column; gap:4px; z-index:998;
+    animation:dropIn .35s cubic-bezier(.22,1,.36,1);
+  }
+  @keyframes dropIn {
+    from{opacity:0;transform:translateY(-12px)} to{opacity:1;transform:translateY(0)}
+  }
+  .mobile-nav.open { display:flex; }
+  .mobile-nav a {
+    text-decoration:none; font-size:.9rem; font-weight:500;
+    color:var(--dark); padding:10px 16px; border-radius:12px; transition:background .2s;
+  }
+  .mobile-nav a:hover { background:#e8f0f7; }
+  .mobile-nav a.active { font-weight:700; background:#e8f0f7; }
+  .mobile-nav .m-cta {
+    margin-top:6px; background:var(--blue); color:#fff;
+    text-align:center; border-radius:50px; font-weight:700;
+  }
+  .mobile-nav .m-cta:hover { background:#365f80; }
+
+  /* ── TABLETTES ET MOBILES (≤ 1024px) ── */
+  @media (max-width:1024px) {
+    nav, .header-cta { display:none; }
+    .hamburger { display:flex; }
+    header { padding:0 28px; }
+    .header-wrapper { padding:12px 20px; }
+  }
+
+  /* ── MOBILES (≤ 480px) ── */
+  @media (max-width:480px) {
+    header { height:54px; padding:0 20px; }
+    .header-wrapper { padding:10px 12px; }
+    .mobile-nav { top:80px; left:8px; right:8px; }
+  }
+</style>
+
+<div class="header-wrapper">
+  <header>
+    <a href="accueil-forum-officine.php" class="logo">
+      <img src="imgs/logo.png" alt="Forum de l'Officine" style="height:36px;">
+    </a>
+    <nav>
+      <a href="accueil-forum-officine.php" class="active">Accueil</a>
+      <a href="forum-officine.php" >Le Forum</a>
+      <a href="programme.php" >Programme</a>
+      <a href="exposition-forum-officine.php" >Exposition</a>
+      <a href="award-forum-officine.php" >Officine Awards</a>
+      <a href="infos-pratiques-forum-officine.php" >Infos Pratiques</a>
+    </nav>
+    <a href="https://main.d17j5ouws4ciim.amplifyapp.com/formulaires/congressiste/3f6d7b9c1a2e4f5g6h7j8k9m0n1p2q3r" class="header-cta">S'inscrire</a>
+    <button class="hamburger" id="hamburger">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+</div>
+
+<div class="mobile-nav" id="mobileNav">
+  <a href="accueil-forum-officine.php" class="active">Accueil</a>
+  <a href="forum-officine.php" >Le Forum</a>
+  <a href="programme.php" >Programme</a>
+  <a href="exposition-forum-officine.php" >Exposition</a>
+  <a href="award-forum-officine.php" >Officine Awards</a>
+  <a href="infos-pratiques-forum-officine.php" >Infos Pratiques</a>
+  <a href="https://main.d17j5ouws4ciim.amplifyapp.com/formulaires/congressiste/3f6d7b9c1a2e4f5g6h7j8k9m0n1p2q3r" class="m-cta">S'inscrire</a>
+</div>
+
+<script>
+(function() {
+  var hbtn = document.getElementById('hamburger');
+  var mnav = document.getElementById('mobileNav');
+  if (!hbtn || !mnav) return;
+  hbtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    hbtn.classList.toggle('open');
+    mnav.classList.toggle('open');
+  });
+  mnav.querySelectorAll('a').forEach(function(link) {
+    link.addEventListener('click', function() {
+      hbtn.classList.remove('open');
+      mnav.classList.remove('open');
+    });
+  });
+  document.addEventListener('click', function(e) {
+    if (!hbtn.contains(e.target) && !mnav.contains(e.target)) {
+      hbtn.classList.remove('open');
+      mnav.classList.remove('open');
+    }
+  });
+})();
+</script>
+
+<style>
+  .sbtn .material-symbols-rounded {
+  font-size: 14px;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+#chat-bubble {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: #4579A1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 9999;
+  border: none;
+  box-shadow: 0 4px 16px rgba(69,121,161,.4);
+  transition: transform .2s;
+}
+#chat-bubble:hover { transform: scale(1.08); }
+#chat-bubble svg { width: 26px; height: 26px; }
+
+#chat-notif {
+  position: fixed;
+  bottom: 72px;
+  right: 20px;
+  background: #e74c3c;
+  color: #fff;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+#chat-window {
+  position: fixed;
+  bottom: 90px;
+  right: 24px;
+  width: 350px;
+  max-height: 520px;
+  background: #FDFBF7;
+  border-radius: 18px;
+  border: 1px solid rgba(0,0,0,.1);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 9998;
+  box-shadow: 0 8px 32px rgba(0,0,0,.15);
+}
+#chat-window.open { display: flex; }
+
+#chat-header {
+  background: #4579A1;
+  color: #fff;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.chat-avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: #CFD730; display: flex; align-items: center;
+  justify-content: center; font-weight: 700; font-size: 13px;
+  color: #1A1819; flex-shrink: 0;
+}
+.chat-info { flex: 1; }
+.chat-name { font-weight: 700; font-size: 14px; font-family: Alexandria, sans-serif; }
+.chat-status { font-size: 11px; opacity: .8; }
+#chat-close { background: none; border: none; color: #fff; cursor: pointer; font-size: 22px; line-height: 1; padding: 0 4px; }
+
+#chat-messages {
+  flex: 1; overflow-y: auto; padding: 14px;
+  display: flex; flex-direction: column; gap: 10px;
+  background: #f7f5f0;
+}
+#chat-messages::-webkit-scrollbar { width: 4px; }
+#chat-messages::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+
+.msg {
+  max-width: 88%; padding: 9px 13px;
+  font-size: 13px; line-height: 1.55; white-space: pre-line;
+  font-family: Alexandria, sans-serif;
+  word-break: break-word; overflow-wrap: break-word;
+}
+.msg.bot {
+  background: #fff; border: 1px solid rgba(0,0,0,.08);
+  align-self: flex-start; border-radius: 4px 14px 14px 14px;
+  color: #1A1819;
+}
+.msg.user {
+  background: #4579A1; color: #fff;
+  align-self: flex-end; border-radius: 14px 4px 14px 14px;
+}
+.msg.typing {
+  background: #fff; border: 1px solid rgba(0,0,0,.08);
+  align-self: flex-start; border-radius: 4px 14px 14px 14px;
+  color: #888; font-style: italic; font-size: 12px;
+}
+
+.suggestions {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px;
+  align-self: flex-start; max-width: 100%;
+}
+.sbtn {
+  background: #fff; border: 1.5px solid #4579A1; color: #4579A1;
+  padding: 5px 11px; border-radius: 20px; font-size: 11px;
+  cursor: pointer; font-family: Alexandria, sans-serif; font-weight: 600;
+  transition: all .15s; white-space: nowrap;
+}
+.sbtn:hover { background: #4579A1; color: #fff; }
+
+#chat-footer {
+  padding: 10px 12px; border-top: 1px solid rgba(0,0,0,.08);
+  display: flex; gap: 8px; background: #fff; align-items: center;
+}
+#chat-input {
+  flex: 1; border: 1px solid rgba(0,0,0,.12); border-radius: 20px;
+  padding: 8px 14px; font-size: 13px; font-family: Alexandria, sans-serif;
+  outline: none; background: #FDFBF7; color: #1A1819;
+}
+#chat-input:focus { border-color: #4579A1; }
+#chat-send {
+  background: #4579A1; border: none; width: 36px; height: 36px;
+  border-radius: 50%; display: flex; align-items: center;
+  justify-content: center; cursor: pointer; flex-shrink: 0;
+  transition: transform .15s;
+}
+#chat-send:hover { transform: scale(1.08); }
+#chat-send svg { width: 16px; height: 16px; }
+</style>
+</head>
+<body>
+
+<div id="chat-notif">1</div>
+
+<button id="chat-bubble" onclick="toggleChat()">
+  <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+  </svg>
+</button>
+
+<div id="chat-window">
+  <div id="chat-header">
+    <div class="chat-avatar" style="background:#fff; padding:2px;">
+  <img src="imgs/icone.png" alt="Forum de l'Officine" style="width:30px; height:30px; object-fit:contain;">
+</div>
+    <div class="chat-info">
+      <div class="chat-name">Assistant Forum de l'Officine</div>
+      <div class="chat-status">● En ligne — répond instantanément</div>
+    </div>
+    <button id="chat-close" onclick="toggleChat()">×</button>
+  </div>
+  <div id="chat-messages" id="msgs"></div>
+  <div id="chat-footer">
+    <input id="chat-input" type="text" placeholder="Posez votre question..." onkeydown="if(event.key==='Enter')sendMsg()">
+    <button id="chat-send" onclick="sendMsg()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2">
+        <line x1="22" y1="2" x2="11" y2="13"/>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<script>
+const SESSIONS = [{"id_session":23,"titre":"Masterclass diabète de type 2","type":"MasterClass","jour":"2026-05-01","heure_debut":"09:00:00","heure_fin":"13:00:00","salle":"MasterClass","description":"Physiopathologie, prise en charge globale et bonnes pratiques officinales. \n\nLes inscriptions sont ouvertes \nLes places sont limitées, Prix: 400DT.\nContact : forum@spotn.tn\nTel : 58733865","intervenant":""},{"id_session":58,"titre":"Physiopathologie, Complications et Thérapeutique","type":"MasterClass","jour":"2026-05-01","heure_debut":"09:00:00","heure_fin":"10:40:00","salle":"Master Class","description":"Session 1 – Physiopathologie du diabète et critères de classification des différents types de diabète (Type 1, 2 et formes spécifiques)","intervenant":"-Pr Ibtissem Ben Nacef"},{"id_session":47,"titre":"Pharmacovigilance Modalités de déclaration","type":"Workshops","jour":"2026-05-01","heure_debut":"09:30:00","heure_fin":"10:30:00","salle":"Salle Workshop 2","description":"","intervenant":"-Pr Sihem EL AIDLI\nProfesseur hospitalo-universitaire en Pharmacologie\nChef de Service au Centre National de Pharmacovigilance"},{"id_session":21,"titre":"Lire et exploiter le bilan comptable","type":"Workshops","jour":"2026-05-01","heure_debut":"09:30:00","heure_fin":"10:30:00","salle":"Salle Workshop 1","description":"","intervenant":"-Dr Anis Wahabi\nExpert-comptable, Docteur en Sciences de Gestion, expert en fiscalité"},{"id_session":49,"titre":"Atelier dermocosmétique","type":"LaboDuForum","jour":"2026-05-01","heure_debut":"10:00:00","heure_fin":"13:00:00","salle":"Laboratoire du SPOT","description":"L’Atelier Skinimalist & Clean Brume parfumante sans alcool Sérum capillaire biphase sans silicones Baume à lèvres ","intervenant":"-Mme Rawka BOUALI \nMentor et Fondatrice de L'École des Cosmétiques \nFormulatrice en dermocosmétique"},{"jour":"2026-05-01","type":"JardinBotanique","titre":"Atelier Contrôle qualité et Préparation des extraits à base de plantes médicinales","heure_debut":"10:00:00","heure_fin":"10:45:00","intervenant":"Pr Hamza BEN ABDALLAH","salle":"Jardin Botanique"},{"id_session":34,"titre":"Workshop sponsorisé Polypharma","type":"Workshops","jour":"2026-05-01","heure_debut":"11:00:00","heure_fin":"12:00:00","salle":"Salle Workshop 2","description":"Sphère ORL et inflammation","intervenant":"-Dr Riadh BARHOUMI "},{"id_session":28,"titre":"Se prévenir contre les risques fiscaux ","type":"Workshops","jour":"2026-05-01","heure_debut":"11:00:00","heure_fin":"12:00:00","salle":"Salle Workshop 1","description":"","intervenant":"-Dr Anis Wahabi\nExpert-comptable, Docteur en Sciences de Gestion, expert en fiscalité"},{"id_session":59,"titre":"Physiopathologie, Complications et Thérapeutique","type":"MasterClass","jour":"2026-05-01","heure_debut":"11:00:00","heure_fin":"12:00:00","salle":"Master Class","description":"Session 2 – Complications liées au diabète. Focus sur le dépistage et la prise en charge des complications chroniques : AVC, rétinopathie diabétique et pied diabétique.","intervenant":"-Pr Ibtissem Ben Nacef"},{"jour":"2026-05-01","type":"JardinBotanique","titre":"Atelier Préparation et Contrôle Qualité de formes orales sèches","heure_debut":"11:00:00","heure_fin":"11:45:00","intervenant":"Dr Mohamed Ali LASSOUED","salle":"Jardin Botanique"},{"id_session":60,"titre":"Physiopathologie, Complications et Thérapeutique","type":"MasterClass","jour":"2026-05-01","heure_debut":"12:00:00","heure_fin":"13:00:00","salle":"Master Class","description":"Session 3 – Arsenal thérapeutique 2026. Optimisation de l’usage des antidiabétiques oraux et stratégies d’initiation et d’adaptation de l’insulinothérapie.","intervenant":"-Pr Ibtissem Ben Nacef"},{"jour":"2026-05-01","type":"JardinBotanique","titre":"Atelier Contrôle en officine : ORL et bronchopulmonaires","heure_debut":"12:00:00","heure_fin":"12:45:00","intervenant":"Dr Mohamed DAMMAK","salle":"Jardin Botanique"},{"id_session":48,"titre":"La nutrivigilance ","type":"Workshops","jour":"2026-05-01","heure_debut":"12:30:00","heure_fin":"13:30:00","salle":"Salle Workshop 2","description":"","intervenant":"-Dr Riadh DAGHFOUS\nDocteur en médecine\nDirecteur Général du Centre National de Pharmacovigilance"},{"id_session":30,"titre":"Fiscalité sur le patrimoine ","type":"Workshops","jour":"2026-05-01","heure_debut":"12:30:00","heure_fin":"13:30:00","salle":"Salle Workshop 1","description":"","intervenant":"-Dr Anis Wahabi\nExpert-comptable, Docteur en Sciences de Gestion, expert en fiscalité"},{"id_session":62,"titre":"Physiopathologie, Complications et Thérapeutique","type":"MasterClass","jour":"2026-05-01","heure_debut":"13:45:00","heure_fin":"14:15:00","salle":"Master Class","description":"Symposium Novo Nordisk : Sémaglutide et DT2 : transformer l’évidence scientifique en pratique officinale quotidienne","intervenant":"-Pr Mehdi Dridi\nExpert consultant en sciences du médicament et politiques pharmaceutiques."},{"id_session":35,"titre":"Santé mentale à l'officine :  optimiser et sécuriser la prise en charge  des patients sous psychotropes","type":"Workshops","jour":"2026-05-01","heure_debut":"14:00:00","heure_fin":"15:00:00","salle":"Salle Workshop 2","description":"","intervenant":"-Pr Ag Mariem MOKNI\nProfesseur Agrégé en Pharmacie Clinique \n\n-Dr Emna BOKRI\nAssistante hôspitalo universitaire en Pharmacie clinique.\n\nPharmacienne praticienne"},{"id_session":50,"titre":"Atelier dermocosmétique","type":"LaboDuForum","jour":"2026-05-01","heure_debut":"14:00:00","heure_fin":"17:00:00","salle":"Laboratoire du SPOT","description":"L’Atelier Skinimalist & Clean Brume parfumante sans alcool Sérum capillaire biphase sans silicones Baume à lèvres ","intervenant":"-Mme Rawka BOUALI\nMentor et Fondatrice de L'École des Cosmétiques \nFormulatrice en dermocosmétique"},{"id_session":45,"titre":"La maladie rénale chronique  Dépister Alerter Orienter ","type":"Workshops","jour":"2026-05-01","heure_debut":"14:00:00","heure_fin":"15:00:00","salle":"Salle Workshop 1","description":"","intervenant":"-Pr Jannet LABIDI\nNéphrologue – Chercheuse clinique à la Faculté de Médecine de Tunis\nCheffe du service de Néphrologie, HMPIT"},{"id_session":24,"titre":"Masterclass diabète de type 2","type":"MasterClass","jour":"2026-05-01","heure_debut":"14:00:00","heure_fin":"17:00:00","salle":"Master Class","description":"Physiopathologie, prise en charge globale et bonnes pratiques officinales. \nLes inscriptions sont ouvertes \n\nLes places sont limitées, Prix: 400DT\nContact : forum@spotn.tn\nTel : 58733865","intervenant":""},{"id_session":63,"titre":"Physiopathologie, Complications et Thérapeutique","type":"MasterClass","jour":"2026-05-01","heure_debut":"14:15:00","heure_fin":"15:30:00","salle":"Master class","description":"Session 4– Accompagnement et Éducation Thérapeutique (ETP). Amélioration de l'observance, prévention des erreurs médicamenteuses et suivi officinal structuré","intervenant":"Pr Khouloud Ben Jeddou \nPr Ag Fatma Sellami"},{"jour":"2026-05-01","type":"JardinBotanique","titre":"Atelier Conseil : allergies par les plantes médicinales","heure_debut":"15:00:00","heure_fin":"15:45:00","intervenant":"Dr Adel HERGLI","salle":"Jardin Botanique"},{"id_session":22,"titre":"Comment gérer son stock : 2 approches","type":"Workshops","jour":"2026-05-01","heure_debut":"15:30:00","heure_fin":"16:30:00","salle":"Salle  Workshop 2","description":"","intervenant":"-Dr Sophie BEN YOUSSEF\nPharmacienne , Expert GMP \n-Dr Abderrahim DERRAJI\nDocteur en pharmacie de l’Université de Franche Comté"},{"id_session":29,"titre":"Gèrer le dossier de contrôle et de contentieux fiscal ","type":"Workshops","jour":"2026-05-01","heure_debut":"15:30:00","heure_fin":"16:30:00","salle":"Salle Workshop 1","description":"","intervenant":"-Mr Youssef Melki\nConseiller Fiscal\nExpert en fiscalité "},{"id_session":64,"titre":"Physiopathologie, Complications et Thérapeutique","type":"MasterClass","jour":"2026-05-01","heure_debut":"15:45:00","heure_fin":"17:30:00","salle":"Master Class","description":"Cas cliniques interactifs (Partie I). Mise en pratique des stratégies thérapeutiques et nutritionnelles.","intervenant":"Pr Nesrine Hasni"},{"jour":"2026-05-01","type":"JardinBotanique","titre":"Atelier Préparation formes topiques semi solides","heure_debut":"16:00:00","heure_fin":"16:45:00","intervenant":"Dr Badr BAHLOUL","salle":"Jardin Botanique"},{"id_session":71,"titre":"Techniques d'inhalation","type":"Workshops","jour":"2026-05-01","heure_debut":"17:00:00","heure_fin":"18:00:00","salle":"Salle Workshop 2","description":"","intervenant":"-Dr Rafik Ben Chehida\nDocteur en pharmacie\nSecrétaire général du SPOT Section Sud 1\n-Dr Hekma Hajji\nAssistante hospitalo-universitaire en pharmacie clinique."},{"id_session":46,"titre":"Oeil Rouge Conduite à tenir et erreurs à éviter ","type":"Workshops","jour":"2026-05-01","heure_debut":"17:00:00","heure_fin":"18:00:00","salle":"Salle Workshop 1","description":"","intervenant":"-Pr Olfa FEKIH\nProfesseure en ophtalmologie\nSecrétaire Générale de la Société Tunisienne d’Ophtalmologie"},{"id_session":65,"titre":"Populations particulières, Technologies et ETP","type":"MasterClass","jour":"2026-05-02","heure_debut":"09:00:00","heure_fin":"10:40:00","salle":"Master class","description":"Session 5 – Populations particulières. Prise en charge du sujet âgé (objectifs glycémiques et risques d'hypo), de la femme enceinte (diabète gestationnel et préexistant) et du patient insuffisant rénal.","intervenant":"Dr Manel Jemel."},{"id_session":25,"titre":"Préparations magistrales 2.0 : concevoir mieux,  plus vite et plus sûr grâce à l’IA","type":"Workshops","jour":"2026-05-02","heure_debut":"09:30:00","heure_fin":"10:30:00","salle":"Salle Workshop 1","description":"","intervenant":"-Dr Najla STANBOULI \nProfesseur agrégé en génétique humaine et moléculaire et bio-informatique\n-Mr Jawher KHALIFA\nIngénieur en apprentissage automatique \n-Mr Mohamed Aziz Elhif\nConsultant pharmaceutique et architecte de systèmes spécialisés dans l'optimis"},{"id_session":56,"titre":"Préparations Magistrales","type":"LaboDuForum","jour":"2026-05-02","heure_debut":"09:30:00","heure_fin":"10:30:00","salle":"Laboratoire du SPOT","description":"Gélules Pédiatriques – Adaptation de Dosage\n","intervenant":"-Mme Christel LECLERCQ\nfondatrice de Prepa’Forma. \n-Pr Senda BAHRI\nProfesseure en pharmacie galénique, Spécialiste en pharmacie hospitalière et industrielle"},{"id_session":31,"titre":"Rhinite allergique et infectieuse ","type":"Workshops","jour":"2026-05-02","heure_debut":"09:30:00","heure_fin":"10:30:00","salle":"Salle Workshop 2","description":"","intervenant":"-Dr Sarra Ben Hmida\nDocteure en pharmacie"},{"jour":"2026-05-02","type":"JardinBotanique","titre":"Législation des produits de santé à base de plantes médicinales","heure_debut":"10:00:00","heure_fin":"10:45:00","intervenant":"Dr Mariem KCHAOU","salle":"Jardin Botanique"},{"id_session":66,"titre":"Populations particulières, Technologies et ETP","type":"MasterClass","jour":"2026-05-02","heure_debut":"11:00:00","heure_fin":"12:15:00","salle":"Master class","description":"Session 6 – Dispositifs médicaux et technologies. Bonnes pratiques de la glycémie capillaire et gestion des pompes à insuline en milieu officinal","intervenant":"Dr Manel Jemel"},{"id_session":27,"titre":"Gestion des conflits en officine : comprendre, prévenir et se protéger efficacement","type":"Workshops","jour":"2026-05-02","heure_debut":"11:00:00","heure_fin":"12:00:00","salle":"Salle Workshop 1","description":"","intervenant":"-Dr Zied Karray\nPharmacien officinal.\nTrésorier du syndicat des pharmaciens d'officine en Tunisie  "},{"id_session":54,"titre":"Les techniques de communication ","type":"Workshops","jour":"2026-05-02","heure_debut":"11:00:00","heure_fin":"12:00:00","salle":"Salle Workshop 2","description":"","intervenant":"-Dr Amira BOUARGOUB\nPharmacienne hospitalière principale"},{"id_session":72,"titre":"Préparations Magistrales","type":"LaboDuForum","jour":"2026-05-02","heure_debut":"11:00:00","heure_fin":"12:00:00","salle":"Laboratoire du SPOT","description":"Préparation Liquide pour Voie Orale","intervenant":"-Mme Christel LECLERCQ\nFondatrice de Prepa’Forma\n-Pr Senda BAHRI\nProfesseure en pharmacie galénique, Spécialiste en pharmacie hospitalière et industrielle"},{"jour":"2026-05-02","type":"JardinBotanique","titre":"Plantes toxiques et Phytovigilence","heure_debut":"11:00:00","heure_fin":"11:45:00","intervenant":"Dr Seif HANNACHI","salle":"Jardin Botanique"},{"id_session":67,"titre":"Populations particulières, Technologies et ETP","type":"MasterClass","jour":"2026-05-02","heure_debut":"12:15:00","heure_fin":"13:30:00","salle":"Master Class","description":"Session 7 – Prise en charge nutritionnelle: Principes de l’alimentation équilibrée, maîtrise de l'index glycémique et rôle du pharmacien dans l’éducation nutritionnelle.","intervenant":"Hana Trabelsi"},{"id_session":55,"titre":"Pharmacien augmenté l'IA Générative réinvente l'officine","type":"Workshops","jour":"2026-05-02","heure_debut":"12:30:00","heure_fin":"13:30:00","salle":"Salle Workshop 2","description":"","intervenant":"-Dr Rym BEN AYED\nPharmacienne\/ Consultante \n-Mr Maher ZAOUALI\nExpert en marketing digital et intelligence artificielle générative."},{"id_session":51,"titre":"Gériatrie en officine:  stratégies et outils pratiques  pour sécuriser la prise en charge","type":"Workshops","jour":"2026-05-02","heure_debut":"12:30:00","heure_fin":"13:30:00","salle":"Salle Workshop 1","description":"","intervenant":"-Pr Ag Fatma BEN MBARKA\nMaitre de Conférences Agrégé hospitalo-universitaire en pharmacie clinique.\n-Dr Zeineb BEJI\nDocteur en pharmacie et Assistante hospitalo-universitaire en pharmacie"},{"id_session":57,"titre":"Préparations Magistrales","type":"LaboDuForum","jour":"2026-05-02","heure_debut":"13:30:00","heure_fin":"14:30:00","salle":"Laboratoire du SPOT","description":"Préparation Semi-Solide pour Application Cutanée","intervenant":"-Mme Christel LECLERCQ\nFondatrice de Prepa’Forma \n-Pr Senda BAHRI\nProfesseure en pharmacie galénique, Spécialiste en pharmacie hospitalière et industrielle"},{"id_session":52,"titre":"Optimisation fiscale","type":"Workshops","jour":"2026-05-02","heure_debut":"14:00:00","heure_fin":"15:00:00","salle":"Salle Workshop 1","description":"","intervenant":"Dr Anis WAHABI\nExpert-comptable, Docteur en Sciences de Gestion, expert en fiscalité"},{"id_session":33,"titre":"Workshop sponsorisé LIPP ","type":"Workshops","jour":"2026-05-02","heure_debut":"14:00:00","heure_fin":"15:00:00","salle":"Salle Workshop 2","description":"Du linéaire à la performance : le merchandising stratégique des routines patients au service de la rentabilité officinale – l’expertise des Laboratoires La Roche-Posay, Vichy & CeraVe","intervenant":"-Dr Sarra KEFI\nResponsable formation et évènements pharmacies à la société Lipp Distribution"},{"id_session":68,"titre":"Populations particulières, Technologies et ETP","type":"MasterClass","jour":"2026-05-02","heure_debut":"14:15:00","heure_fin":"14:45:00","salle":"Master Class","description":"Symposium COTUPHA. Innovation dans l'auto-surveillance avec le système de mesure continue de la glycémie (CGM) iCan.","intervenant":"Pr Insaf Ben nacef"},{"id_session":69,"titre":"Populations particulières, Technologies et ETP","type":"MasterClass","jour":"2026-05-02","heure_debut":"14:45:00","heure_fin":"15:45:00","salle":"Master Class","description":"Cas cliniques interactifs (Partie II). Gestion pratique des populations spécifiques. Intégration de la technologie CGM dans le suivi et analyse des profils glycémiques complexes.","intervenant":"Pr Nesrine Hasni\nPr Khouloud Ben Jeddou\nPr Ag Fatma Sellami"},{"id_session":73,"titre":"Préparations Magistrales","type":"LaboDuForum","jour":"2026-05-02","heure_debut":"15:00:00","heure_fin":"16:00:00","salle":"Laboratoire du SPOT","description":"Suppositoires à Base d'Huiles Essentielles","intervenant":"-Mme Christel LECLERCQ\nFondatrice de Prepa’Forma \n-Pr Senda BAHRI\nProfesseure en pharmacie galénique, Spécialiste en pharmacie hospitalière et industrielle"},{"id_session":53,"titre":"Performance de l’équipe de vente :  recommandations et négociation avec les patients","type":"Workshops","jour":"2026-05-02","heure_debut":"15:30:00","heure_fin":"16:30:00","salle":"Salle Workshop 1","description":"","intervenant":"-Dr Cherifa SEFI\nDocteure en Sciences de Gestion & spécialiste en ingénierie de formation et développement des compétences\n-Mr Mohamed El Khames BEN HENI\nConsultant & Trainer en Vente et Relation Client"},{"id_session":42,"titre":"Pharmacoéconomie","type":"Workshops","jour":"2026-05-02","heure_debut":"15:30:00","heure_fin":"16:30:00","salle":"Salle Workshop 2","description":"","intervenant":"-Pr Chema DRIRA\nProfesseur en chimie analytique à la faculté de pharmacie \n-Pr Hager FELFEL\nChef du département de pharmacie à l'hôpital Mongi Slim, Tunisie\nProfesseur associé à la Faculté de pharmacie de Monastir, Tunisie"},{"id_session":70,"titre":"Populations particulières, Technologies et ETP","type":"MasterClass","jour":"2026-05-02","heure_debut":"16:05:00","heure_fin":"17:00:00","salle":"Master Class","description":"Cas cliniques interactifs (Partie II suite). Gestion pratique des populations spécifiques. Intégration de la technologie CGM dans le suivi et analyse des profils glycémiques complexes.","intervenant":"Pr Nesrine Hasni\nPr Khouloud Ben Jeddou\nPr Ag Fatma Sellami"}];
+const FAQ = {"dates":{"keywords":["date","quand","mai","lieu","où","palais","adresse","ou ","ou?"],"response":"📅 Le Forum de l'Officine 2026 se déroule les **1er et 2 Mai 2026** au Palais des Congrès de Tunis\n"},"horaires":{"keywords":["heure","horaire","ouverture","fermeture","ouvre","ferme"],"response":"🕘 Le Forum est ouvert de **9h00 à 18h00** les deux jours (1er et 2 Mai 2026)."},"inscription":{"keywords":["inscri","register","participer","billet","badge","ticket"],"response":"✅ L'inscription se fait en ligne. Elle est gratuite pour tous les pharmaciens !\n[LINK:INSCRIPTION:S'inscrire]"},"exposants":{"keywords":["expos","stand","marque","laboratoire","partenaire"],"response":"🏢 Plus de **150 exposants** seront présents : industries pharmaceutiques, banques, solutions digitales, équipements d'officine...\nConsultez notre page **Exposition** pour la liste complète."},"parking":{"keywords":["parking","voiture","garer","transport","accès","acces"],"response":"🚗 Un parking est disponible au Palais des Congrès.\n🚌 Des parkings supplémentaires se trouvent à proximité du Belvédère."},"prix":{"keywords":["prix","tarif","gratuit","payant","cout","coût","pack","ticket"],"response":"💰 **Entrée gratuite** pour les pharmaciens et professionnels de santé !\nPour exposer, consultez nos **packs exposants** sur la page Exposition."},"contact":{"keywords":["contact","email","telephone","joindre","appel","mail"],"response":"📧 Email : forum@spot.tn\n🌐 Site : forumdelofficine.tn\n📍 4, rue Moussa Ibn Noussair, Belvédère 1082, Tunis"},"programme":{"keywords":["programme","sessions","conference","planning","agenda"],"response":"Notre programme vous projette vers une officine qui se réinvente.\nRepenser l'officine vers un modèle moderne, plus équilibré, et résilient!\nDes conférences visionnaires, des solutions d'innovation concrètes!\nVenez revoir l'avenir de notre métier !\nConsultez la rubrique programme dans notre site ou téléchargez notre application mobile \"Forum de l'Officine 2026\".\n[LINK:PROGRAMME:🗓️ Accéder au programme]\n[LINK:APPSTORE:📱 Télécharger l'application]"},"pleniere":{"keywords":["pleniere","pleniere","table ronde","symposium","ceremonie","ouverture","talk show","cloture"],"response":"🎤 Sessions Plénières — Vendredi 1er Mai :\n⏰ 10:00–11:45 · Plénière 1 – La mise en place du Médicament Conseil en TUNISIE\n⏰ 12:00–13:00 · Symposium LIPP: Anthelios UVMUNE\n⏰ 13:00–14:00 · Cérémonie d ouverture\n⏰ 15:00–16:00 · Talk Show Succes Story\n⏰ 15:30–17:00 · Table Ronde 1 – Prescription par DCI\n⏰ 17:00–18:00 · Symposium POLYPHARMA\n\n🎤 Sessions Plénières — Samedi 2 Mai :\n⏰ 10:00–11:45 · Plénière 2 – Pérennité de l Officine\n⏰ 12:00–14:00 · Table Ronde 2 – Sécurité des médicaments vétérinaires\n⏰ 14:30–15:00 · E-health valley\n⏰ 15:15–16:00 · Conférence Innovation\n⏰ 16:30–17:30 · Cérémonie de clôture\n[LINK:PROGRAMME:🗓️ Voir le programme complet]"},"application":{"keywords":["application","app","mobile","appstore","playstore","telecharger","télécharger","iphone","android"],"response":"📱 Notre application mobile est disponible sur AppStore et PlayStore : Forum de l'Officine 2026.\nTéléchargez-la pour retrouver l'essentiel du forum !\n[LINK:APPSTORE:🍎 Télécharger sur App Store]\n[LINK:PLAYSTORE:▶️ Télécharger sur Play Store]"},"nocturne":{"keywords":["nocturne","soiree","soirée","soir","19h","nuit","gala","animation"],"response":"🌙 Nocturne du Forum :\nProlongez le networking et les rencontres entre professionnels de la santé le Vendredi 1er Mai de 19h à 21h.\nUne ambiance conviviale et des animations spéciales vous y attendent !"},"awards":{"keywords":["award","trophee","prix","recompense","officine award"],"response":"🏆 Les Officine Awards récompensent les meilleures initiatives des pharmaciens tunisiens. Candidatez via notre page Officine Awards !\n[LINK:AWARDS:🏆 Participer aux Awards]"}};
+
+let opened = false;
+
+function toggleChat() {
+  var w = document.getElementById('chat-window');
+  w.classList.toggle('open');
+  var notif = document.getElementById('chat-notif');
+  if (!opened) {
+    opened = true;
+    if(notif) notif.style.display = 'none';
+    initChat();
+  }
+}
+
+var msgs = document.getElementById('chat-messages');
+
+function addMsg(text, type) {
+  var d = document.createElement('div');
+  d.className = 'msg ' + type;
+  // Détecter les liens [LINK:url:label]
+  var linkRegex = /\[LINK:([^\]:]+):([^\]]+)\]/g;
+  var hasLink = linkRegex.test(text);
+  if (hasLink) {
+    // D'abord extraire le texte sans le bloc LINK, puis ajouter le bouton séparément
+    var textOnly = text.replace(/\[LINK:[^\]]+\]/g, '').replace(/\n/g, '<br>');
+    var buttons = '';
+    var LINKS = {
+      'INSCRIPTION': 'https://main.d17j5ouws4ciim.amplifyapp.com/formulaires/congressiste/3f6d7b9c1a2e4f5g6h7j8k9m0n1p2q3r',
+      'AWARDS': 'participer-forum-officine.php',
+      'PROGRAMME': 'programme.php',
+      'APPSTORE': 'https://apps.apple.com/fr/app/forum-de-lofficine-2024/id1644768044',
+      'PLAYSTORE': 'https://play.google.com/store/apps/details?id=com.incept.forumOfficineApp'
+    };
+    var btnRegex = /\[LINK:([^\]:]+):([^\]]+)\]/g;
+    var btnMatch;
+    while ((btnMatch = btnRegex.exec(text)) !== null) {
+      var href = LINKS[btnMatch[1]] || btnMatch[1];
+      buttons += '<a href="' + href + '" style="display:block;text-align:center;margin-top:10px;background:#4579A1;color:#fff;padding:9px 16px;border-radius:20px;text-decoration:none;font-size:12px;font-weight:700;">' + btnMatch[2] + '</a>';
+    }
+    d.innerHTML = textOnly + buttons;
+    d.style.whiteSpace = 'normal';
+    d.style.maxWidth = '88%';
+  } else {
+    d.textContent = text;
+  }
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+  return d;
+}
+
+function addSuggestions(list) {
+  var d = document.createElement('div');
+  d.className = 'suggestions';
+  list.forEach(function(item) {
+    var b = document.createElement('button');
+    b.className = 'sbtn';
+    b.innerHTML = item.label;
+    b.onclick = function() { handleQuery(item.query); };
+    d.appendChild(b);
+  });
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showTyping() {
+  var d = document.createElement('div');
+  d.className = 'msg typing';
+  d.id = 'typing';
+  d.textContent = 'En train d\'écrire...';
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+function removeTyping() {
+  var t = document.getElementById('typing');
+  if(t) t.remove();
+}
+
+function initChat() {
+  addMsg("Bonjour ! Je suis l'assistant du Forum de l'Officine 2026 🌿\nComment puis-je vous aider ?", 'bot');
+  addSuggestions([
+    {label:'<span class="material-symbols-rounded">event</span> Dates & lieu', query:'dates lieu'},
+    {label:'<span class="material-symbols-rounded">calendar_month</span> Programme', query:'programme sessions'},
+    {label:'<span class="material-symbols-rounded">how_to_reg</span> Inscription', query:'inscription'},
+    {label:'<span class="material-symbols-rounded">science</span> Workshops', query:'workshops'},
+    {label:'<span class="material-symbols-rounded">mic</span> Sessions Plénières', query:'pleniere'},
+    {label:'<span class="material-symbols-rounded">biotech</span> Labo du Forum', query:'labo du forum'},
+    {label:'<span class="material-symbols-rounded">school</span> MasterClass', query:'masterclass'},
+    {label:'<span class="material-symbols-rounded">park</span> Jardin Botanique', query:'Jardin botanique'},
+    {label:'<span class="material-symbols-rounded">emoji_events</span> Officine Awards', query:'awards'},
+    {label:'<span class="material-symbols-rounded">payments</span> Tarifs', query:'tarifs'},
+    {label:'<span class="material-symbols-rounded">call</span> Contact', query:'contact'},
+    {label:'<span class="material-symbols-rounded">nightlife</span> Nocturne', query:'nocturne'},
+    {label:'<span class="material-symbols-rounded">smartphone</span> Application', query:'application'},
+  ]);
+}
+
+function normalizeType(t) {
+  return (t||'').toLowerCase()
+    .replace(/\s/g,'')
+    .replace(/[éèê]/g,'e')
+    .replace(/[àâ]/g,'a')
+    .replace(/[ùû]/g,'u')
+    .replace(/[ôo]/g,'o');
+}
+
+function formatHeure(h) { return h ? h.substring(0,5) : ''; }
+
+function formatJour(dateStr) {
+  var jours = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  var mois = ['','Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'];
+  var d = new Date(dateStr);
+  if (isNaN(d)) return dateStr;
+  return jours[d.getDay()] + ' ' + d.getDate() + ' ' + mois[d.getMonth()+1];
+}
+
+function getSessionsByType(typeQuery) {
+  return SESSIONS.filter(function(s) {
+    return normalizeType(s.type||'').includes(normalizeType(typeQuery));
+  });
+}
+
+function buildSessionList(sessions, limit) {
+  limit = limit || 5;
+  if (!sessions.length) return "Aucune session trouvée pour le moment.";
+  var txt = '';
+  var count = 0;
+  sessions.forEach(function(s) {
+    if (count >= limit) return;
+    var hd = formatHeure(s.heure_debut);
+    var hf = formatHeure(s.heure_fin);
+    var jour = formatJour(s.jour);
+    txt += '📅 ' + jour + ' | ⏰ ' + hd + ' – ' + hf + '\n';
+    txt += '• ' + (s.titre||'');
+    if (s.intervenant) txt += '\n  👨‍⚕️ ' + s.intervenant;
+    if (s.salle) txt += '\n  📍 ' + s.salle;
+    txt += '\n\n';
+    count++;
+  });
+  if (sessions.length > limit) txt += '...et ' + (sessions.length - limit) + ' autres sessions.';
+  return txt.trim();
+}
+
+function getNextSession(typeQuery) {
+  var now = new Date();
+  var filtered = typeQuery ? getSessionsByType(typeQuery) : SESSIONS;
+  for (var i = 0; i < filtered.length; i++) {
+    var s = filtered[i];
+    var dt = new Date(s.jour + 'T' + (s.heure_debut||'00:00:00'));
+    if (dt > now) return s;
+  }
+  return filtered[0] || null;
+}
+
+function buildResponse(query) {
+  var q = query.toLowerCase()
+    .replace(/[éèê]/g,'e')
+    .replace(/[àâ]/g,'a')
+    .replace(/[ùû]/g,'u');
+
+  // Réponse fixe Sessions Plénières
+  if (q === 'pleniere') {
+    return "🎤 Sessions Plénières — Vendredi 1er Mai :\n⏰ 10:00–11:45 · Plénière 1 – La mise en place du Médicament Conseil en TUNISIE\n⏰ 12:00–13:00 · Symposium LIPP: Anthelios UVMUNE\n⏰ 13:00–14:00 · Cérémonie d'ouverture\n⏰ 15:00–16:00 · Talk Show Succes Story\n⏰ 15:30–17:00 · Table Ronde 1 – Prescription par DCI\n⏰ 17:00–18:00 · Symposium POLYPHARMA\n\n🎤 Sessions Plénières — Samedi 2 Mai :\n⏰ 10:00–11:45 · Plénière 2 – Pérennité de l'Officine\n⏰ 12:00–14:00 · Table Ronde 2 – Sécurité des médicaments vétérinaires\n⏰ 14:30–15:00 · E-health valley\n⏰ 15:15–16:00 · Conférence Innovation\n⏰ 16:30–17:30 · Cérémonie de clôture\n[LINK:PROGRAMME:🗓️ Voir le programme complet]";
+  }
+
+  // Prochaine session d'un type
+  if (q.includes('prochain') || q.includes('suivant') || q.includes('next')) {
+    var typeMap = {
+      'workshop': 'workshop', 'atelier': 'workshop',
+      'plen': 'pleniere', 'seance': 'pleniere',
+      'labo': 'labo', 'masterclass': 'masterclass', 'master': 'masterclass',
+      'Jardin': 'Jardinbotanique', 'botanique': 'Jardinbotanique',
+    };
+    var foundType = null;
+    Object.keys(typeMap).forEach(function(k) { if(q.includes(k)) foundType = typeMap[k]; });
+    var next = getNextSession(foundType);
+    if (next) {
+      var hd = formatHeure(next.heure_debut);
+      var hf = formatHeure(next.heure_fin);
+      return '⏭️ Prochaine session' + (foundType ? ' (' + (next.type||'') + ')' : '') + ' :\n\n' +
+        '📅 ' + formatJour(next.jour) + '\n' +
+        '⏰ ' + hd + ' – ' + hf + '\n' +
+        '• ' + (next.titre||'') + '\n' +
+        (next.intervenant ? '👨‍⚕️ ' + next.intervenant + '\n' : '') +
+        (next.salle ? '📍 ' + next.salle : '');
+    }
+    return "Aucune prochaine session trouvée.";
+  }
+
+  // Sessions par type
+  var typeMap2 = {
+    'workshop': 'Workshop', 'atelier': 'Workshop',
+    'seance pleniere': 'SessionsPlenières',
+    'labo du forum': 'LaboDuForum', 'labo': 'LaboDuForum',
+    'masterclass': 'MasterClass', 'master class': 'MasterClass', 'master': 'MasterClass',
+    'Jardin botanique': 'JardinBotanique', 'Jardin': 'JardinBotanique', 'botanique': 'JardinBotanique',
+  };
+  var foundSessions = null;
+  var foundLabel = '';
+  Object.keys(typeMap2).forEach(function(k) {
+    if (!foundSessions && q.includes(k)) {
+      foundSessions = getSessionsByType(typeMap2[k]);
+      foundLabel = typeMap2[k];
+    }
+  });
+  if (foundSessions) {
+    return '📋 Sessions ' + foundLabel + ' (' + foundSessions.length + ' au total) :\n\n' + buildSessionList(foundSessions, 4) + '\n[LINK:PROGRAMME:🗓️ Voir le programme complet]';
+  }
+
+  // Heure d'une session spécifique — cherche dans les titres
+  if (q.includes('heure') || q.includes('quand') || q.includes('horaire')) {
+    var words = q.split(' ').filter(function(w) { return w.length > 4; });
+    var found = null;
+    SESSIONS.forEach(function(s) {
+      if (found) return;
+      var titre = normalizeType(s.titre||'');
+      words.forEach(function(w) { if (!found && titre.includes(normalizeType(w))) found = s; });
+    });
+    if (found) {
+      return '⏰ Horaire de la session :\n\n' +
+        '📅 ' + formatJour(found.jour) + '\n' +
+        '⏰ ' + formatHeure(found.heure_debut) + ' – ' + formatHeure(found.heure_fin) + '\n' +
+        '• ' + found.titre + '\n' +
+        (found.intervenant ? '👨‍⚕️ ' + found.intervenant + '\n' : '') +
+        (found.salle ? '📍 ' + found.salle : '');
+    }
+  }
+
+  // FAQ statiques
+  var faqKeys = Object.keys(FAQ);
+  for (var i = 0; i < faqKeys.length; i++) {
+    var key = faqKeys[i];
+    var item = FAQ[key];
+    var keywords = item.keywords || [];
+    for (var j = 0; j < keywords.length; j++) {
+      if (q.includes(keywords[j])) return item.response;
+    }
+  }
+
+  return null;
+}
+
+function handleQuery(query) {
+  addMsg(query, 'user');
+  showTyping();
+  setTimeout(function() {
+    removeTyping();
+    var resp = buildResponse(query);
+    if (resp) {
+      addMsg(resp, 'bot');
+    } else {
+      addMsg("Un programme riche et varié vous attend. Consultez la rubrique Programme sur notre site web pour les détails.\n[LINK:PROGRAMME:🗓️ Programme]", 'bot');
+    }
+    addSuggestions([
+      {label:'<span class="material-symbols-rounded">science</span> Workshops', query:'workshops'},
+      {label:'<span class="material-symbols-rounded">mic</span> Sessions Plénières', query:'pleniere'},
+      {label:'<span class="material-symbols-rounded">park</span> Jardin Botanique', query:'Jardin botanique'},
+      {label:'<span class="material-symbols-rounded">skip_next</span> Prochaine session', query:'prochaine session'},
+      {label:'<span class="material-symbols-rounded">event</span> Dates', query:'dates lieu'},
+      {label:'<span class="material-symbols-rounded">call</span> Contact', query:'contact'},
+    ]);
+  }, 600);
+}
+
+function sendMsg() {
+  var input = document.getElementById('chat-input');
+  var text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  handleQuery(text);
+}
+</script>
+
+<!-- ═══════ HERO SLIDER ═══════ -->
+<section class="hero" id="hero">
+  <div class="slide active" id="slide-0">
+    <div class="slide-ph slide-ph-1"><img class="slide-img" src="imgs/img12.jpeg" alt="Forum de l'Officine"></div>
+  </div>
+  <div class="slide" id="slide-1">
+    <div class="slide-ph slide-ph-2"><img class="slide-img" src="imgs/img13.jpeg" alt="Forum de l'Officine"></div>
+  </div>
+  <div class="slide" id="slide-2">
+    <div class="slide-ph slide-ph-3"><img class="slide-img" src="imgs/img17.jpeg" alt="Forum de l'Officine"></div>
+  </div>
+  <div class="slide" id="slide-3">
+    <div class="slide-ph slide-ph-3"><img class="slide-img" src="imgs/img9.jpeg" alt="Forum de l'Officine"></div>
+  </div>
+  <div class="slide" id="slide-4">
+    <div class="slide-ph slide-ph-3"><img class="slide-img" src="imgs/img24.jpeg" alt="Forum de l'Officine"></div>
+  </div>
+
+  <div class="hero-overlay"></div>
+
+  <div class="hero-content">
+    <h1>Repenser l'officine à l'épreuve du temps <br> pour un modèle <br> équilibré et résilient</h1>
+    <p class="hero-date">01-02 MAI 2026</p>
+    <p class="hero-location">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor"/></svg>
+      Palais des Congrès de Tunis – Tunis    </p>
+    <div class="countdown">
+      <div class="cd-block"><span class="cd-num" id="cd-days">00</span><span class="cd-label">Jours</span></div>
+      <div class="cd-block"><span class="cd-num" id="cd-hours">00</span><span class="cd-label">Heures</span></div>
+      <div class="cd-block"><span class="cd-num" id="cd-mins">00</span><span class="cd-label">Minutes</span></div>
+      <div class="cd-block"><span class="cd-num" id="cd-secs">00</span><span class="cd-label">Secondes</span></div>
+    </div>
+    <a href="https://main.d17j5ouws4ciim.amplifyapp.com/formulaires/congressiste/3f6d7b9c1a2e4f5g6h7j8k9m0n1p2q3r" class="hero-btn">
+      S'inscrire
+      <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </div>
+
+  <img src="badge-8eme-forum.png" alt="8ème Forum de l'Officine" class="edition-badge" onerror="this.style.display='none'">
+
+  <div class="slider-dots" id="sliderDots" style="display:none;">
+    <span class="dot active" data-i="0"></span>
+    <span class="dot" data-i="1"></span>
+    <span class="dot" data-i="2"></span>
+  </div>
+
+  <!-- PARTENAIRES -->
+  <div class="partners-overlay">
+    <div class="partners-track">
+      <span class="partner-logo"><img src="/uploads/img_69b0efd3e3a6b.png" alt="vichy"></span><span class="partner-logo"><img src="/uploads/img_69b0efef02963.jpg" alt="l oreal"></span><span class="partner-logo"><img src="/uploads/img_69b0effa09ec1.png" alt="lrp"></span><span class="partner-logo"><img src="/uploads/img_69b0f0129b36d.png" alt="cerave"></span><span class="partner-logo"><img src="/uploads/img_69b5b17976c72.png" alt="01 hikma"></span><span class="partner-logo"><img src="/uploads/img_69b5b17eb6b67.png" alt="02 ramapharm"></span><span class="partner-logo"><img src="/uploads/img_69b5b199a1ba7.png" alt="05 gei"></span><span class="partner-logo"><img src="/uploads/img_69b5b19f06dcb.png" alt="06 sayderma"></span><span class="partner-logo"><img src="/uploads/img_69b5b1d96a1a4.png" alt="11 cotupha"></span><span class="partner-logo"><img src="/uploads/img_69b5b1e00d738.png" alt="12 aptamil"></span><span class="partner-logo"><img src="/uploads/img_69b5b1ffd6748.png" alt="03 dar essaydali"></span><span class="partner-logo"><img src="/uploads/img_69b5b21b93291.png" alt="06 curall"></span><span class="partner-logo"><img src="/uploads/img_69b5b22e4301a.png" alt="09 weebaby"></span><span class="partner-logo"><img src="/uploads/img_69b5b234b4680.png" alt="12 comar"></span><span class="partner-logo"><img src="/uploads/img_69b5b2390d440.png" alt="01 vital"></span><span class="partner-logo"><img src="/uploads/img_69b5b24b279e4.png" alt="j admire pharma"></span><span class="partner-logo"><img src="/uploads/img_69b5b2518b3ec.png" alt="polypharma"></span><span class="partner-logo"><img src="/uploads/img_69b5b25b771e4.png" alt="medis"></span><span class="partner-logo"><img src="/uploads/img_69b5b28f8342a.png" alt="03 novonordisk"></span><span class="partner-logo"><img src="/uploads/img_69b5b2a08e4f5.png" alt="04 pharmalys"></span><span class="partner-logo"><img src="/uploads/img_69b5b2a6be60e.png" alt="05 phytéal"></span><span class="partner-logo"><img src="/uploads/img_69b5b2ac10ffd.png" alt="06 opalia"></span><span class="partner-logo"><img src="/uploads/img_69b5b2b122feb.png" alt="07 atb"></span><span class="partner-logo"><img src="/uploads/img_69b5b2c3eef4a.png" alt="02 upsa"></span><span class="partner-logo"><img src="/uploads/img_69c6ad2458ad4.png" alt="farmavans"></span><span class="partner-logo"><img src="/uploads/img_69c6ad3f4901d.png" alt="04 pharmagreb"></span><span class="partner-logo"><img src="/uploads/img_69c6ad4f4356b.png" alt="03 biat"></span><span class="partner-logo"><img src="/uploads/img_69c6ad54e3bda.png" alt="07 dahlia"></span><span class="partner-logo"><img src="/uploads/img_69c6ad6506631.png" alt="04 laurus"></span><span class="partner-logo"><img src="/uploads/img_69c6ad6b292c4.png" alt="08 le naturel"></span><span class="partner-logo"><img src="/uploads/img_69c6ad78249b9.png" alt="05 sentinel data"></span><span class="partner-logo"><img src="/uploads/img_69c6ad7cdff14.png" alt="zein&amp;co"></span><span class="partner-logo"><img src="/uploads/img_69cd2cdc36ad7.png" alt="logo  2M"></span><span class="partner-logo"><img src="/uploads/img_69cd2fe1ee3df.png" alt="LIPP (1)"></span><span class="partner-logo"><img src="/uploads/img_69cd3086942cb.png" alt="07 pharmatec"></span><span class="partner-logo"><img src="/uploads/img_69cd308c024a3.png" alt="michel pierre"></span><span class="partner-logo"><img src="/uploads/img_69cd3093062ef.png" alt="aseptika"></span><span class="partner-logo"><img src="/uploads/img_69cd309a09174.png" alt="china pavillon logo"></span><span class="partner-logo"><img src="/uploads/img_69cd30a38dac4.png" alt="essentielles lab"></span><span class="partner-logo"><img src="/uploads/img_69d6869eb8a55.png" alt="zitouna takafol"></span><span class="partner-logo"><img src="/uploads/img_69b0efd3e3a6b.png" alt="vichy"></span><span class="partner-logo"><img src="/uploads/img_69b0efef02963.jpg" alt="l oreal"></span><span class="partner-logo"><img src="/uploads/img_69b0effa09ec1.png" alt="lrp"></span><span class="partner-logo"><img src="/uploads/img_69b0f0129b36d.png" alt="cerave"></span><span class="partner-logo"><img src="/uploads/img_69b5b17976c72.png" alt="01 hikma"></span><span class="partner-logo"><img src="/uploads/img_69b5b17eb6b67.png" alt="02 ramapharm"></span><span class="partner-logo"><img src="/uploads/img_69b5b199a1ba7.png" alt="05 gei"></span><span class="partner-logo"><img src="/uploads/img_69b5b19f06dcb.png" alt="06 sayderma"></span><span class="partner-logo"><img src="/uploads/img_69b5b1d96a1a4.png" alt="11 cotupha"></span><span class="partner-logo"><img src="/uploads/img_69b5b1e00d738.png" alt="12 aptamil"></span><span class="partner-logo"><img src="/uploads/img_69b5b1ffd6748.png" alt="03 dar essaydali"></span><span class="partner-logo"><img src="/uploads/img_69b5b21b93291.png" alt="06 curall"></span><span class="partner-logo"><img src="/uploads/img_69b5b22e4301a.png" alt="09 weebaby"></span><span class="partner-logo"><img src="/uploads/img_69b5b234b4680.png" alt="12 comar"></span><span class="partner-logo"><img src="/uploads/img_69b5b2390d440.png" alt="01 vital"></span><span class="partner-logo"><img src="/uploads/img_69b5b24b279e4.png" alt="j admire pharma"></span><span class="partner-logo"><img src="/uploads/img_69b5b2518b3ec.png" alt="polypharma"></span><span class="partner-logo"><img src="/uploads/img_69b5b25b771e4.png" alt="medis"></span><span class="partner-logo"><img src="/uploads/img_69b5b28f8342a.png" alt="03 novonordisk"></span><span class="partner-logo"><img src="/uploads/img_69b5b2a08e4f5.png" alt="04 pharmalys"></span><span class="partner-logo"><img src="/uploads/img_69b5b2a6be60e.png" alt="05 phytéal"></span><span class="partner-logo"><img src="/uploads/img_69b5b2ac10ffd.png" alt="06 opalia"></span><span class="partner-logo"><img src="/uploads/img_69b5b2b122feb.png" alt="07 atb"></span><span class="partner-logo"><img src="/uploads/img_69b5b2c3eef4a.png" alt="02 upsa"></span><span class="partner-logo"><img src="/uploads/img_69c6ad2458ad4.png" alt="farmavans"></span><span class="partner-logo"><img src="/uploads/img_69c6ad3f4901d.png" alt="04 pharmagreb"></span><span class="partner-logo"><img src="/uploads/img_69c6ad4f4356b.png" alt="03 biat"></span><span class="partner-logo"><img src="/uploads/img_69c6ad54e3bda.png" alt="07 dahlia"></span><span class="partner-logo"><img src="/uploads/img_69c6ad6506631.png" alt="04 laurus"></span><span class="partner-logo"><img src="/uploads/img_69c6ad6b292c4.png" alt="08 le naturel"></span><span class="partner-logo"><img src="/uploads/img_69c6ad78249b9.png" alt="05 sentinel data"></span><span class="partner-logo"><img src="/uploads/img_69c6ad7cdff14.png" alt="zein&amp;co"></span><span class="partner-logo"><img src="/uploads/img_69cd2cdc36ad7.png" alt="logo  2M"></span><span class="partner-logo"><img src="/uploads/img_69cd2fe1ee3df.png" alt="LIPP (1)"></span><span class="partner-logo"><img src="/uploads/img_69cd3086942cb.png" alt="07 pharmatec"></span><span class="partner-logo"><img src="/uploads/img_69cd308c024a3.png" alt="michel pierre"></span><span class="partner-logo"><img src="/uploads/img_69cd3093062ef.png" alt="aseptika"></span><span class="partner-logo"><img src="/uploads/img_69cd309a09174.png" alt="china pavillon logo"></span><span class="partner-logo"><img src="/uploads/img_69cd30a38dac4.png" alt="essentielles lab"></span><span class="partner-logo"><img src="/uploads/img_69d6869eb8a55.png" alt="zitouna takafol"></span>    </div>
+  </div>
+</section>
+
+<!-- ═══════ CHIFFRES CLÉS ═══════ -->
+<section class="stats" id="stats">
+  <div class="stats-layout">
+
+    <!-- Gauche : titre + 1er chiffre -->
+    <div class="stats-left">
+      <div class="stats-title">
+        <h2>CHIFFRES<br>CLÉS <span class="blue-dash"></span></h2>
+      </div>
+            <div class="stat-item" style="margin-top:40px; padding-left:0;">
+        <div class="stat-icon">
+          <img src="imgs/ic5.png" alt="Forum de l'Officine">
+        </div>
+        <div>
+          <div class="stat-num" data-target="4000">0</div>
+          <div class="stat-label">VISITEURS</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Droite : 2 colonnes -->
+    <div class="stats-right">
+      <!-- Carte Visiteurs : visible uniquement dans le slider mobile -->
+      <div class="stats-col stats-col-visitors">
+        <div class="stat-item">
+          <div class="stat-icon"><img src="imgs/ic5.png" alt="visiteur"></div>
+          <div>
+            <div class="stat-num" data-target="4000">0</div>
+            <div class="stat-label">VISITEURS</div>
+          </div>
+        </div>
+      </div>
+      <div class="stats-col">
+                        <div class="stat-item">
+          <div class="stat-icon"><img src="imgs/ic1.png" alt="Forum de l'Officine"></div>
+          <div>
+            <div class="stat-num" data-target="170">0</div>
+            <div class="stat-label">EXPOSANTS</div>
+          </div>
+        </div>
+                <div class="stat-item">
+          <div class="stat-icon"><img src="imgs/ic2.png" alt="Forum de l'Officine"></div>
+          <div>
+            <div class="stat-num" data-target="600">0</div>
+            <div class="stat-label">ÉTUDIANTS EN PHARMACIE</div>
+          </div>
+        </div>
+              </div>
+
+      <div class="stats-divider"></div>
+
+      <div class="stats-col">
+                <div class="stat-item">
+          <div class="stat-icon"><img src="imgs/ic3.png" alt="Forum de l'Officine"></div>
+          <div>
+            <div class="stat-num" data-target="1800">0</div>
+            <div class="stat-label">PHARMACIENS</div>
+          </div>
+        </div>
+                <div class="stat-item">
+          <div class="stat-icon"><img src="imgs/ic4.png" alt="Forum de l'Officine"></div>
+          <div>
+            <div class="stat-num" data-target="1500">0</div>
+            <div class="stat-label">UTILISATEURS  APPLICATION MOBILE</div>
+          </div>
+        </div>
+              </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════ THÈME SECTION ═══════ -->
+<section class="theme-section">
+  <div class="theme-card">
+    <p>
+      Thème de cette année "Repenser l'officine de demain pour un modèle résilient et équilibré" se veut dans l'air du temps : Face aux crises économiques, aux contraintes administratives et réglementaires, aux ruptures d'approvisionnement et aux évolutions rapides du marché.    </p>
+    <div class="theme-btns">
+      <a href="https://main.d17j5ouws4ciim.amplifyapp.com/formulaires/congressiste/3f6d7b9c1a2e4f5g6h7j8k9m0n1p2q3r" class="theme-btn">S'inscrire</a>
+      <p style="font-size:.75rem;font-weight:600;color:var(--dark);opacity:.65;margin-top:4px;margin-bottom:4px;letter-spacing:.05em;text-transform:uppercase;">Télécharger l'application du Forum</p>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:0;">
+        <a href="https://apps.apple.com/fr/app/forum-de-lofficine-2024/id1644768044" class="store-btn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          <div class="store-btn-text">
+            <span class="store-btn-sub">Télécharger sur</span>
+            <span class="store-btn-name">App Store</span>
+          </div>
+        </a>
+        <a href="https://play.google.com/store/apps/details?id=com.incept.forumOfficineApp" class="store-btn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76c.3.17.64.22.99.14l.1-.06 11.05-6.37-2.4-2.41-9.74 8.7zm14.35-8.27L14.6 12.5l2.93-2.93 3.28 1.9c.94.54.94 1.42 0 1.96l-3.28 1.06zM2.4.25C2.14.52 2 .95 2 1.52v20.97c0 .57.14 1 .4 1.27l.07.06 11.74-11.74v-.14L2.47.2 2.4.25zm9.28 9.77L3.18.27c.3-.17.65-.2.99-.1l.1.06 11.05 6.37-3.64 3.42z"/></svg>
+          <div class="store-btn-text">
+            <span class="store-btn-sub">Disponible sur</span>
+            <span class="store-btn-name">Google Play</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="theme-photo">
+    <div class="theme-photo-ph"><img src="imgs/bloc.png" alt="Balance"></div>
+  </div>
+</section>
+
+<!-- ═══════ PROGRAMME ═══════ -->
+<section class="programme">
+  <h2 class="programme-title">PRO<span class="title-dash"></span><br>GRAMME</h2>
+  <div class="cards-grid">
+    <div class="prog-card" id="card-0">
+      <div class="card-inner">
+        <div class="card-front">
+          <div class="card-picto"><img src="imgs/y1.png" alt="programme"></div>
+          <div class="card-bottom"><div class="card-number">01/</div><div class="card-name">Workshops</div></div>
+        </div>
+        <div class="card-back">
+          <div class="card-back-name">01/ Workshops</div>
+          <div class="card-back-text">Nos workshops sont des ateliers pratiques animés par des experts du secteur. Ils permettent aux participants d'apprendre à travers l'expérience, d'échanger des idées et de développer des compétences concrètes.</div>
+        </div>
+      </div>
+      <button class="card-flip-btn" onclick="flipCard('card-0')" id="btn-card-0">↗</button>
+    </div>
+    <div class="prog-card" id="card-1">
+      <div class="card-inner">
+        <div class="card-front">
+          <div class="card-picto"><img src="imgs/y2.png" alt="programme"></div>
+          <div class="card-bottom"><div class="card-number">02/</div><div class="card-name">Sessions Plénières</div></div>
+        </div>
+        <div class="card-back">
+          <div class="card-back-name">02/ Sessions Plénières</div>
+          <div class="card-back-text">Les sessions plénières rassemblent tous les participants autour de thématiques clés. Des intervenants de référence partagent leurs visions, analyses et perspectives sur les enjeux actuels du secteur.</div>
+        </div>
+      </div>
+      <button class="card-flip-btn" onclick="flipCard('card-1')" id="btn-card-1">↗</button>
+    </div>
+    <div class="prog-card" id="card-2">
+      <div class="card-inner">
+        <div class="card-front">
+          <div class="card-picto"><img src="imgs/y3.png" alt="programme"></div>
+          <div class="card-bottom"><div class="card-number">03/</div><div class="card-name">Labo Du Forum</div></div>
+        </div>
+        <div class="card-back">
+          <div class="card-back-name">03/ Labo Du Forum</div>
+          <div class="card-back-text">Le Labo du Forum est un espace d'innovation et d'expérimentation. Il met en avant des projets, des solutions technologiques et des idées novatrices à fort impact.</div>
+        </div>
+      </div>
+      <button class="card-flip-btn" onclick="flipCard('card-2')" id="btn-card-2">↗</button>
+    </div>
+    <div class="prog-card" id="card-3">
+      <div class="card-inner">
+        <div class="card-front">
+          <div class="card-picto"><img src="imgs/y4.png" alt="programme"></div>
+          <div class="card-bottom"><div class="card-number">04/</div><div class="card-name">Masterclass</div></div>
+        </div>
+        <div class="card-back">
+          <div class="card-back-name">04/ Masterclass</div>
+          <div class="card-back-text">Les master class sont des sessions approfondies animées par des experts reconnus. Elles offrent une approche stratégique et détaillée pour maîtriser des thématiques spécifiques.</div>
+        </div>
+      </div>
+      <button class="card-flip-btn" onclick="flipCard('card-3')" id="btn-card-3">↗</button>
+    </div>
+    <div class="prog-card" id="card-4">
+      <div class="card-inner">
+        <div class="card-front">
+          <div class="card-picto"><img src="imgs/y1.png" alt="Jardin botanique"></div>
+          <div class="card-bottom"><div class="card-number">05/</div><div class="card-name">Jardin Botanique</div></div>
+        </div>
+        <div class="card-back">
+          <div class="card-back-name">05/ Jardin Botanique</div>
+          <div class="card-back-text">Le Jardin Botanique, la nouveauté du Forum de l'Officine 2026. Découvrez un mini-village vivant où la richesse botanique tunisienne se raconte à travers les plantes médicinales et les gestes ancestraux. Des ateliers pratiques et une expérience sensorielle et authentique.</div>
+        </div>
+      </div>
+      <button class="card-flip-btn" onclick="flipCard('card-4')" id="btn-card-4">↗</button>
+    </div>
+  </div>
+  <div class="prog-cta-wrap">
+    <a href="programme.php" class="prog-cta">Voir le programme</a>
+  </div>
+</section>
+
+<!-- ═══════ VIDEO ═══════ -->
+<section class="video-section">
+  <div class="video-wrapper">
+    <iframe
+    
+      src="https://www.youtube.com/embed/fV_5micN0jg?si=mYiod6bmUQrd8Hjx"
+      title="Forum de l'Officine"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowfullscreen
+      style="width:100%;height:100%;position:absolute;top:0;left:0;">
+    </iframe>
+  </div>
+</section>
+
+<!-- ═══════ ÉDITIONS PRÉCÉDENTES ═══════ -->
+<section class="editions">
+  <h2 class="editions-title">ÉDITIONS PRÉCÉDENTES</h2>
+  <div class="editions-track-wrap">
+    <div class="editions-track">
+            <div class="edition-item"><img src="imgs/img1.jpeg" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div class="edition-item"><img src="imgs/img2.jpeg" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div class="edition-item"><img src="imgs/img3.jpeg" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div class="edition-item"><img src="imgs/img4.jpeg" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div class="edition-item"><img src="imgs/img5.jpeg" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div class="edition-item"><img src="imgs/img6.jpeg" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div class="edition-item"><img src="imgs/img7.jpeg" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div class="edition-item"><img src="imgs/img8.jpeg" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div class="edition-item"><img src="imgs/img9.jpeg" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div class="edition-item"><img src="imgs/img10.jpeg" style="width:100%;height:100%;object-fit:cover;"></div>
+                  <div class="edition-item"><img src="imgs/img1.jpeg" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div class="edition-item"><img src="imgs/img2.jpeg" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div class="edition-item"><img src="imgs/img3.jpeg" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div class="edition-item"><img src="imgs/img4.jpeg" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div class="edition-item"><img src="imgs/img5.jpeg" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div class="edition-item"><img src="imgs/img6.jpeg" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div class="edition-item"><img src="imgs/img7.jpeg" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div class="edition-item"><img src="imgs/img8.jpeg" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div class="edition-item"><img src="imgs/img9.jpeg" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div class="edition-item"><img src="imgs/img10.jpeg" style="width:100%;height:100%;object-fit:cover;"></div>
+          </div>
+  </div>
+</section>
+
+<!-- ═══════ FOOTER ═══════ -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <a href="accueil-forum-officine.php" class="footer-logo">
+        <img src="imgs/logo.png" alt="Forum de l'Officine — Logo officiel" width="150px">
+      </a>
+      <p class="footer-copy">Copyright : 2026<br>All rights reserved.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <div class="footer-contact-item">
+        <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        4, rue Moussa Ibn Noussair Tunis, Belvédère 1082
+      </div>
+      <div class="footer-contact-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        forum@spot.tn
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Liens de navigation</h4>
+      <ul>
+        <li><a href="forum-officine.php">Le Forum</a></li>
+        <li><a href="programme.php">Programme</a></li>
+        <li><a href="exposition-forum-officine.php">Exposition</a></li>
+        <li><a href="en-travaux.php">Infos Pratiques</a></li>
+        <li><a href="award-forum-officine.php">Officine Awards</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-social">
+        <a href="https://www.facebook.com/forum.officine" class="social-icon" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        </a>
+        <a href="https://www.instagram.com/forumde_lofficine" class="social-icon" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </a>
+      </div>
+      <p class="footer-social-text">Suivez-nous sur nos réseaux sociaux</p>
+      <p style="font-size:.72rem;font-weight:600;color:rgba(26,24,25,.6);margin-top:16px;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;">Application du Forum</p>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+        <a href="https://apps.apple.com/fr/app/forum-de-lofficine-2024/id1644768044" class="store-btn" style="background:#1A1819;padding:6px 12px;border-radius:8px;width:fit-content;">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;flex-shrink:0"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          <div class="store-btn-text"><span style="font-size:.52rem;font-weight:400;opacity:.7;">Télécharger sur</span><span style="font-size:.72rem;font-weight:700;">App Store</span></div>
+        </a>
+        <a href="https://play.google.com/store/apps/details?id=com.incept.forumOfficineApp" class="store-btn" style="background:#1A1819;padding:6px 12px;border-radius:8px;width:fit-content;">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;flex-shrink:0"><path d="M3.18 23.76c.3.17.64.22.99.14l.1-.06 11.05-6.37-2.4-2.41-9.74 8.7zm14.35-8.27L14.6 12.5l2.93-2.93 3.28 1.9c.94.54.94 1.42 0 1.96l-3.28 1.06zM2.4.25C2.14.52 2 .95 2 1.52v20.97c0 .57.14 1 .4 1.27l.07.06 11.74-11.74v-.14L2.47.2 2.4.25zm9.28 9.77L3.18.27c.3-.17.65-.2.99-.1l.1.06 11.05 6.37-3.64 3.42z"/></svg>
+          <div class="store-btn-text"><span style="font-size:.52rem;font-weight:400;opacity:.7;">Disponible sur</span><span style="font-size:.72rem;font-weight:700;">Google Play</span></div>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+
+
+// ── HERO SLIDER ──
+const slides = document.querySelectorAll('.slide');
+const dots   = document.querySelectorAll('.dot');
+let current  = 0;
+let timer    = null;
+function goTo(n) {
+  slides[current].classList.remove('active');
+  slides[current].classList.add('exit');
+  const prev = current;
+  setTimeout(() => slides[prev].classList.remove('exit'), 800);
+  if (dots[current]) dots[current].classList.remove('active');
+  current = (n + slides.length) % slides.length;
+  slides[current].classList.add('active');
+  if (dots[current]) dots[current].classList.add('active');
+}
+timer = setInterval(() => goTo(current + 1), 3000);
+dots.forEach(d => d.addEventListener('click', () => {
+  clearInterval(timer);
+  goTo(+d.dataset.i);
+  timer = setInterval(() => goTo(current + 1), 3000);
+}));
+
+// ── COUNTDOWN ──
+const eventDate = new Date('2026-05-01T09:00:00');
+function tick() {
+  const diff = eventDate - new Date();
+  if (diff <= 0) {
+    ['cd-days','cd-hours','cd-mins','cd-secs'].forEach(id => document.getElementById(id).textContent = '00');
+    return;
+  }
+  document.getElementById('cd-days').textContent  = String(Math.floor(diff/86400000)).padStart(2,'0');
+  document.getElementById('cd-hours').textContent = String(Math.floor((diff%86400000)/3600000)).padStart(2,'0');
+  document.getElementById('cd-mins').textContent  = String(Math.floor((diff%3600000)/60000)).padStart(2,'0');
+  document.getElementById('cd-secs').textContent  = String(Math.floor((diff%60000)/1000)).padStart(2,'0');
+}
+tick(); setInterval(tick, 1000);
+
+// ── STAT COUNTER ──
+function animateNum(el) {
+  if (el._done) return;
+  el._done = true;
+  const target = +el.dataset.target;
+  let cur = 0;
+  const inc = target / 80;
+  const t = setInterval(() => {
+    cur = Math.min(cur + inc, target);
+    el.textContent = Math.floor(cur).toLocaleString();
+    if (cur >= target) { el.textContent = target.toLocaleString(); clearInterval(t); }
+  }, 16);
+}
+const statObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    const numEl = e.target.querySelector('.stat-num');
+    if (numEl) animateNum(numEl);
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.stat-item').forEach(el => statObserver.observe(el));
+window.addEventListener('load', () => {
+  document.querySelectorAll('.stat-num').forEach(el => {
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight) animateNum(el);
+  });
+});
+
+// ── CARD FLIP ──
+function flipCard(id) {
+  const card = document.getElementById(id);
+  card.classList.toggle('flipped');
+  const btn = document.getElementById('btn-' + id);
+  btn.textContent = card.classList.contains('flipped') ? '↙' : '↗';
+}
+
+// ── VIDEO ──
+// Remplacée par iframe YouTube
+</script>
+</body>
+</html>
