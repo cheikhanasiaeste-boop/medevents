@@ -1,6 +1,6 @@
 # MedEvents TODO
 
-_Last updated: 2026-04-24 — W3.2h (`fdi_wdc`) shipped end-to-end; mainline now has four curated sources, Playwright option D, and clean DB-test hygiene. The only required next step is still W3.2d live Fly deploy, and the blocker remains Fly billing/payment setup._
+_Last updated: 2026-04-24 — W3.2i (`eao_congress`) shipped end-to-end; mainline now has five curated sources, Playwright option D, and clean DB-test hygiene. The only required next step is still W3.2d live Fly deploy, and the blocker remains Fly billing/payment setup._
 
 ## Now
 
@@ -30,8 +30,8 @@ Attempted on 2026-04-23 and re-checked on 2026-04-24: `fly auth login` + `fly au
 
 The autonomous queue is clear again. Optional waves that no longer block product value:
 
-- European specialty/source expansion (`eao_congress`) — operator discretion.
 - Generic fallback parser — operator discretion.
+- Additional curated-source expansion — operator discretion.
 
 ## Open decisions
 
@@ -43,16 +43,17 @@ _None._ On 2026-04-23 we chose **option D** and wired it into the repo:
 
 ## Next
 
-_No user-gated work remains. Further progress is either operator action (enable Fly billing, then complete W3.2d deploy) or optional source-expansion work._
+_No user-gated work remains. Further progress is either operator action (enable Fly billing, then complete W3.2d deploy) or optional follow-on parser/source work._
 
 ## Later
 
-- [ ] Generic fallback parser (W3.2+) — deferred until a third curated source either lands or proves infeasible.
+- [ ] Generic fallback parser (W3.2+) — deferred until the curated-parser lane stops paying for itself or a target source clearly needs fallback extraction.
 - [ ] Add broader regional sources only after the core dental lane is stable.
 - [ ] Revisit intelligence-platform layers only if the MVP surfaces concrete pain (search scale, parser maintenance, dedupe ambiguity, operator workflow, partner API).
 
 ## Shipped on Main
 
+- [x] W3.2i fifth curated source: EAO Congress (`eao_congress`) — new source-specific parser in [`parsers/eao.py`](../services/ingest/medevents_ingest/parsers/eao.py), config seed in [`sources.yaml`](../config/sources.yaml), 8 new tests (6 parser + 2 DB-gated pipeline), fixture/prep docs in [`eao-fixtures.md`](runbooks/eao-fixtures.md), and live smoke against the official EAO hub + 2026 microsite. First run: `source=eao_congress fetched=2 skipped_unchanged=0 created=3 updated=1 review_items=0`; final unchanged rerun after widening hub normalization: `skipped_unchanged=2 created=0 updated=0`. Repo-wide ingest suite now at 155 passed. See [`w3.2i-done-confirmation.md`](runbooks/w3.2i-done-confirmation.md).
 - [x] W3.2h fourth curated source: FDI World Dental Congress (`fdi_wdc`) — new source-specific parser in [`parsers/fdi.py`](../services/ingest/medevents_ingest/parsers/fdi.py), config seed in [`sources.yaml`](../config/sources.yaml), 8 new tests (6 parser + 2 DB-gated pipeline), fixture/prep docs in [`fdi-fixtures.md`](runbooks/fdi-fixtures.md), and live smoke against the official site. First run: `source=fdi_wdc fetched=2 skipped_unchanged=0 created=1 updated=1 review_items=0`; re-run: `skipped_unchanged=2 created=0 updated=0`. Repo-wide ingest suite now at 147 passed. See [`w3.2h-done-confirmation.md`](runbooks/w3.2h-done-confirmation.md).
 - [x] Playwright CI option D — admin-login spec now runs in CI on every PR/push via [`ci.yml`](../.github/workflows/ci.yml); full happy-path smoke moved to [`nightly-smoke.yml`](../.github/workflows/nightly-smoke.yml) (nightly + manual dispatch) with deterministic fixtures seeded by [`apps/web/scripts/seed-happy-path-smoke.mjs`](../apps/web/scripts/seed-happy-path-smoke.mjs). The happy-path spec now targets the ADA row explicitly instead of the first `Open` link.
 - [x] Remaining DB-gated ingest test hygiene — the six older pipeline/repository suites now gate on `TEST_DATABASE_URL` and use the same `_alias_test_database_url` fixture pattern as the newer DB-gated modules, so no ingest test suite TRUNCATEs the dev DB anymore. Verified with `cd services/ingest && DATABASE_URL=postgresql://…@localhost:5432/medevents TEST_DATABASE_URL=postgresql://…@localhost:5432/medevents_test uv run pytest -q` → 139 passed.
