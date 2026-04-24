@@ -8,7 +8,7 @@
 #     (ada, gnydm)
 #   - single-flagship meetings: abbreviation + event slug, snake_case
 #     (aap_annual_meeting, fdi_wdc, eao_congress, cds_midwinter, dentex_algeria,
-#      morocco_dental_expo)
+#      morocco_dental_expo, europerio)
 
 - code: ada
   name: American Dental Association
@@ -171,3 +171,24 @@
     English practical-information page. Operator should update the 2026
     title/date gate and seed URLs in parsers/morocco_dental_expo.py when the
     source rolls to the 2027 edition.
+
+- code: europerio
+  name: EuroPerio
+  homepage_url: https://www.efp.org/europerio/
+  source_type: society
+  country_iso: DE
+  is_active: true
+  parser_name: europerio
+  crawl_frequency: monthly
+  crawl_config:
+    seed_urls:
+      - https://www.efp.org/europerio/
+      - https://www.efp.org/europerio/europerio12/
+    pagination: none
+    rate_limit_per_minute: 6
+  notes: |
+    EuroPerio12 / 2028 onboarding. The official EFP EuroPerio hub is paired
+    with the public EuroPerio12 detail page so the source stays stable while
+    still deduping to one canonical event row. Operator should update the
+    detail seed URL and 2028 title/date gate in parsers/europerio.py when the
+    next EuroPerio edition replaces EuroPerio12.
